@@ -1,41 +1,30 @@
-# 🎾 RallyGlass — Racquet Sports Scoring
+# 🏆 RallyGlass — Tournament Scores
 
-A liquid-glass, app-style scorer for racquet sports. Record matches **point by
-point** during play, or run **tournaments with categories** and let the app
-crown the champion.
+A liquid-glass, app-style scoreboard for **one racquet-sports tournament**.
+Create categories, add team names, record end scores — the app keeps
+standings per category and crowns the tournament champion.
 
-Supports **Tennis, Padel, Pickleball, Badminton, and Squash** — singles or
-doubles, traditional or fully custom scoring.
+Sports supported per category: **Tennis, Padel, Pickleball, Badminton, Squash**.
 
-## Features
+## How it works
 
-### 🎾 Live tab — point-by-point scoring
-- **Singles or doubles** — name every player; doubles teams show as "A & B".
-- **Traditional scoring** per sport:
-  - *Tennis / Padel* — 15/30/40, deuce (advantage **or golden point**), games,
-    sets, tiebreak at 6-6, best of 3 or 5 sets, real serve rotation
-    (alternating games, tiebreak pattern).
-  - *Pickleball* — to 11, win by 2, **point on serve only (side-out)**, best of 3.
-  - *Badminton* — rally to 21, cap 30, best of 3.
-  - *Squash* — rally to 11, win by 2, best of 5.
-- **Alternate scoring** — build your own format for any sport:
-  - play up to any score,
-  - single game / best of 3 / best of 5,
-  - **point on any serve (rally)** or **point on serve only (side-out)**,
-  - deuce as **advantage (win by 2)** or **golden point (sudden death)**.
-- Serve tracking with a live **SERVING** indicator, pick who serves first.
-- **Match point badge**, undo any point, save finished matches to History.
+### 🏆 Overview tab
+- Name (and rename) your tournament.
+- At-a-glance stats: categories, finished, teams, matches.
+- **Leaderboard of category wins** — whoever wins the most categories wins
+  the tournament. When every category is finished, the champion is crowned
+  automatically (ties share the title).
+- Danger zone: wipe everything and start a new tournament.
 
-### 🏆 Tournaments tab — categories & champions
-- Create a tournament, then add **categories** (e.g. Men's Singles, Mixed
-  Doubles) — each with its own sport, **team names**, results and standings.
-- Record end scores per category; standings rank by wins → point difference.
-- **Finish** a category to lock its winner. The tournament **leaderboard
-  counts category wins — whoever wins the most categories wins the
-  tournament** (crowned automatically when every category is finished).
+### 🗂️ Categories tab
+- Add categories (e.g. Men's Singles, Mixed Doubles), each with a sport.
+- Inside a category: add/remove **team names**, record match end scores,
+  and watch the **standings** (played, won, lost, points for/against,
+  difference, 2 points per win; ranked by wins → point difference).
+- **Finish** a category to lock in its winner (reopen any time).
 
-### 📜 History tab
-- Every saved match with score line, format and rules used.
+### 📜 Results tab
+- Every recorded match across all categories, newest first.
 
 ## Running it
 
@@ -48,7 +37,7 @@ python3 -m http.server 8000   # http://localhost:8000
 ```
 
 All data lives in your browser (`localStorage`): works offline, survives
-reloads (including a live match in progress), nothing leaves your device.
+reloads, nothing leaves your device.
 
 ## Hosting on GitHub Pages
 
@@ -61,4 +50,4 @@ reloads (including a live match in progress), nothing leaves your device.
 
 | File | Purpose |
 |------|---------|
-| `index.html` | The entire app — HTML, liquid-glass CSS and all scoring/tournament JS |
+| `index.html` | The entire app — HTML, liquid-glass CSS and tournament JS |
