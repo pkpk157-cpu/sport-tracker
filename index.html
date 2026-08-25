@@ -2,14 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
   <meta name="theme-color" content="#0b1026" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>RallyGlass — Racquet Sports Scoring</title>
   <style>
 /* ============================================================
-   RallyGlass — Liquid Glass theme
+   RallyGlass — Liquid Glass theme (app edition)
    ============================================================ */
-
 :root {
   --glass-bg: rgba(255, 255, 255, 0.10);
   --glass-bg-strong: rgba(255, 255, 255, 0.16);
@@ -21,6 +22,7 @@
   --accent: #7bdcff;
   --accent-2: #b98cff;
   --good: #5ff0b0;
+  --gold: #ffd479;
   --bad: #ff7a97;
   --radius: 26px;
   --radius-sm: 16px;
@@ -29,9 +31,7 @@
 }
 
 * { box-sizing: border-box; }
-
 html, body { height: 100%; }
-
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
@@ -41,26 +41,18 @@ body {
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* ---------- animated backdrop ---------- */
 .bg {
-  position: fixed;
-  inset: 0;
-  z-index: -2;
+  position: fixed; inset: 0; z-index: -2;
   background:
     radial-gradient(1200px 800px at 80% -10%, #1b2a6b 0%, transparent 60%),
     radial-gradient(1000px 900px at -10% 110%, #3a1a5e 0%, transparent 55%),
     linear-gradient(160deg, #0b1026 0%, #0e1330 45%, #120a2a 100%);
 }
-.blob {
-  position: fixed;
-  border-radius: 50%;
-  filter: blur(60px);
-  opacity: 0.55;
-  z-index: -1;
-  will-change: transform;
-}
+.blob { position: fixed; border-radius: 50%; filter: blur(60px); opacity: 0.55; z-index: -1; will-change: transform; }
 .b1 { width: 46vmax; height: 46vmax; left: -8vmax; top: -10vmax;
   background: radial-gradient(circle at 30% 30%, #4d7bff, transparent 70%);
   animation: drift1 22s ease-in-out infinite; }
@@ -73,14 +65,10 @@ body {
 .b4 { width: 30vmax; height: 30vmax; right: 10vmax; bottom: -8vmax;
   background: radial-gradient(circle at 50% 50%, #ff7ac0, transparent 70%);
   animation: drift1 34s ease-in-out infinite reverse; }
-
 @keyframes drift1 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(6vmax, 4vmax) scale(1.1); } }
 @keyframes drift2 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-5vmax, 6vmax) scale(1.08); } }
 @keyframes drift3 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(4vmax, -5vmax) scale(1.12); } }
-
-@media (prefers-reduced-motion: reduce) {
-  .blob { animation: none; }
-}
+@media (prefers-reduced-motion: reduce) { .blob { animation: none; } }
 
 /* ---------- glass surface ---------- */
 .glass {
@@ -94,65 +82,73 @@ body {
     inset 0 -1px 1px rgba(0, 0, 0, 0.18);
 }
 
-/* ---------- layout ---------- */
+/* ---------- app chrome ---------- */
 .app-header {
-  position: sticky;
-  top: 12px;
-  z-index: 20;
-  margin: 14px auto 0;
-  max-width: 860px;
-  padding: 14px 18px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-  width: calc(100% - 28px);
+  position: sticky; top: 10px; z-index: 20;
+  margin: 12px auto 0; max-width: 640px;
+  padding: 10px 16px;
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  width: calc(100% - 24px);
 }
-.brand { display: flex; align-items: center; gap: 12px; }
+.brand { display: flex; align-items: center; gap: 11px; }
 .brand-mark {
-  width: 46px; height: 46px; border-radius: 14px;
-  display: grid; place-items: center; font-size: 24px;
+  width: 38px; height: 38px; border-radius: 12px;
+  display: grid; place-items: center; font-size: 20px;
   background: linear-gradient(150deg, rgba(255,255,255,.25), rgba(255,255,255,.05));
   border: 1px solid var(--glass-border);
   box-shadow: inset 0 1px 0 var(--glass-highlight);
 }
-.brand-text h1 { margin: 0; font-size: 20px; letter-spacing: .2px; }
-.brand-text p { margin: 2px 0 0; font-size: 12px; color: var(--text-dim); }
-
-.tabs { display: flex; gap: 6px; padding: 5px; border-radius: 999px;
-  background: rgba(0,0,0,.18); border: 1px solid rgba(255,255,255,.14); }
-.tab {
-  appearance: none; border: 0; cursor: pointer; color: var(--text-dim);
-  background: transparent; padding: 9px 16px; border-radius: 999px;
-  font-size: 14px; font-weight: 600; transition: all .2s ease;
-}
-.tab:hover { color: var(--text); }
-.tab.is-active {
-  color: #0b1026;
-  background: linear-gradient(150deg, #eaf3ff, #cfe0ff);
-  box-shadow: 0 6px 16px rgba(120,170,255,.35);
-}
+.brand-text h1 { margin: 0; font-size: 17px; letter-spacing: .2px; }
+.brand-text p { margin: 1px 0 0; font-size: 11px; color: var(--text-dim); }
 
 .app-main {
-  max-width: 860px;
-  margin: 18px auto 40px;
-  width: calc(100% - 28px);
+  max-width: 640px; margin: 16px auto 0;
+  width: calc(100% - 24px);
+  padding-bottom: calc(96px + env(safe-area-inset-bottom));
 }
 .tab-panel { display: none; }
 .tab-panel.is-active { display: block; animation: fade .3s ease; }
 @keyframes fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
-.app-footer { text-align: center; color: var(--text-faint); font-size: 12px; padding: 0 16px 30px; }
+/* ---------- bottom tab bar ---------- */
+.bottom-nav {
+  position: fixed; left: 50%; bottom: calc(10px + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  z-index: 40;
+  width: min(400px, calc(100% - 24px));
+  display: flex; justify-content: space-around; align-items: stretch;
+  padding: 8px 8px;
+  border-radius: 26px;
+  background: rgba(14, 18, 44, 0.55);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow), inset 0 1px 0 var(--glass-highlight);
+}
+.bnav {
+  appearance: none; border: 0; background: transparent; cursor: pointer;
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 7px 4px 6px; border-radius: 18px; color: var(--text-faint);
+  font-family: inherit; font-size: 10.5px; font-weight: 700; letter-spacing: .4px;
+  transition: all .2s ease;
+}
+.bnav .ico { font-size: 21px; line-height: 1; filter: grayscale(.6) opacity(.75); transition: all .2s ease; }
+.bnav.is-active {
+  color: #0b1026;
+  background: linear-gradient(150deg, #eaf3ff, #cfe0ff);
+  box-shadow: 0 6px 18px rgba(120,170,255,.4);
+}
+.bnav.is-active .ico { filter: none; }
+.bnav:not(.is-active):hover { color: var(--text-dim); }
 
 /* ---------- cards & generic ---------- */
-.card { padding: 22px; margin-bottom: 18px; }
+.card { padding: 20px; margin-bottom: 16px; }
 .card h2 { margin: 0 0 4px; font-size: 18px; }
-.card .sub { margin: 0 0 18px; color: var(--text-dim); font-size: 13px; }
-.section-title { font-size: 13px; text-transform: uppercase; letter-spacing: 1.2px;
+.card .sub { margin: 0 0 16px; color: var(--text-dim); font-size: 13px; }
+.section-title { font-size: 12px; text-transform: uppercase; letter-spacing: 1.2px;
   color: var(--text-faint); margin: 0 0 10px; }
 
-.field { margin-bottom: 14px; }
+.field { margin-bottom: 12px; }
 .field label { display: block; font-size: 12px; color: var(--text-dim);
   margin-bottom: 6px; letter-spacing: .3px; }
 
@@ -168,13 +164,29 @@ input:focus, select:focus { outline: none; border-color: var(--accent);
   background: rgba(255,255,255,.13); }
 select option { color: #10142c; }
 
+/* segmented control */
+.seg { display: flex; gap: 4px; padding: 4px; border-radius: 14px;
+  background: rgba(0,0,0,.2); border: 1px solid rgba(255,255,255,.13); }
+.seg button {
+  appearance: none; border: 0; cursor: pointer; flex: 1;
+  color: var(--text-dim); background: transparent;
+  padding: 9px 8px; border-radius: 10px;
+  font-family: inherit; font-size: 13px; font-weight: 600;
+  transition: all .18s ease; white-space: nowrap;
+}
+.seg button.is-active {
+  color: #0b1026;
+  background: linear-gradient(150deg, #eaf3ff, #cfe0ff);
+  box-shadow: 0 4px 12px rgba(120,170,255,.3);
+}
+
 /* ---------- buttons ---------- */
 .btn {
   appearance: none; cursor: pointer; font-family: inherit; font-weight: 600;
   font-size: 15px; color: var(--text); padding: 12px 18px; border-radius: 14px;
   background: var(--glass-bg-strong); border: 1px solid var(--glass-border);
   box-shadow: inset 0 1px 0 var(--glass-highlight);
-  transition: transform .12s ease, background .2s ease, box-shadow .2s;
+  transition: transform .12s ease, background .2s ease;
 }
 .btn:hover { background: rgba(255,255,255,.22); }
 .btn:active { transform: scale(.97); }
@@ -189,14 +201,13 @@ select option { color: #10142c; }
 .btn.small { padding: 8px 12px; font-size: 13px; border-radius: 11px; }
 .btn.block { width: 100%; }
 .btn:disabled { opacity: .4; cursor: not-allowed; }
-.btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
 
 /* ---------- sport picker ---------- */
-.sport-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px,1fr)); gap: 10px; margin-bottom: 6px; }
+.sport-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(105px,1fr)); gap: 9px; }
 .sport-chip {
-  cursor: pointer; text-align: left; padding: 14px; border-radius: var(--radius-sm);
+  cursor: pointer; text-align: left; padding: 12px; border-radius: var(--radius-sm);
   background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.16);
-  transition: all .18s ease;
+  transition: all .18s ease; font-family: inherit; color: var(--text);
 }
 .sport-chip:hover { background: rgba(255,255,255,.12); }
 .sport-chip.is-active {
@@ -204,77 +215,84 @@ select option { color: #10142c; }
   background: linear-gradient(150deg, rgba(155,232,255,.22), rgba(169,155,255,.14));
   box-shadow: 0 8px 20px rgba(120,170,255,.25);
 }
-.sport-chip .ico { font-size: 22px; }
-.sport-chip .nm { font-weight: 700; margin-top: 6px; }
-.sport-chip .ds { font-size: 11px; color: var(--text-dim); margin-top: 2px; line-height: 1.35; }
+.sport-chip .ico { font-size: 20px; }
+.sport-chip .nm { font-weight: 700; margin-top: 5px; font-size: 13.5px; }
 
 /* ---------- scoreboard ---------- */
 .scoreboard { padding: 0; overflow: hidden; }
-.sb-top { display: flex; align-items: center; justify-content: space-between;
-  padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,.12); }
-.sb-top .meta { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-dim); }
-.sb-top .meta .ico { font-size: 18px; }
-.badge { font-size: 11px; padding: 4px 10px; border-radius: 999px;
+.sb-top { display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 14px 18px; border-bottom: 1px solid rgba(255,255,255,.12); flex-wrap: wrap; }
+.sb-top .meta { display: flex; align-items: center; gap: 9px; font-size: 13px; color: var(--text-dim); }
+.sb-top .meta .ico { font-size: 17px; }
+.badge { font-size: 10.5px; padding: 4px 10px; border-radius: 999px;
   background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.18); color: var(--text-dim); }
+.badge.mp { color: #0b1026; font-weight: 800; border: 0;
+  background: linear-gradient(150deg, #ffd479, #ffb35c);
+  box-shadow: 0 4px 14px rgba(255,190,90,.4);
+  animation: pulse 1.4s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.07); } }
 
-.sb-players { display: grid; grid-template-columns: 1fr; }
-.sb-row {
-  display: grid; grid-template-columns: 1fr auto; align-items: center;
-  gap: 14px; padding: 18px 20px;
-}
+.sb-row { display: grid; grid-template-columns: 1fr auto; align-items: center;
+  gap: 12px; padding: 16px 18px; }
 .sb-row + .sb-row { border-top: 1px solid rgba(255,255,255,.1); }
-.sb-row.serve .name::before { content: "●"; color: var(--good); font-size: 10px; margin-right: 8px; vertical-align: middle; }
 .sb-row.winner { background: linear-gradient(90deg, rgba(95,240,176,.14), transparent); }
 .sb-name { min-width: 0; }
-.sb-name .name { font-size: 18px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.sb-name .tag { font-size: 11px; color: var(--good); font-weight: 700; letter-spacing: .5px; }
+.sb-name .name { font-size: 17px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sb-name .tag { font-size: 10.5px; font-weight: 700; letter-spacing: .5px; margin-top: 2px; }
+.sb-name .tag.win { color: var(--good); }
+.sb-name .tag.serve { color: var(--accent); }
+.serve-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  background: var(--good); margin-right: 7px; vertical-align: 2px;
+  box-shadow: 0 0 8px var(--good); }
 
-.sb-scores { display: flex; align-items: center; gap: 10px; }
-.sb-cell { min-width: 30px; text-align: center; }
-.sb-cell .lbl { font-size: 9px; color: var(--text-faint); text-transform: uppercase; letter-spacing: .6px; }
-.sb-cell .val { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.sb-scores { display: flex; align-items: center; gap: 9px; }
+.sb-cell { min-width: 28px; text-align: center; }
+.sb-cell .lbl { font-size: 8.5px; color: var(--text-faint); text-transform: uppercase; letter-spacing: .6px; }
+.sb-cell .val { font-size: 19px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .sb-cell.major .val { color: var(--accent); }
-.sb-cell.point .val { font-size: 30px; }
-.sb-cell.point { padding-left: 6px; }
-.sb-sets-done { display: flex; gap: 6px; padding: 0 20px 14px; flex-wrap: wrap; }
+.sb-cell.point .val { font-size: 29px; }
+.sb-cell.point { padding-left: 5px; }
+.sb-sets-done { display: flex; gap: 6px; padding: 12px 18px 0; flex-wrap: wrap; }
 .set-chip { font-size: 12px; padding: 4px 10px; border-radius: 8px; font-variant-numeric: tabular-nums;
   background: rgba(0,0,0,.2); border: 1px solid rgba(255,255,255,.12); color: var(--text-dim); }
 
-.sb-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 16px 20px; }
+.sb-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; padding: 15px 18px; }
 .point-btn {
-  padding: 20px 14px; border-radius: 18px; cursor: pointer; text-align: center;
+  padding: 18px 12px; border-radius: 18px; cursor: pointer; text-align: center;
   border: 1px solid var(--glass-border); box-shadow: inset 0 1px 0 var(--glass-highlight);
-  transition: transform .12s, filter .2s;
+  transition: transform .12s, filter .2s; font-family: inherit; color: var(--text);
 }
-.point-btn:active { transform: scale(.97); }
+.point-btn:active { transform: scale(.96); }
 .point-btn.a { background: linear-gradient(150deg, rgba(123,220,255,.28), rgba(123,220,255,.10)); }
 .point-btn.b { background: linear-gradient(150deg, rgba(185,140,255,.28), rgba(185,140,255,.10)); }
-.point-btn .pt { font-size: 13px; color: var(--text-dim); }
-.point-btn .who { font-size: 16px; font-weight: 700; margin-top: 2px;
+.point-btn .pt { font-size: 12px; color: var(--text-dim); }
+.point-btn .who { font-size: 15px; font-weight: 700; margin-top: 2px;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.sb-sub-actions { display: flex; gap: 10px; padding: 0 20px 20px; flex-wrap: wrap; }
+.sb-sub-actions { display: flex; gap: 10px; padding: 0 18px 18px; flex-wrap: wrap; }
+.grow { flex: 1 1 auto; }
 
-.winner-banner { text-align: center; padding: 22px 20px; }
-.winner-banner .cup { font-size: 40px; }
-.winner-banner .who { font-size: 22px; font-weight: 800; margin-top: 6px; }
+.winner-banner { text-align: center; padding: 20px 18px 8px; }
+.winner-banner .cup { font-size: 38px; }
+.winner-banner .who { font-size: 21px; font-weight: 800; margin-top: 6px; }
 .winner-banner .txt { color: var(--text-dim); font-size: 13px; margin-top: 4px; }
 
-/* ---------- lists / tournament ---------- */
-.list { display: flex; flex-direction: column; gap: 10px; }
+/* ---------- lists ---------- */
+.list { display: flex; flex-direction: column; gap: 9px; }
 .row-item {
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  padding: 14px 16px; border-radius: var(--radius-sm);
+  padding: 13px 15px; border-radius: var(--radius-sm);
   background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.14);
 }
 .row-item .main { min-width: 0; }
-.row-item .ttl { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.row-item .ttl { font-weight: 700; font-size: 14.5px; overflow: hidden; text-overflow: ellipsis; }
 .row-item .meta { font-size: 12px; color: var(--text-dim); margin-top: 3px; }
 .row-item.clickable { cursor: pointer; transition: background .18s; }
 .row-item.clickable:hover { background: rgba(255,255,255,.12); }
 
 .pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12px;
   padding: 6px 10px; border-radius: 999px; background: rgba(255,255,255,.08);
-  border: 1px solid rgba(255,255,255,.16); }
+  border: 1px solid rgba(255,255,255,.16); white-space: nowrap; }
+.pill.win { color: var(--gold); border-color: rgba(255,212,121,.4); }
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .team-chip { display: inline-flex; align-items: center; gap: 8px; font-size: 13px;
   padding: 7px 12px; border-radius: 999px; background: rgba(255,255,255,.08);
@@ -284,47 +302,60 @@ select option { color: #10142c; }
 .team-chip button:hover { color: var(--bad); }
 
 .inline-form { display: flex; gap: 10px; flex-wrap: wrap; align-items: end; }
-.inline-form .field { margin: 0; flex: 1 1 140px; }
-.grow { flex: 1 1 auto; }
+.inline-form .field { margin: 0; flex: 1 1 130px; }
 
 /* ---------- standings table ---------- */
 .table-wrap { overflow-x: auto; border-radius: var(--radius-sm); }
-table.standings { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 460px; }
-.standings th, .standings td { padding: 11px 12px; text-align: center; }
-.standings th { font-size: 11px; text-transform: uppercase; letter-spacing: .6px;
+table.standings { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 430px; }
+.standings th, .standings td { padding: 10px 10px; text-align: center; }
+.standings th { font-size: 10.5px; text-transform: uppercase; letter-spacing: .6px;
   color: var(--text-faint); font-weight: 700; border-bottom: 1px solid rgba(255,255,255,.14); }
 .standings td { border-bottom: 1px solid rgba(255,255,255,.07); font-variant-numeric: tabular-nums; }
 .standings td.team { text-align: left; font-weight: 600; }
-.standings tr:first-child td .rank { color: #ffd479; }
+.standings tr:first-child td .rank { color: var(--gold); }
 .rank { display: inline-block; width: 20px; color: var(--text-faint); font-weight: 700; }
 .standings td.w { color: var(--good); font-weight: 700; }
 .standings td.pts { font-weight: 800; }
 
-/* ---------- misc ---------- */
-.empty { text-align: center; color: var(--text-dim); padding: 26px 16px; font-size: 14px; }
-.empty .big { font-size: 34px; display: block; margin-bottom: 10px; opacity: .8; }
-.divider { height: 1px; background: rgba(255,255,255,.12); margin: 18px 0; border: 0; }
-.spacer { height: 8px; }
-.hint { font-size: 12px; color: var(--text-faint); margin-top: 8px; }
-.back-link { display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
-  color: var(--text-dim); font-size: 14px; margin-bottom: 14px; background: none; border: 0; font-family: inherit; }
-.back-link:hover { color: var(--text); }
+/* leaderboard */
+.lb-row { display: flex; align-items: center; gap: 12px; padding: 11px 4px;
+  border-bottom: 1px solid rgba(255,255,255,.08); }
+.lb-row:last-child { border-bottom: 0; }
+.lb-rank { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center;
+  font-size: 12px; font-weight: 800; background: rgba(255,255,255,.09);
+  border: 1px solid rgba(255,255,255,.16); color: var(--text-dim); flex: none; }
+.lb-row.first .lb-rank { color: #0b1026; background: linear-gradient(150deg, #ffd479, #ffb35c); border: 0; }
+.lb-name { flex: 1; font-weight: 700; font-size: 14.5px; min-width: 0;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lb-count { font-size: 13px; color: var(--text-dim); white-space: nowrap; }
+.lb-bar { height: 6px; border-radius: 4px; background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
 
-@media (max-width: 560px) {
-  .app-header { flex-direction: column; align-items: stretch; }
-  .tabs { justify-content: center; }
-  .sb-actions { grid-template-columns: 1fr 1fr; }
-  .sb-cell.point .val { font-size: 26px; }
-}
+.champion-banner { text-align: center; padding: 14px 10px 6px; }
+.champion-banner .cup { font-size: 34px; }
+.champion-banner .who { font-size: 19px; font-weight: 800; margin-top: 4px; color: var(--gold); }
+.champion-banner .txt { color: var(--text-dim); font-size: 12.5px; margin-top: 3px; }
+
+/* ---------- misc ---------- */
+.empty { text-align: center; color: var(--text-dim); padding: 24px 14px; font-size: 14px; }
+.empty .big { font-size: 32px; display: block; margin-bottom: 10px; opacity: .8; }
+.divider { height: 1px; background: rgba(255,255,255,.12); margin: 16px 0; border: 0; }
+.spacer { height: 8px; }
+.hint { font-size: 12px; color: var(--text-faint); margin-top: 8px; line-height: 1.5; }
+.back-link { display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+  color: var(--text-dim); font-size: 14px; margin-bottom: 12px; background: none; border: 0; font-family: inherit; padding: 4px 0; }
+.back-link:hover { color: var(--text); }
+.opt-block { margin-top: 14px; padding: 14px; border-radius: var(--radius-sm);
+  background: rgba(0,0,0,.14); border: 1px solid rgba(255,255,255,.1); }
+.opt-block .field:last-child { margin-bottom: 0; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 420px) { .two-col { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
   <!-- animated liquid-glass backdrop -->
   <div class="bg" aria-hidden="true">
-    <span class="blob b1"></span>
-    <span class="blob b2"></span>
-    <span class="blob b3"></span>
-    <span class="blob b4"></span>
+    <span class="blob b1"></span><span class="blob b2"></span>
+    <span class="blob b3"></span><span class="blob b4"></span>
   </div>
 
   <header class="app-header glass">
@@ -335,127 +366,168 @@ table.standings { width: 100%; border-collapse: collapse; font-size: 14px; min-w
         <p>Racquet sports scoring</p>
       </div>
     </div>
-    <nav class="tabs" role="tablist">
-      <button class="tab is-active" data-tab="live" role="tab">Live Scoring</button>
-      <button class="tab" data-tab="tournaments" role="tab">Tournaments</button>
-    </nav>
   </header>
 
   <main class="app-main">
     <section id="tab-live" class="tab-panel is-active"></section>
     <section id="tab-tournaments" class="tab-panel"></section>
+    <section id="tab-history" class="tab-panel"></section>
   </main>
 
-  <footer class="app-footer">
-    <span>Point-by-point live scoring · tournament standings · works offline</span>
-  </footer>
+  <nav class="bottom-nav" role="tablist">
+    <button class="bnav is-active" data-tab="live" role="tab"><span class="ico">🎾</span>Live</button>
+    <button class="bnav" data-tab="tournaments" role="tab"><span class="ico">🏆</span>Tournaments</button>
+    <button class="bnav" data-tab="history" role="tab"><span class="ico">📜</span>History</button>
+  </nav>
 
   <script>
 /* ============================================================
-   RallyGlass — racquet sports scoring
-   Live point-by-point scoring + tournament standings.
+   RallyGlass — racquet sports scoring (app edition)
+   Live point-by-point scoring · tournaments with categories.
    Vanilla JS, persisted to localStorage. No build step.
    ============================================================ */
 (function () {
   "use strict";
 
   /* ---------------- sport definitions ---------------- */
-  // engine "tennis": points 15/30/40, games, sets, tiebreak (also padel)
-  // engine "race":   rally points to a target, best-of-N games
+  // engine "tennis": 15/30/40, games, sets, tiebreak (tennis & padel)
+  // engine "race":   rally- or serve-scored games to a target
   const SPORTS = {
     tennis: {
       name: "Tennis", icon: "🎾", engine: "tennis",
-      setsToWin: 2, gamesToWin: 6, tiebreakTo: 7,
-      desc: "15/30/40 · sets & games · tiebreak at 6-6",
+      gamesToWin: 6, tiebreakTo: 7,
+      tradDesc: "15/30/40 · sets & games · tiebreak at 6-6",
     },
     padel: {
       name: "Padel", icon: "🟡", engine: "tennis",
-      setsToWin: 2, gamesToWin: 6, tiebreakTo: 7,
-      desc: "Tennis-style scoring · best of 3 sets",
+      gamesToWin: 6, tiebreakTo: 7,
+      tradDesc: "Tennis scoring · golden point optional",
     },
     pickleball: {
       name: "Pickleball", icon: "🥒", engine: "race",
-      pointsToWin: 11, winBy: 2, gamesToWin: 2,
-      desc: "To 11, win by 2 · best of 3 games",
+      trad: { target: 11, winBy: 2, cap: 0, gamesToWin: 2, serveRule: "sideout" },
+      tradDesc: "To 11, win by 2 · point on serve only · best of 3",
     },
     badminton: {
       name: "Badminton", icon: "🏸", engine: "race",
-      pointsToWin: 21, winBy: 2, cap: 30, gamesToWin: 2,
-      desc: "To 21, cap 30 · best of 3 games",
+      trad: { target: 21, winBy: 2, cap: 30, gamesToWin: 2, serveRule: "rally" },
+      tradDesc: "Rally to 21, cap 30 · best of 3",
     },
     squash: {
       name: "Squash", icon: "🟠", engine: "race",
-      pointsToWin: 11, winBy: 2, gamesToWin: 3,
-      desc: "To 11, win by 2 · best of 5 games",
+      trad: { target: 11, winBy: 2, cap: 0, gamesToWin: 3, serveRule: "rally" },
+      tradDesc: "Rally to 11, win by 2 · best of 5",
     },
   };
 
-  /* ---------------- storage ---------------- */
-  const KEY = "rallyglass_v1";
+  /* ---------------- storage (+ migration from v1) ---------------- */
+  const KEY = "rallyglass_v2";
+  const OLD_KEY = "rallyglass_v1";
   const defaultStore = () => ({ live: null, tournaments: [], history: [] });
+
+  function migrateV1(old) {
+    const s = defaultStore();
+    // old tournaments had flat teams/matches → wrap in one "Open" category
+    (old.tournaments || []).forEach((t) => {
+      s.tournaments.push({
+        id: t.id, name: t.name, date: t.date || Date.now(),
+        categories: [{
+          id: uid(), name: "Open", sport: t.sport || "tennis",
+          teams: t.teams || [], matches: t.matches || [], done: false,
+        }],
+      });
+    });
+    (old.history || []).forEach((h) => s.history.push(h));
+    if (old.live && old.live.teams) {
+      const cfg = SPORTS[old.live.sport];
+      if (cfg) {
+        s.live = {
+          sport: old.live.sport, format: "singles", scoring: "traditional",
+          teams: [[old.live.teams[0]], [old.live.teams[1]]],
+          firstServer: 0,
+          opts: cfg.engine === "tennis"
+            ? { bestOf: old.live.bestOf || 3, deuce: "advantage" }
+            : {},
+          log: (old.live.log || []).slice(), date: old.live.date || Date.now(),
+        };
+      }
+    }
+    return s;
+  }
 
   function load() {
     try {
       const raw = localStorage.getItem(KEY);
-      if (!raw) return defaultStore();
-      const s = JSON.parse(raw);
-      return Object.assign(defaultStore(), s);
-    } catch (e) {
-      return defaultStore();
-    }
+      if (raw) return Object.assign(defaultStore(), JSON.parse(raw));
+      const oldRaw = localStorage.getItem(OLD_KEY);
+      if (oldRaw) {
+        const migrated = migrateV1(JSON.parse(oldRaw));
+        localStorage.setItem(KEY, JSON.stringify(migrated));
+        return migrated;
+      }
+    } catch (e) {}
+    return defaultStore();
   }
   function save() {
     try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {}
   }
 
-  let store = load();
-  const ui = { tab: "live", tournamentId: null }; // transient view state
-
-  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
   const esc = (s) =>
     String(s == null ? "" : s).replace(/[&<>"']/g, (c) =>
       ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const buzz = (ms) => { try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) {} };
+
+  let store = load();
+  const ui = { tab: "live", tournamentId: null, categoryId: null };
+
+  function teamLabel(players, i) {
+    const names = (players || []).map((p) => (p || "").trim()).filter(Boolean);
+    return names.length ? names.join(" & ") : "Team " + (i + 1);
+  }
 
   /* ============================================================
      SCORING ENGINES
-     Each takes a config + point log (array of 0/1 = which side won
-     the point) and returns a normalized scoreboard state.
-     Recomputing from the log makes undo trivial.
+     Recomputed from the rally log (array of 0/1 = rally winner),
+     which makes undo trivial and state always consistent.
      ============================================================ */
 
   function tennisPointLabels(points) {
     const [a, b] = points;
     const names = ["0", "15", "30", "40"];
     if (a >= 3 && b >= 3) {
-      if (a === b) return ["40", "40"];        // deuce
-      if (a > b) return ["Ad", "40"];
-      return ["40", "Ad"];
+      if (a === b) return ["40", "40"];
+      return a > b ? ["Ad", "40"] : ["40", "Ad"];
     }
     return [names[Math.min(a, 3)], names[Math.min(b, 3)]];
   }
 
-  function computeTennis(cfg, log, bestOf) {
-    const setsToWin = bestOf === 5 ? 3 : 2;
+  // opts: { bestOf: 3|5, deuce: "advantage"|"golden" }
+  function computeTennis(sportCfg, opts, log, firstServer) {
+    const setsToWin = opts.bestOf === 5 ? 3 : 2;
+    const G = sportCfg.gamesToWin, TB = sportCfg.tiebreakTo;
+    const golden = opts.deuce === "golden";
     let setsWon = [0, 0], games = [0, 0], points = [0, 0];
+    let gamesTotal = 0; // total games completed in the match (serve rotation)
     const completedSets = [];
     let complete = false, winner = null;
 
     for (const w of log) {
       if (complete) break;
       const l = w ^ 1;
-      const inTiebreak = games[0] === cfg.gamesToWin && games[1] === cfg.gamesToWin;
+      const inTiebreak = games[0] === G && games[1] === G;
       points[w]++;
 
       if (inTiebreak) {
-        if (points[w] >= cfg.tiebreakTo && points[w] - points[l] >= 2) {
-          games[w]++;
+        if (points[w] >= TB && points[w] - points[l] >= 2) {
+          games[w]++; gamesTotal++;
           completedSets.push([games[0], games[1]]);
           setsWon[w]++; games = [0, 0]; points = [0, 0];
           if (setsWon[w] >= setsToWin) { complete = true; winner = w; }
         }
-      } else if (points[w] >= 4 && points[w] - points[l] >= 2) {
-        games[w]++; points = [0, 0];
-        if (games[w] >= cfg.gamesToWin && games[w] - games[l] >= 2) {
+      } else if (points[w] >= 4 && (points[w] - points[l] >= 2 || (golden && points[l] >= 3))) {
+        games[w]++; gamesTotal++; points = [0, 0];
+        if (games[w] >= G && games[w] - games[l] >= 2) {
           completedSets.push([games[0], games[1]]);
           setsWon[w]++; games = [0, 0];
           if (setsWon[w] >= setsToWin) { complete = true; winner = w; }
@@ -463,51 +535,115 @@ table.standings { width: 100%; border-collapse: collapse; font-size: 14px; min-w
       }
     }
 
-    const inTiebreak = games[0] === cfg.gamesToWin && games[1] === cfg.gamesToWin;
+    const inTiebreak = games[0] === G && games[1] === G;
+    // serve rotation: alternates every game; in a tiebreak the due server
+    // serves point 1, then serve changes every two points.
+    let server = null;
+    if (!complete) {
+      const due = firstServer ^ (gamesTotal % 2);
+      if (inTiebreak) {
+        const p = points[0] + points[1];
+        server = due ^ (Math.floor((p + 1) / 2) % 2);
+      } else {
+        server = due;
+      }
+    }
+
     return {
-      engine: "tennis", complete, winner,
+      engine: "tennis", complete, winner, server,
       majorLabel: "Sets", major: setsWon.slice(),
       minorLabel: "Games", minor: games.slice(),
       pointLabel: inTiebreak ? "T-Break" : "Points",
       points: inTiebreak ? points.map(String) : tennisPointLabels(points),
       completed: completedSets.map((s) => s.join("-")),
+      unitWord: "set",
     };
   }
 
-  function computeRace(cfg, log) {
+  // cfg: { target, winBy(1|2), cap, gamesToWin, serveRule: "rally"|"sideout" }
+  function computeRace(cfg, log, firstServer) {
     let gamesWon = [0, 0], points = [0, 0];
+    let server = firstServer;
     const completed = [];
     let complete = false, winner = null;
 
     for (const w of log) {
       if (complete) break;
       const l = w ^ 1;
-      points[w]++;
-      const reached = points[w] >= cfg.pointsToWin && points[w] - points[l] >= 2;
+      // sideout: only the serving side can score; losing the rally
+      // hands over the serve without a point.
+      const scores = cfg.serveRule === "sideout" ? w === server : true;
+      if (scores) points[w]++;
+      server = w; // rally winner serves next (side-out on receiver win)
+
+      const reached = points[w] >= cfg.target && points[w] - points[l] >= cfg.winBy;
       const capped = cfg.cap && points[w] >= cfg.cap;
-      if (reached || capped) {
+      if (scores && (reached || capped)) {
         gamesWon[w]++;
         completed.push([points[0], points[1]]);
         points = [0, 0];
         if (gamesWon[w] >= cfg.gamesToWin) { complete = true; winner = w; }
+        // game winner serves first in the next game (server is already w)
       }
     }
 
     return {
       engine: "race", complete, winner,
+      server: complete ? null : server,
       majorLabel: "Games", major: gamesWon.slice(),
       minorLabel: null, minor: null,
       pointLabel: "Points", points: points.map(String),
       completed: completed.map((s) => s.join("-")),
+      unitWord: "game",
     };
   }
 
+  function raceCfgFor(match) {
+    const sport = SPORTS[match.sport];
+    if (match.scoring === "alternate") {
+      const o = match.opts;
+      return {
+        target: o.target, winBy: o.deuce === "golden" ? 1 : 2, cap: 0,
+        gamesToWin: o.gamesToWin, serveRule: o.serveRule,
+      };
+    }
+    return sport.trad;
+  }
+
   function computeMatch(match) {
-    const cfg = SPORTS[match.sport];
-    if (!cfg) return null;
-    return cfg.engine === "tennis"
-      ? computeTennis(cfg, match.log, match.bestOf)
-      : computeRace(cfg, match.log);
+    const sport = SPORTS[match.sport];
+    if (!sport) return null;
+    if (match.scoring === "traditional" && sport.engine === "tennis") {
+      return computeTennis(sport, match.opts, match.log, match.firstServer);
+    }
+    return computeRace(raceCfgFor(match), match.log, match.firstServer);
+  }
+
+  // which sides currently hold match point (small lookahead)
+  function matchPointFor(match, st) {
+    if (st.complete) return [];
+    const out = [];
+    for (const side of [0, 1]) {
+      const probe = Object.assign({}, match, { log: match.log.concat([side]) });
+      const st2 = computeMatch(probe);
+      if (st2.complete && st2.winner === side) out.push(side);
+    }
+    return out;
+  }
+
+  function matchModeDesc(match) {
+    const sport = SPORTS[match.sport];
+    if (match.scoring === "traditional" && sport.engine === "tennis") {
+      return "Best of " + match.opts.bestOf + " sets · " +
+        (match.opts.deuce === "golden" ? "golden point" : "advantage");
+    }
+    const cfg = raceCfgFor(match);
+    const bits = ["To " + cfg.target];
+    bits.push(cfg.serveRule === "sideout" ? "point on serve" : "rally scoring");
+    bits.push(cfg.winBy === 1 ? "golden point" : "win by 2");
+    if (cfg.cap) bits.push("cap " + cfg.cap);
+    bits.push(cfg.gamesToWin === 1 ? "single game" : "best of " + (cfg.gamesToWin * 2 - 1));
+    return bits.join(" · ");
   }
 
   /* ============================================================
@@ -515,173 +651,202 @@ table.standings { width: 100%; border-collapse: collapse; font-size: 14px; min-w
      ============================================================ */
   const liveEl = document.getElementById("tab-live");
 
-  // draft setup state (before a match starts)
-  let draft = { sport: "tennis", bestOf: 3 };
+  // setup draft — survives re-renders while the user configures a match
+  const draft = {
+    sport: "tennis",
+    format: "singles",           // singles | doubles
+    scoring: "traditional",      // traditional | alternate
+    bestOf: 3,                   // tennis engine
+    deuce: "advantage",          // tennis engine: advantage | golden
+    alt: { target: 11, gamesToWin: 2, serveRule: "rally", deuce: "advantage" },
+    firstServer: 0,
+    names: ["", "", "", ""],     // [A1, A2, B1, B2]
+  };
+
+  function segHtml(id, options, active) {
+    return '<div class="seg" data-seg="' + id + '">' + options.map((o) =>
+      '<button data-val="' + o.val + '" class="' + (String(o.val) === String(active) ? "is-active" : "") + '">' +
+      o.label + "</button>").join("") + "</div>";
+  }
 
   function renderLive() {
-    if (store.live) return renderScoreboard();
-    renderSetup();
+    if (store.live) renderScoreboard();
+    else renderSetup();
   }
 
   function renderSetup() {
-    const sportChips = Object.entries(SPORTS).map(([key, s]) => `
-      <button class="sport-chip ${draft.sport === key ? "is-active" : ""}" data-sport="${key}">
-        <div class="ico">${s.icon}</div>
-        <div class="nm">${s.name}</div>
-        <div class="ds">${s.desc}</div>
-      </button>`).join("");
+    const sport = SPORTS[draft.sport];
+    const isTennisEngine = sport.engine === "tennis";
+    const showTradOpts = draft.scoring === "traditional" && isTennisEngine;
+    const showAltOpts = draft.scoring === "alternate";
+    const doubles = draft.format === "doubles";
 
-    const isTennis = SPORTS[draft.sport].engine === "tennis";
-    const historyHtml = renderRecentHistory();
+    const sportChips = Object.entries(SPORTS).map(([key, s]) =>
+      '<button class="sport-chip ' + (draft.sport === key ? "is-active" : "") + '" data-sport="' + key + '">' +
+      '<div class="ico">' + s.icon + '</div><div class="nm">' + s.name + "</div></button>").join("");
 
-    liveEl.innerHTML = `
-      <div class="card glass">
-        <h2>New match</h2>
-        <p class="sub">Pick a sport, name the players or teams, then record every point.</p>
+    const tradOptsHtml = showTradOpts ? (
+      '<div class="opt-block"><div class="two-col">' +
+      '<div class="field"><label>Match length</label>' +
+      segHtml("bestOf", [{ val: 3, label: "Best of 3" }, { val: 5, label: "Best of 5" }], draft.bestOf) + "</div>" +
+      '<div class="field"><label>Deuce</label>' +
+      segHtml("deuce", [{ val: "advantage", label: "Advantage" }, { val: "golden", label: "Golden point" }], draft.deuce) + "</div>" +
+      "</div></div>"
+    ) : "";
 
-        <p class="section-title">Sport</p>
-        <div class="sport-grid">${sportChips}</div>
+    const altOptsHtml = showAltOpts ? (
+      '<div class="opt-block">' +
+      '<div class="two-col">' +
+      '<div class="field"><label>Play up to</label>' +
+      '<input type="number" id="altTarget" min="1" max="99" value="' + draft.alt.target + '" /></div>' +
+      '<div class="field"><label>Games</label>' +
+      segHtml("altGames", [
+        { val: 1, label: "Single" }, { val: 2, label: "Bo3" }, { val: 3, label: "Bo5" },
+      ], draft.alt.gamesToWin) + "</div>" +
+      "</div>" +
+      '<div class="field"><label>Scoring on serve</label>' +
+      segHtml("altServe", [
+        { val: "rally", label: "Point on any serve" },
+        { val: "sideout", label: "Point on serve only" },
+      ], draft.alt.serveRule) + "</div>" +
+      '<div class="field"><label>At deuce (tied near the target)</label>' +
+      segHtml("altDeuce", [
+        { val: "advantage", label: "Advantage · win by 2" },
+        { val: "golden", label: "Golden point" },
+      ], draft.alt.deuce) + "</div>" +
+      "</div>"
+    ) : "";
 
-        ${isTennis ? `
-        <div class="field" style="margin-top:16px;">
-          <label>Match format</label>
-          <select id="bestOf">
-            <option value="3" ${draft.bestOf === 3 ? "selected" : ""}>Best of 3 sets</option>
-            <option value="5" ${draft.bestOf === 5 ? "selected" : ""}>Best of 5 sets</option>
-          </select>
-        </div>` : ""}
+    const nameInput = (idx, label, ph) =>
+      '<div class="field"><label>' + label + '</label>' +
+      '<input type="text" data-name="' + idx + '" value="' + esc(draft.names[idx]) + '" placeholder="' + ph + '" maxlength="30" /></div>';
 
-        <hr class="divider" />
-        <div class="inline-form">
-          <div class="field">
-            <label>Player / Team 1</label>
-            <input type="text" id="p1" placeholder="e.g. Alcaraz" maxlength="40" />
-          </div>
-          <div class="field">
-            <label>Player / Team 2</label>
-            <input type="text" id="p2" placeholder="e.g. Sinner" maxlength="40" />
-          </div>
-        </div>
-        <div class="spacer"></div>
-        <button class="btn primary block" id="startMatch">Start scoring</button>
-      </div>
-      ${historyHtml}
-    `;
-  }
+    const namesHtml = doubles
+      ? '<div class="two-col">' +
+        nameInput(0, "Team 1 · player 1", "Player name") + nameInput(1, "Team 1 · player 2", "Player name") +
+        nameInput(2, "Team 2 · player 1", "Player name") + nameInput(3, "Team 2 · player 2", "Player name") +
+        "</div>"
+      : '<div class="two-col">' +
+        nameInput(0, "Player 1", "e.g. Alcaraz") + nameInput(2, "Player 2", "e.g. Sinner") +
+        "</div>";
 
-  function renderRecentHistory() {
-    if (!store.history.length) return "";
-    const items = store.history.slice(0, 5).map((h) => `
-      <div class="row-item">
-        <div class="main">
-          <div class="ttl">${SPORTS[h.sport] ? SPORTS[h.sport].icon : "🎾"} ${esc(h.winnerName)} <span style="color:var(--text-faint)">def.</span> ${esc(h.loserName)}</div>
-          <div class="meta">${esc(h.score)} · ${new Date(h.date).toLocaleDateString()}</div>
-        </div>
-      </div>`).join("");
-    return `
-      <div class="card glass">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <p class="section-title" style="margin:0;">Recent results</p>
-          <button class="btn ghost small" id="clearHistory">Clear</button>
-        </div>
-        <div class="spacer"></div>
-        <div class="list">${items}</div>
-      </div>`;
+    liveEl.innerHTML =
+      '<div class="card glass">' +
+      "<h2>New match</h2>" +
+      '<p class="sub">' + esc(draft.scoring === "traditional" ? sport.tradDesc : "Custom rules — set them below.") + "</p>" +
+      '<p class="section-title">Sport</p>' +
+      '<div class="sport-grid">' + sportChips + "</div>" +
+      '<div class="spacer"></div>' +
+      '<div class="two-col" style="margin-top:8px;">' +
+      '<div class="field"><label>Format</label>' +
+      segHtml("format", [{ val: "singles", label: "Singles" }, { val: "doubles", label: "Doubles" }], draft.format) + "</div>" +
+      '<div class="field"><label>Scoring</label>' +
+      segHtml("scoring", [{ val: "traditional", label: "Traditional" }, { val: "alternate", label: "Alternate" }], draft.scoring) + "</div>" +
+      "</div>" +
+      tradOptsHtml + altOptsHtml +
+      '<hr class="divider" />' +
+      namesHtml +
+      '<div class="field"><label>First serve</label>' +
+      segHtml("firstServer", [
+        { val: 0, label: esc(teamLabel([draft.names[0], doubles ? draft.names[1] : ""], 0)) },
+        { val: 1, label: esc(teamLabel([draft.names[2], doubles ? draft.names[3] : ""], 1)) },
+      ], draft.firstServer) + "</div>" +
+      '<div class="spacer"></div>' +
+      '<button class="btn primary block" id="startMatch">Start scoring</button>' +
+      "</div>";
   }
 
   function renderScoreboard() {
     const m = store.live;
-    const cfg = SPORTS[m.sport];
+    const sport = SPORTS[m.sport];
     const st = computeMatch(m);
-    const names = m.teams;
+    const mp = matchPointFor(m, st);
+    const labels = [teamLabel(m.teams[0], 0), teamLabel(m.teams[1], 1)];
 
     const cell = (label, val, cls) =>
-      `<div class="sb-cell ${cls || ""}"><div class="lbl">${label}</div><div class="val">${val}</div></div>`;
+      '<div class="sb-cell ' + (cls || "") + '"><div class="lbl">' + label + '</div><div class="val">' + val + "</div></div>";
 
-    function scoreCells(side) {
+    const scoreCells = (side) => {
       let cells = "";
       if (st.minor) cells += cell(st.minorLabel, st.minor[side], "");
       cells += cell(st.majorLabel, st.major[side], "major");
       if (!st.complete) cells += cell(st.pointLabel, st.points[side], "point");
       return cells;
-    }
+    };
 
     const row = (side) => {
       const isWinner = st.complete && st.winner === side;
-      return `
-        <div class="sb-row ${isWinner ? "winner" : ""}">
-          <div class="sb-name">
-            <div class="name">${esc(names[side])}</div>
-            ${isWinner ? '<div class="tag">WINNER</div>' : ""}
-          </div>
-          <div class="sb-scores">${scoreCells(side)}</div>
-        </div>`;
+      const serving = !st.complete && st.server === side;
+      return '<div class="sb-row' + (isWinner ? " winner" : "") + '">' +
+        '<div class="sb-name"><div class="name">' + (serving ? '<span class="serve-dot"></span>' : "") + esc(labels[side]) + "</div>" +
+        (isWinner ? '<div class="tag win">WINNER</div>' : serving ? '<div class="tag serve">SERVING</div>' : "") +
+        '</div><div class="sb-scores">' + scoreCells(side) + "</div></div>";
     };
 
     const setsDone = st.completed.length
-      ? `<div class="sb-sets-done">${st.completed
-          .map((s, i) => `<span class="set-chip">${st.majorLabel === "Sets" ? "Set" : "Game"} ${i + 1}: ${s}</span>`)
-          .join("")}</div>`
+      ? '<div class="sb-sets-done">' + st.completed.map((s, i) =>
+          '<span class="set-chip">' + (st.unitWord === "set" ? "Set" : "Game") + " " + (i + 1) + ": " + s + "</span>").join("") + "</div>"
+      : "";
+
+    const mpBadge = mp.length
+      ? '<span class="badge mp">' + (mp.length === 2 ? "Match point — both!" : "Match point · " + esc(labels[mp[0]])) + "</span>"
       : "";
 
     let bottom;
     if (st.complete) {
-      bottom = `
-        <div class="winner-banner">
-          <div class="cup">🏆</div>
-          <div class="who">${esc(names[st.winner])}</div>
-          <div class="txt">wins the match</div>
-        </div>
-        <div class="sb-sub-actions">
-          <button class="btn primary grow" id="saveResult">Save result</button>
-          <button class="btn ghost" id="undoPoint">Undo</button>
-          <button class="btn danger" id="discardMatch">Discard</button>
-        </div>`;
+      bottom =
+        '<div class="winner-banner"><div class="cup">🏆</div>' +
+        '<div class="who">' + esc(labels[st.winner]) + "</div>" +
+        '<div class="txt">wins the match · ' + esc(st.completed.join(", ") || st.major.join("-")) + "</div></div>" +
+        '<div class="sb-sub-actions">' +
+        '<button class="btn primary grow" id="saveResult">Save result</button>' +
+        '<button class="btn ghost" id="undoPoint">Undo</button>' +
+        '<button class="btn danger" id="discardMatch">Discard</button></div>';
     } else {
-      bottom = `
-        <div class="sb-actions">
-          <div class="point-btn a" data-point="0">
-            <div class="pt">+ Point</div>
-            <div class="who">${esc(names[0])}</div>
-          </div>
-          <div class="point-btn b" data-point="1">
-            <div class="pt">+ Point</div>
-            <div class="who">${esc(names[1])}</div>
-          </div>
-        </div>
-        <div class="sb-sub-actions">
-          <button class="btn ghost grow" id="undoPoint" ${m.log.length ? "" : "disabled"}>↩︎ Undo point</button>
-          <button class="btn danger" id="discardMatch">End match</button>
-        </div>`;
+      const rallyWord = (m.scoring === "alternate" ? m.opts.serveRule : (sport.trad && sport.trad.serveRule)) === "sideout"
+        ? "+ Rally won" : "+ Point";
+      bottom =
+        '<div class="sb-actions">' +
+        '<button class="point-btn a" data-point="0"><div class="pt">' + rallyWord + '</div><div class="who">' + esc(labels[0]) + "</div></button>" +
+        '<button class="point-btn b" data-point="1"><div class="pt">' + rallyWord + '</div><div class="who">' + esc(labels[1]) + "</div></button>" +
+        "</div>" +
+        '<div class="sb-sub-actions">' +
+        '<button class="btn ghost grow" id="undoPoint"' + (m.log.length ? "" : " disabled") + ">↩︎ Undo</button>" +
+        '<button class="btn danger" id="discardMatch">End match</button></div>';
     }
 
-    liveEl.innerHTML = `
-      <div class="card glass scoreboard">
-        <div class="sb-top">
-          <div class="meta"><span class="ico">${cfg.icon}</span> ${cfg.name}</div>
-          <span class="badge">${cfg.engine === "tennis" ? "Best of " + m.bestOf + " sets" : "Best of " + (cfg.gamesToWin * 2 - 1) + " games"}</span>
-        </div>
-        <div class="sb-players">
-          ${row(0)}
-          ${row(1)}
-        </div>
-        ${setsDone}
-        ${bottom}
-      </div>
-    `;
+    liveEl.innerHTML =
+      '<div class="card glass scoreboard">' +
+      '<div class="sb-top">' +
+      '<div class="meta"><span class="ico">' + sport.icon + "</span> " + sport.name +
+      " · " + (m.format === "doubles" ? "Doubles" : "Singles") + "</div>" +
+      mpBadge +
+      '<span class="badge">' + esc(matchModeDesc(m)) + "</span>" +
+      "</div>" +
+      row(0) + row(1) + setsDone + bottom +
+      "</div>";
   }
 
   /* ---- live actions ---- */
   function startMatch() {
-    const p1 = (document.getElementById("p1").value || "").trim() || "Player 1";
-    const p2 = (document.getElementById("p2").value || "").trim() || "Player 2";
-    const bestOfEl = document.getElementById("bestOf");
+    const doubles = draft.format === "doubles";
+    const n = draft.names.map((x) => (x || "").trim());
+    const teams = doubles
+      ? [[n[0] || "Player A1", n[1] || "Player A2"], [n[2] || "Player B1", n[3] || "Player B2"]]
+      : [[n[0] || "Player 1"], [n[2] || "Player 2"]];
+
+    const sport = SPORTS[draft.sport];
+    let opts = {};
+    if (draft.scoring === "alternate") {
+      const target = Math.max(1, Math.min(99, parseInt(draft.alt.target, 10) || 11));
+      opts = { target, gamesToWin: draft.alt.gamesToWin, serveRule: draft.alt.serveRule, deuce: draft.alt.deuce };
+    } else if (sport.engine === "tennis") {
+      opts = { bestOf: draft.bestOf, deuce: draft.deuce };
+    }
+
     store.live = {
-      sport: draft.sport,
-      teams: [p1, p2],
-      bestOf: bestOfEl ? parseInt(bestOfEl.value, 10) : 3,
-      log: [],
-      date: Date.now(),
+      sport: draft.sport, format: draft.format, scoring: draft.scoring,
+      teams, opts, firstServer: draft.firstServer, log: [], date: Date.now(),
     };
     save();
     renderLive();
@@ -690,9 +855,9 @@ table.standings { width: 100%; border-collapse: collapse; font-size: 14px; min-w
   function addPoint(side) {
     const m = store.live;
     if (!m) return;
-    const st = computeMatch(m);
-    if (st.complete) return;
+    if (computeMatch(m).complete) return;
     m.log.push(side);
+    buzz(12);
     save();
     renderLive();
   }
@@ -709,21 +874,19 @@ table.standings { width: 100%; border-collapse: collapse; font-size: 14px; min-w
     const m = store.live;
     const st = computeMatch(m);
     if (!m || !st.complete) return;
-    const loser = st.winner ^ 1;
-    // build a readable score line from the winner's perspective
-    const scoreLine = st.completed.length ? st.completed.join(", ") : st.major.join("-");
     store.history.unshift({
-      id: uid(),
-      sport: m.sport,
-      winnerName: m.teams[st.winner],
-      loserName: m.teams[loser],
-      score: scoreLine,
+      id: uid(), sport: m.sport, format: m.format, scoring: m.scoring,
+      winnerName: teamLabel(m.teams[st.winner], st.winner),
+      loserName: teamLabel(m.teams[st.winner ^ 1], st.winner ^ 1),
+      score: st.completed.join(", ") || st.major.join("-"),
+      mode: matchModeDesc(m),
       date: Date.now(),
     });
-    store.history = store.history.slice(0, 20);
+    store.history = store.history.slice(0, 100);
     store.live = null;
     save();
     renderLive();
+    renderHistory();
   }
 
   function discardMatch() {
@@ -733,10 +896,24 @@ table.standings { width: 100%; border-collapse: collapse; font-size: 14px; min-w
     renderLive();
   }
 
-  // event delegation for the live panel
   liveEl.addEventListener("click", (e) => {
     const sportBtn = e.target.closest("[data-sport]");
     if (sportBtn) { draft.sport = sportBtn.dataset.sport; renderLive(); return; }
+
+    const segBtn = e.target.closest(".seg button");
+    if (segBtn) {
+      const seg = segBtn.closest("[data-seg]").dataset.seg;
+      const val = segBtn.dataset.val;
+      if (seg === "format") draft.format = val;
+      else if (seg === "scoring") draft.scoring = val;
+      else if (seg === "bestOf") draft.bestOf = parseInt(val, 10);
+      else if (seg === "deuce") draft.deuce = val;
+      else if (seg === "altGames") draft.alt.gamesToWin = parseInt(val, 10);
+      else if (seg === "altServe") draft.alt.serveRule = val;
+      else if (seg === "altDeuce") draft.alt.deuce = val;
+      else if (seg === "firstServer") draft.firstServer = parseInt(val, 10);
+      renderLive(); return;
+    }
 
     const pointBtn = e.target.closest("[data-point]");
     if (pointBtn) { addPoint(parseInt(pointBtn.dataset.point, 10)); return; }
@@ -745,242 +922,272 @@ table.standings { width: 100%; border-collapse: collapse; font-size: 14px; min-w
     if (e.target.closest("#undoPoint")) return undoPoint();
     if (e.target.closest("#saveResult")) return saveResult();
     if (e.target.closest("#discardMatch")) return discardMatch();
-    if (e.target.closest("#clearHistory")) {
-      if (confirm("Clear recent results?")) { store.history = []; save(); renderLive(); }
-      return;
-    }
   });
-  liveEl.addEventListener("change", (e) => {
-    if (e.target.id === "bestOf") { draft.bestOf = parseInt(e.target.value, 10); }
+
+  // keep typed values in the draft so segmented re-renders don't wipe them
+  liveEl.addEventListener("input", (e) => {
+    const nameIdx = e.target.dataset && e.target.dataset.name;
+    if (nameIdx != null && nameIdx !== "") draft.names[+nameIdx] = e.target.value;
+    if (e.target.id === "altTarget") draft.alt.target = e.target.value;
+  });
+  liveEl.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && e.target.matches("[data-name]")) { e.preventDefault(); startMatch(); }
   });
 
   /* ============================================================
-     TOURNAMENTS TAB
+     TOURNAMENTS TAB — tournaments → categories → results
      ============================================================ */
   const tourEl = document.getElementById("tab-tournaments");
 
-  function findTournament(id) { return store.tournaments.find((t) => t.id === id); }
+  const findTournament = (id) => store.tournaments.find((t) => t.id === id);
+  const findCategory = (t, id) => t && t.categories.find((c) => c.id === id);
 
-  function renderTournaments() {
-    if (ui.tournamentId && findTournament(ui.tournamentId)) {
-      renderTournamentDetail(findTournament(ui.tournamentId));
-    } else {
-      ui.tournamentId = null;
-      renderTournamentList();
-    }
-  }
-
-  function renderTournamentList() {
-    const sportOptions = Object.entries(SPORTS)
-      .map(([k, s]) => `<option value="${k}">${s.icon} ${s.name}</option>`).join("");
-
-    const list = store.tournaments.length
-      ? store.tournaments.map((t) => {
-          const cfg = SPORTS[t.sport] || SPORTS.tennis;
-          return `
-          <div class="row-item clickable" data-open="${t.id}">
-            <div class="main">
-              <div class="ttl">${cfg.icon} ${esc(t.name)}</div>
-              <div class="meta">${t.teams.length} teams · ${t.matches.length} matches played</div>
-            </div>
-            <span class="pill">Open →</span>
-          </div>`;
-        }).join("")
-      : `<div class="empty"><span class="big">🏆</span>No tournaments yet.<br/>Create one below to track team standings.</div>`;
-
-    tourEl.innerHTML = `
-      <div class="card glass">
-        <h2>Create a tournament</h2>
-        <p class="sub">Give it a name and pick the sport. You'll add teams and results next.</p>
-        <div class="inline-form">
-          <div class="field grow">
-            <label>Tournament name</label>
-            <input type="text" id="tName" placeholder="e.g. Summer Club Championship" maxlength="60" />
-          </div>
-          <div class="field">
-            <label>Sport</label>
-            <select id="tSport">${sportOptions}</select>
-          </div>
-        </div>
-        <div class="spacer"></div>
-        <button class="btn primary" id="createTournament">Create tournament</button>
-      </div>
-
-      <div class="card glass">
-        <p class="section-title">Your tournaments</p>
-        <div class="spacer"></div>
-        <div class="list">${list}</div>
-      </div>
-    `;
-  }
-
-  function computeStandings(t) {
+  function computeStandings(cat) {
     const table = {};
-    t.teams.forEach((name) => { table[name] = { name, P: 0, W: 0, L: 0, PF: 0, PA: 0 }; });
-    t.matches.forEach((mt) => {
+    cat.teams.forEach((name) => { table[name] = { name, P: 0, W: 0, L: 0, PF: 0, PA: 0 }; });
+    cat.matches.forEach((mt) => {
       const A = table[mt.teamA], B = table[mt.teamB];
       if (!A || !B) return;
       A.P++; B.P++;
       A.PF += mt.scoreA; A.PA += mt.scoreB;
       B.PF += mt.scoreB; B.PA += mt.scoreA;
-      if (mt.scoreA > mt.scoreB) { A.W++; B.L++; }
-      else if (mt.scoreB > mt.scoreA) { B.W++; A.L++; }
+      if (mt.scoreA > mt.scoreB) { A.W++; B.L++; } else { B.W++; A.L++; }
     });
     return Object.values(table).sort((a, b) =>
       b.W - a.W || (b.PF - b.PA) - (a.PF - a.PA) || b.PF - a.PF || a.name.localeCompare(b.name));
   }
 
-  function renderTournamentDetail(t) {
-    const cfg = SPORTS[t.sport] || SPORTS.tennis;
+  function categoryLeader(cat) {
+    if (!cat.matches.length) return null;
+    const s = computeStandings(cat);
+    return s.length ? s[0].name : null;
+  }
 
-    const teamChips = t.teams.length
-      ? t.teams.map((name) => `
-        <span class="team-chip">${esc(name)}
-          <button data-remove-team="${esc(name)}" title="Remove team">×</button>
-        </span>`).join("")
-      : `<span class="hint">No teams yet — add your first team above.</span>`;
+  // team → number of finished categories won
+  function categoryWins(t) {
+    const wins = {};
+    t.categories.forEach((c) => {
+      if (!c.done) return;
+      const w = categoryLeader(c);
+      if (w) wins[w] = (wins[w] || 0) + 1;
+    });
+    return Object.entries(wins)
+      .map(([name, n]) => ({ name, n }))
+      .sort((a, b) => b.n - a.n || a.name.localeCompare(b.name));
+  }
 
-    const teamSelect = t.teams.map((n) => `<option value="${esc(n)}">${esc(n)}</option>`).join("");
-    const canRecord = t.teams.length >= 2;
+  function renderTournaments() {
+    const t = ui.tournamentId && findTournament(ui.tournamentId);
+    if (!t) { ui.tournamentId = null; ui.categoryId = null; return renderTournamentList(); }
+    const c = ui.categoryId && findCategory(t, ui.categoryId);
+    if (c) return renderCategory(t, c);
+    ui.categoryId = null;
+    renderTournamentDetail(t);
+  }
 
-    const matchList = t.matches.length
-      ? t.matches.slice().reverse().map((mt) => {
-          const aWon = mt.scoreA > mt.scoreB;
-          const bWon = mt.scoreB > mt.scoreA;
-          return `
-          <div class="row-item">
-            <div class="main">
-              <div class="ttl">
-                <span style="color:${aWon ? "var(--good)" : "inherit"}">${esc(mt.teamA)}</span>
-                <span style="color:var(--text-faint)"> ${mt.scoreA} – ${mt.scoreB} </span>
-                <span style="color:${bWon ? "var(--good)" : "inherit"}">${esc(mt.teamB)}</span>
-              </div>
-              <div class="meta">${new Date(mt.date).toLocaleDateString()}</div>
-            </div>
-            <button class="btn ghost small" data-del-match="${mt.id}">Delete</button>
-          </div>`;
+  /* ---- level 1: list ---- */
+  function renderTournamentList() {
+    const list = store.tournaments.length
+      ? store.tournaments.map((t) => {
+          const done = t.categories.filter((c) => c.done).length;
+          return '<div class="row-item clickable" data-open="' + t.id + '">' +
+            '<div class="main"><div class="ttl">🏆 ' + esc(t.name) + "</div>" +
+            '<div class="meta">' + t.categories.length + " categories · " + done + " finished</div></div>" +
+            '<span class="pill">Open →</span></div>';
         }).join("")
-      : `<div class="empty">No matches recorded yet.</div>`;
+      : '<div class="empty"><span class="big">🏆</span>No tournaments yet.<br/>Create one above — add categories, teams and results.</div>';
 
-    const standings = computeStandings(t);
-    const standingsRows = standings.map((s, i) => `
-      <tr>
-        <td class="team"><span class="rank">${i + 1}</span>${esc(s.name)}</td>
-        <td>${s.P}</td>
-        <td class="w">${s.W}</td>
-        <td>${s.L}</td>
-        <td>${s.PF}</td>
-        <td>${s.PA}</td>
-        <td>${s.PF - s.PA > 0 ? "+" : ""}${s.PF - s.PA}</td>
-        <td class="pts">${s.W * 2}</td>
-      </tr>`).join("");
+    tourEl.innerHTML =
+      '<div class="card glass"><h2>Create a tournament</h2>' +
+      '<p class="sub">A tournament holds categories (e.g. Men’s Singles, Mixed Doubles). Whoever wins the most categories wins the tournament.</p>' +
+      '<div class="inline-form"><div class="field grow"><label>Tournament name</label>' +
+      '<input type="text" id="tName" placeholder="e.g. Summer Club Championship" maxlength="60" /></div>' +
+      '<button class="btn primary" id="createTournament">Create</button></div></div>' +
+      '<div class="card glass"><p class="section-title">Your tournaments</p><div class="spacer"></div>' +
+      '<div class="list">' + list + "</div></div>";
+  }
 
-    tourEl.innerHTML = `
-      <button class="back-link" id="backToList">← All tournaments</button>
+  /* ---- level 2: tournament overview ---- */
+  function renderTournamentDetail(t) {
+    const sportOptions = Object.entries(SPORTS)
+      .map(([k, s]) => '<option value="' + k + '">' + s.icon + " " + s.name + "</option>").join("");
 
-      <div class="card glass">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
-          <div>
-            <h2>${cfg.icon} ${esc(t.name)}</h2>
-            <p class="sub">${cfg.name} · ${t.teams.length} teams · ${t.matches.length} matches</p>
-          </div>
-          <button class="btn danger small" id="deleteTournament">Delete</button>
-        </div>
+    const catRows = t.categories.length
+      ? t.categories.map((c) => {
+          const icon = (SPORTS[c.sport] || {}).icon || "🎾";
+          const leader = categoryLeader(c);
+          const status = c.done
+            ? '<span class="pill win">🏅 ' + esc(leader || "—") + "</span>"
+            : leader
+              ? '<span class="pill">Leading: ' + esc(leader) + "</span>"
+              : '<span class="pill">Not started</span>';
+          return '<div class="row-item clickable" data-open-cat="' + c.id + '">' +
+            '<div class="main"><div class="ttl">' + icon + " " + esc(c.name) + "</div>" +
+            '<div class="meta">' + c.teams.length + " teams · " + c.matches.length + " matches" +
+            (c.done ? " · finished" : "") + "</div></div>" + status + "</div>";
+        }).join("")
+      : '<div class="empty">No categories yet — add the first one above.</div>';
 
-        <p class="section-title">Teams</p>
-        <div class="inline-form">
-          <div class="field grow">
-            <label>Add a team</label>
-            <input type="text" id="teamName" placeholder="Team or player name" maxlength="40" />
-          </div>
-          <button class="btn" id="addTeam">Add team</button>
-        </div>
-        <div class="spacer"></div>
-        <div class="chips">${teamChips}</div>
-      </div>
+    const wins = categoryWins(t);
+    const total = t.categories.length;
+    const allDone = total > 0 && t.categories.every((c) => c.done);
+    const maxWins = wins.length ? wins[0].n : 0;
+    const champs = wins.filter((w) => w.n === maxWins);
+    const champBanner = allDone && wins.length
+      ? '<div class="champion-banner"><div class="cup">👑</div>' +
+        '<div class="who">' + champs.map((c) => esc(c.name)).join(" & ") + "</div>" +
+        '<div class="txt">' + (champs.length > 1 ? "share the title" : "wins the tournament") +
+        " · " + maxWins + " of " + total + " categories</div></div>"
+      : "";
 
-      <div class="card glass">
-        <p class="section-title">Record a result</p>
-        ${canRecord ? `
-        <div class="inline-form">
-          <div class="field">
-            <label>Team 1</label>
-            <select id="mTeamA">${teamSelect}</select>
-          </div>
-          <div class="field" style="flex:0 0 90px;">
-            <label>Score</label>
-            <input type="number" id="mScoreA" min="0" step="1" placeholder="0" />
-          </div>
-          <div class="field" style="flex:0 0 90px;">
-            <label>Score</label>
-            <input type="number" id="mScoreB" min="0" step="1" placeholder="0" />
-          </div>
-          <div class="field">
-            <label>Team 2</label>
-            <select id="mTeamB">${teamSelect}</select>
-          </div>
-        </div>
-        <div class="spacer"></div>
-        <button class="btn primary" id="recordMatch">Add result</button>
-        <p class="hint">Enter the final score (games/sets/points won by each side). The higher score wins.</p>
-        ` : `<div class="empty">Add at least two teams to start recording results.</div>`}
-      </div>
+    const lbRows = wins.length
+      ? wins.map((w, i) =>
+          '<div class="lb-row' + (i === 0 ? " first" : "") + '">' +
+          '<div class="lb-rank">' + (i + 1) + "</div>" +
+          '<div class="lb-name">' + esc(w.name) + "</div>" +
+          '<div class="lb-bar" style="width:' + Math.round((w.n / Math.max(maxWins, 1)) * 70) + 'px;"></div>' +
+          '<div class="lb-count">' + w.n + " " + (w.n === 1 ? "category" : "categories") + "</div></div>").join("")
+      : '<div class="empty">Finish a category to put its winner on the board.</div>';
 
-      <div class="card glass">
-        <p class="section-title">Standings</p>
-        <div class="spacer"></div>
-        ${standings.length ? `
-        <div class="table-wrap">
-          <table class="standings">
-            <thead>
-              <tr><th style="text-align:left;">Team</th><th>P</th><th>W</th><th>L</th><th>PF</th><th>PA</th><th>Diff</th><th>Pts</th></tr>
-            </thead>
-            <tbody>${standingsRows}</tbody>
-          </table>
-        </div>
-        <p class="hint">P played · W won · L lost · PF points for · PA points against · Pts = 2 per win.</p>
-        ` : `<div class="empty">Standings appear once teams are added.</div>`}
-      </div>
+    tourEl.innerHTML =
+      '<button class="back-link" id="backToList">← All tournaments</button>' +
+      '<div class="card glass">' +
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">' +
+      "<div><h2>🏆 " + esc(t.name) + "</h2>" +
+      '<p class="sub">' + total + " categories · most category wins takes the title</p></div>" +
+      '<button class="btn danger small" id="deleteTournament">Delete</button></div>' +
+      champBanner +
+      '<p class="section-title">Leaderboard — category wins</p>' + lbRows +
+      "</div>" +
+      '<div class="card glass"><p class="section-title">Add a category</p>' +
+      '<div class="inline-form"><div class="field grow"><label>Category name</label>' +
+      '<input type="text" id="catName" placeholder="e.g. Men’s Singles" maxlength="50" /></div>' +
+      '<div class="field"><label>Sport</label><select id="catSport">' + sportOptions + "</select></div>" +
+      '<button class="btn primary" id="addCategory">Add</button></div></div>' +
+      '<div class="card glass"><p class="section-title">Categories</p><div class="spacer"></div>' +
+      '<div class="list">' + catRows + "</div></div>";
+  }
 
-      <div class="card glass">
-        <p class="section-title">Match history</p>
-        <div class="spacer"></div>
-        <div class="list">${matchList}</div>
-      </div>
-    `;
+  /* ---- level 3: category ---- */
+  function renderCategory(t, c) {
+    const sport = SPORTS[c.sport] || SPORTS.tennis;
+
+    const teamChips = c.teams.length
+      ? c.teams.map((name) =>
+          '<span class="team-chip">' + esc(name) +
+          '<button data-remove-team="' + esc(name) + '" title="Remove">×</button></span>').join("")
+      : '<span class="hint">No teams yet — add your first team above.</span>';
+
+    const teamSelect = c.teams.map((n) => '<option value="' + esc(n) + '">' + esc(n) + "</option>").join("");
+    const canRecord = c.teams.length >= 2 && !c.done;
+
+    const matchList = c.matches.length
+      ? c.matches.slice().reverse().map((mt) => {
+          const aWon = mt.scoreA > mt.scoreB;
+          return '<div class="row-item"><div class="main"><div class="ttl">' +
+            '<span style="color:' + (aWon ? "var(--good)" : "inherit") + '">' + esc(mt.teamA) + "</span>" +
+            '<span style="color:var(--text-faint)"> ' + mt.scoreA + " – " + mt.scoreB + " </span>" +
+            '<span style="color:' + (!aWon ? "var(--good)" : "inherit") + '">' + esc(mt.teamB) + "</span></div>" +
+            '<div class="meta">' + new Date(mt.date).toLocaleDateString() + "</div></div>" +
+            (c.done ? "" : '<button class="btn ghost small" data-del-match="' + mt.id + '">Delete</button>') +
+            "</div>";
+        }).join("")
+      : '<div class="empty">No matches recorded yet.</div>';
+
+    const standings = computeStandings(c);
+    const standingsRows = standings.map((s, i) =>
+      "<tr><td class=\"team\"><span class=\"rank\">" + (i + 1) + "</span>" + esc(s.name) + "</td>" +
+      "<td>" + s.P + '</td><td class="w">' + s.W + "</td><td>" + s.L + "</td>" +
+      "<td>" + s.PF + "</td><td>" + s.PA + "</td>" +
+      "<td>" + (s.PF - s.PA > 0 ? "+" : "") + (s.PF - s.PA) + "</td>" +
+      '<td class="pts">' + s.W * 2 + "</td></tr>").join("");
+
+    const winner = categoryLeader(c);
+    const doneBanner = c.done
+      ? '<div class="champion-banner"><div class="cup">🏅</div>' +
+        '<div class="who">' + esc(winner || "—") + "</div>" +
+        '<div class="txt">wins ' + esc(c.name) + "</div></div>"
+      : "";
+
+    tourEl.innerHTML =
+      '<button class="back-link" id="backToTournament">← ' + esc(t.name) + "</button>" +
+      '<div class="card glass">' +
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">' +
+      "<div><h2>" + sport.icon + " " + esc(c.name) + "</h2>" +
+      '<p class="sub">' + sport.name + " · " + c.teams.length + " teams · " + c.matches.length + " matches</p></div>" +
+      '<div style="display:flex;gap:8px;">' +
+      '<button class="btn small ' + (c.done ? "ghost" : "primary") + '" id="toggleDone"' +
+      (!c.done && !c.matches.length ? " disabled" : "") + ">" +
+      (c.done ? "Reopen" : "Finish category") + "</button>" +
+      '<button class="btn danger small" id="deleteCategory">Delete</button></div></div>' +
+      doneBanner +
+      (c.done ? "" :
+        '<p class="section-title">Teams</p>' +
+        '<div class="inline-form"><div class="field grow"><label>Add a team</label>' +
+        '<input type="text" id="teamName" placeholder="Team or player name" maxlength="40" /></div>' +
+        '<button class="btn" id="addTeam">Add team</button></div>' +
+        '<div class="spacer"></div><div class="chips">' + teamChips + "</div>") +
+      "</div>" +
+      '<div class="card glass"><p class="section-title">Record a result</p>' +
+      (canRecord
+        ? '<div class="inline-form">' +
+          '<div class="field"><label>Team 1</label><select id="mTeamA">' + teamSelect + "</select></div>" +
+          '<div class="field" style="flex:0 0 80px;"><label>Score</label><input type="number" id="mScoreA" min="0" step="1" placeholder="0" /></div>' +
+          '<div class="field" style="flex:0 0 80px;"><label>Score</label><input type="number" id="mScoreB" min="0" step="1" placeholder="0" /></div>' +
+          '<div class="field"><label>Team 2</label><select id="mTeamB">' + teamSelect + "</select></div></div>" +
+          '<div class="spacer"></div><button class="btn primary" id="recordMatch">Add result</button>' +
+          '<p class="hint">Enter the final score (sets, games or points won). The higher score wins.</p>'
+        : c.done
+          ? '<div class="empty">Category finished — reopen it to record more results.</div>'
+          : '<div class="empty">Add at least two teams to start recording results.</div>') +
+      "</div>" +
+      '<div class="card glass"><p class="section-title">Standings</p><div class="spacer"></div>' +
+      (standings.length
+        ? '<div class="table-wrap"><table class="standings"><thead><tr>' +
+          '<th style="text-align:left;">Team</th><th>P</th><th>W</th><th>L</th><th>PF</th><th>PA</th><th>Diff</th><th>Pts</th>' +
+          "</tr></thead><tbody>" + standingsRows + "</tbody></table></div>" +
+          '<p class="hint">P played · W won · L lost · PF/PA points for & against · Pts = 2 per win.</p>'
+        : '<div class="empty">Standings appear once teams are added.</div>') +
+      "</div>" +
+      '<div class="card glass"><p class="section-title">Match history</p><div class="spacer"></div>' +
+      '<div class="list">' + matchList + "</div></div>";
   }
 
   /* ---- tournament actions ---- */
   function createTournament() {
     const name = (document.getElementById("tName").value || "").trim();
-    const sport = document.getElementById("tSport").value;
     if (!name) { alert("Please enter a tournament name."); return; }
-    const t = { id: uid(), name, sport, teams: [], matches: [], date: Date.now() };
+    const t = { id: uid(), name, date: Date.now(), categories: [] };
     store.tournaments.unshift(t);
     ui.tournamentId = t.id;
     save();
     renderTournaments();
   }
 
-  function addTeam(t) {
+  function addCategory(t) {
+    const name = (document.getElementById("catName").value || "").trim();
+    const sport = document.getElementById("catSport").value;
+    if (!name) { alert("Please enter a category name."); return; }
+    const c = { id: uid(), name, sport, teams: [], matches: [], done: false };
+    t.categories.push(c);
+    ui.categoryId = c.id;
+    save();
+    renderTournaments();
+  }
+
+  function addTeam(c) {
     const input = document.getElementById("teamName");
     const name = (input.value || "").trim();
     if (!name) return;
-    if (t.teams.some((n) => n.toLowerCase() === name.toLowerCase())) {
-      alert("That team is already in this tournament."); return;
+    if (c.teams.some((n) => n.toLowerCase() === name.toLowerCase())) {
+      alert("That team is already in this category."); return;
     }
-    t.teams.push(name);
+    c.teams.push(name);
     save();
     renderTournaments();
   }
 
-  function removeTeam(t, name) {
-    t.teams = t.teams.filter((n) => n !== name);
-    save();
-    renderTournaments();
-  }
-
-  function recordMatch(t) {
+  function recordMatch(c) {
     const teamA = document.getElementById("mTeamA").value;
     const teamB = document.getElementById("mTeamB").value;
     const scoreA = parseInt(document.getElementById("mScoreA").value, 10);
@@ -988,21 +1195,7 @@ table.standings { width: 100%; border-collapse: collapse; font-size: 14px; min-w
     if (teamA === teamB) { alert("Pick two different teams."); return; }
     if (isNaN(scoreA) || isNaN(scoreB)) { alert("Enter a score for both teams."); return; }
     if (scoreA === scoreB) { alert("A match can't end in a tie — enter a winning score."); return; }
-    t.matches.push({ id: uid(), teamA, teamB, scoreA, scoreB, date: Date.now() });
-    save();
-    renderTournaments();
-  }
-
-  function deleteMatch(t, id) {
-    t.matches = t.matches.filter((m) => m.id !== id);
-    save();
-    renderTournaments();
-  }
-
-  function deleteTournament(t) {
-    if (!confirm(`Delete "${t.name}" and all its results?`)) return;
-    store.tournaments = store.tournaments.filter((x) => x.id !== t.id);
-    ui.tournamentId = null;
+    c.matches.push({ id: uid(), teamA, teamB, scoreA, scoreB, date: Date.now() });
     save();
     renderTournaments();
   }
@@ -1012,54 +1205,124 @@ table.standings { width: 100%; border-collapse: collapse; font-size: 14px; min-w
 
     const openBtn = e.target.closest("[data-open]");
     if (openBtn) { ui.tournamentId = openBtn.dataset.open; renderTournaments(); return; }
-
-    if (e.target.closest("#backToList")) { ui.tournamentId = null; renderTournaments(); return; }
+    if (e.target.closest("#backToList")) { ui.tournamentId = null; ui.categoryId = null; renderTournaments(); return; }
 
     const t = ui.tournamentId && findTournament(ui.tournamentId);
     if (!t) return;
 
-    if (e.target.closest("#addTeam")) return addTeam(t);
-    if (e.target.closest("#recordMatch")) return recordMatch(t);
-    if (e.target.closest("#deleteTournament")) return deleteTournament(t);
+    if (e.target.closest("#backToTournament")) { ui.categoryId = null; renderTournaments(); return; }
+    if (e.target.closest("#addCategory")) return addCategory(t);
+    if (e.target.closest("#deleteTournament")) {
+      if (confirm('Delete "' + t.name + '" and all its categories?')) {
+        store.tournaments = store.tournaments.filter((x) => x.id !== t.id);
+        ui.tournamentId = null; save(); renderTournaments();
+      }
+      return;
+    }
+
+    const openCat = e.target.closest("[data-open-cat]");
+    if (openCat) { ui.categoryId = openCat.dataset.openCat; renderTournaments(); return; }
+
+    const c = ui.categoryId && findCategory(t, ui.categoryId);
+    if (!c) return;
+
+    if (e.target.closest("#addTeam")) return addTeam(c);
+    if (e.target.closest("#recordMatch")) return recordMatch(c);
+    if (e.target.closest("#toggleDone")) {
+      c.done = !c.done; save(); renderTournaments(); return;
+    }
+    if (e.target.closest("#deleteCategory")) {
+      if (confirm('Delete category "' + c.name + '"?')) {
+        t.categories = t.categories.filter((x) => x.id !== c.id);
+        ui.categoryId = null; save(); renderTournaments();
+      }
+      return;
+    }
 
     const rmTeam = e.target.closest("[data-remove-team]");
-    if (rmTeam) return removeTeam(t, rmTeam.dataset.removeTeam);
-
+    if (rmTeam) {
+      c.teams = c.teams.filter((n) => n !== rmTeam.dataset.removeTeam);
+      save(); renderTournaments(); return;
+    }
     const delMatch = e.target.closest("[data-del-match]");
-    if (delMatch) return deleteMatch(t, delMatch.dataset.delMatch);
-  });
-
-  // enter-to-add on team & tournament name inputs
-  tourEl.addEventListener("keydown", (e) => {
-    if (e.key !== "Enter") return;
-    if (e.target.id === "teamName") {
-      const t = ui.tournamentId && findTournament(ui.tournamentId);
-      if (t) { e.preventDefault(); addTeam(t); }
-    } else if (e.target.id === "tName") {
-      e.preventDefault(); createTournament();
+    if (delMatch) {
+      c.matches = c.matches.filter((m) => m.id !== delMatch.dataset.delMatch);
+      save(); renderTournaments(); return;
     }
   });
-  liveEl.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && (e.target.id === "p1" || e.target.id === "p2")) {
-      e.preventDefault(); startMatch();
+
+  tourEl.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter") return;
+    const t = ui.tournamentId && findTournament(ui.tournamentId);
+    if (e.target.id === "tName") { e.preventDefault(); createTournament(); }
+    else if (e.target.id === "catName" && t) { e.preventDefault(); addCategory(t); }
+    else if (e.target.id === "teamName" && t) {
+      const c = ui.categoryId && findCategory(t, ui.categoryId);
+      if (c) { e.preventDefault(); addTeam(c); }
     }
   });
 
   /* ============================================================
-     TAB SWITCHING + BOOT
+     HISTORY TAB
      ============================================================ */
-  document.querySelectorAll(".tab").forEach((btn) => {
+  const histEl = document.getElementById("tab-history");
+
+  function renderHistory() {
+    const items = store.history.length
+      ? store.history.map((h) => {
+          const icon = (SPORTS[h.sport] || {}).icon || "🎾";
+          return '<div class="row-item"><div class="main">' +
+            '<div class="ttl">' + icon + " " + esc(h.winnerName) +
+            ' <span style="color:var(--text-faint)">def.</span> ' + esc(h.loserName) + "</div>" +
+            '<div class="meta">' + esc(h.score) +
+            (h.format ? " · " + h.format : "") +
+            (h.mode ? " · " + esc(h.mode) : "") +
+            " · " + new Date(h.date).toLocaleDateString() + "</div></div>" +
+            '<button class="btn ghost small" data-del-hist="' + h.id + '">×</button></div>';
+        }).join("")
+      : '<div class="empty"><span class="big">📜</span>No saved matches yet.<br/>Finish a live match and save the result.</div>';
+
+    histEl.innerHTML =
+      '<div class="card glass">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;">' +
+      "<h2>Match history</h2>" +
+      (store.history.length ? '<button class="btn ghost small" id="clearHistory">Clear all</button>' : "") +
+      "</div>" +
+      '<p class="sub">Every match saved from live scoring.</p>' +
+      '<div class="list">' + items + "</div></div>";
+  }
+
+  histEl.addEventListener("click", (e) => {
+    if (e.target.closest("#clearHistory")) {
+      if (confirm("Clear all saved matches?")) { store.history = []; save(); renderHistory(); }
+      return;
+    }
+    const del = e.target.closest("[data-del-hist]");
+    if (del) {
+      store.history = store.history.filter((h) => h.id !== del.dataset.delHist);
+      save(); renderHistory();
+    }
+  });
+
+  /* ============================================================
+     BOTTOM NAV + BOOT
+     ============================================================ */
+  document.querySelectorAll(".bnav").forEach((btn) => {
     btn.addEventListener("click", () => {
       ui.tab = btn.dataset.tab;
-      document.querySelectorAll(".tab").forEach((b) => b.classList.toggle("is-active", b === btn));
+      buzz(8);
+      document.querySelectorAll(".bnav").forEach((b) => b.classList.toggle("is-active", b === btn));
       document.querySelectorAll(".tab-panel").forEach((p) =>
         p.classList.toggle("is-active", p.id === "tab-" + ui.tab));
-      if (ui.tab === "live") renderLive(); else renderTournaments();
+      if (ui.tab === "live") renderLive();
+      else if (ui.tab === "tournaments") renderTournaments();
+      else renderHistory();
     });
   });
 
   renderLive();
   renderTournaments();
+  renderHistory();
 })();
   </script>
 </body>
