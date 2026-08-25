@@ -30,24 +30,30 @@ own real scoring rules.
 
 ## Running it
 
-It's a static site with no build step or dependencies. Either:
+It's a **single, self-contained `index.html`** — no build step, no
+dependencies, no external assets. Just open it:
 
 ```bash
-# open directly
-open index.html          # macOS  (or just double-click the file)
+open index.html          # macOS  (or double-click the file)
 
 # …or serve it locally
-python3 -m http.server 8000
-# then visit http://localhost:8000
+python3 -m http.server 8000   # then visit http://localhost:8000
 ```
 
 All data is stored locally in your browser (`localStorage`) — it works offline
 and nothing leaves your device.
 
+## Hosting on GitHub Pages
+
+Because everything lives in one `index.html`, hosting is trivial:
+
+1. Push this repo to GitHub.
+2. **Settings → Pages → Build and deployment → Source: Deploy from a branch.**
+3. Pick the branch and the `/ (root)` folder, then **Save**.
+4. Your app goes live at `https://<user>.github.io/<repo>/`.
+
 ## Files
 
 | File | Purpose |
 |------|---------|
-| `index.html` | App shell and tab layout |
-| `styles.css` | Liquid-glass theme (glassmorphism, animated backdrop) |
-| `app.js` | Scoring engines, live scoring, and tournament logic |
+| `index.html` | The entire app — HTML, liquid-glass CSS, and scoring/tournament JS inlined |
