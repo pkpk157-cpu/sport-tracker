@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b1026" />
+  <title>RallyGlass — Racquet Sports Scoring</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- animated liquid-glass backdrop -->
+  <div class="bg" aria-hidden="true">
+    <span class="blob b1"></span>
+    <span class="blob b2"></span>
+    <span class="blob b3"></span>
+    <span class="blob b4"></span>
+  </div>
+
+  <header class="app-header glass">
+    <div class="brand">
+      <div class="brand-mark">🎾</div>
+      <div class="brand-text">
+        <h1>RallyGlass</h1>
+        <p>Racquet sports scoring</p>
+      </div>
+    </div>
+    <nav class="tabs" role="tablist">
+      <button class="tab is-active" data-tab="live" role="tab">Live Scoring</button>
+      <button class="tab" data-tab="tournaments" role="tab">Tournaments</button>
+    </nav>
+  </header>
+
+  <main class="app-main">
+    <section id="tab-live" class="tab-panel is-active"></section>
+    <section id="tab-tournaments" class="tab-panel"></section>
+  </main>
+
+  <footer class="app-footer">
+    <span>Point-by-point live scoring · tournament standings · works offline</span>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
