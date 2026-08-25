@@ -6,10 +6,11 @@
   <meta name="theme-color" content="#0b1026" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>RallyGlass — Tournament Scores</title>
+  <title>The Verandas Pickleball Cup</title>
   <style>
 /* ============================================================
-   RallyGlass — Liquid Glass theme (tournament edition)
+   The Verandas Pickleball Cup — Liquid Glass
+   Two houses. One cup. Endless glory.
    ============================================================ */
 :root {
   --glass-bg: rgba(255, 255, 255, 0.10);
@@ -24,6 +25,10 @@
   --good: #5ff0b0;
   --gold: #ffd479;
   --bad: #ff7a97;
+  --smashers: #c59dff;       /* House of the Mighty Smash */
+  --smashers-deep: #7a4fd0;
+  --dinkers: #7bdcff;        /* Order of the Noble Dink */
+  --dinkers-deep: #2f7fd0;
   --radius: 26px;
   --radius-sm: 16px;
   --shadow: 0 18px 50px rgba(4, 8, 30, 0.45);
@@ -54,16 +59,16 @@ body {
 }
 .blob { position: fixed; border-radius: 50%; filter: blur(60px); opacity: 0.55; z-index: -1; will-change: transform; }
 .b1 { width: 46vmax; height: 46vmax; left: -8vmax; top: -10vmax;
-  background: radial-gradient(circle at 30% 30%, #4d7bff, transparent 70%);
+  background: radial-gradient(circle at 30% 30%, #7a4fd0, transparent 70%);
   animation: drift1 22s ease-in-out infinite; }
 .b2 { width: 40vmax; height: 40vmax; right: -10vmax; top: 8vmax;
-  background: radial-gradient(circle at 50% 50%, #b96bff, transparent 70%);
+  background: radial-gradient(circle at 50% 50%, #2f7fd0, transparent 70%);
   animation: drift2 26s ease-in-out infinite; }
 .b3 { width: 38vmax; height: 38vmax; left: 20vmax; bottom: -16vmax;
   background: radial-gradient(circle at 50% 50%, #2fe0d0, transparent 70%);
   animation: drift3 30s ease-in-out infinite; }
 .b4 { width: 30vmax; height: 30vmax; right: 10vmax; bottom: -8vmax;
-  background: radial-gradient(circle at 50% 50%, #ff7ac0, transparent 70%);
+  background: radial-gradient(circle at 50% 50%, #ffb35c, transparent 70%);
   animation: drift1 34s ease-in-out infinite reverse; }
 @keyframes drift1 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(6vmax, 4vmax) scale(1.1); } }
 @keyframes drift2 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-5vmax, 6vmax) scale(1.08); } }
@@ -99,7 +104,7 @@ body {
   box-shadow: inset 0 1px 0 var(--glass-highlight);
 }
 .brand-text { min-width: 0; }
-.brand-text h1 { margin: 0; font-size: 17px; letter-spacing: .2px;
+.brand-text h1 { margin: 0; font-size: 16px; letter-spacing: .2px;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .brand-text p { margin: 1px 0 0; font-size: 11px; color: var(--text-dim); }
 
@@ -156,7 +161,7 @@ body {
 
 input[type="text"], input[type="number"], select {
   width: 100%; color: var(--text); font-size: 15px; font-family: inherit;
-  padding: 12px 14px; border-radius: var(--radius-sm);
+  padding: 11px 13px; border-radius: var(--radius-sm);
   background: rgba(255,255,255,.08);
   border: 1px solid rgba(255,255,255,.2);
   transition: border .2s, background .2s;
@@ -188,6 +193,33 @@ select option { color: #10142c; }
 .btn.block { width: 100%; }
 .btn:disabled { opacity: .4; cursor: not-allowed; }
 
+/* ---------- head-to-head hero ---------- */
+.h2h { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: center;
+  padding: 6px 0 2px; }
+.h2h .house { text-align: center; min-width: 0; }
+.h2h .house .crest { font-size: 30px; }
+.h2h .house .hname { font-weight: 800; font-size: 14.5px; margin-top: 4px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.h2h .house .score { font-size: 42px; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.h2h .house .cats { font-size: 11.5px; color: var(--text-dim); margin-top: 2px; }
+.h2h .house.sm .hname, .h2h .house.sm .score { color: var(--smashers); }
+.h2h .house.dk .hname, .h2h .house.dk .score { color: var(--dinkers); }
+.h2h .vs { font-size: 18px; color: var(--text-faint); font-weight: 800; padding: 0 2px; }
+
+.progress { height: 10px; border-radius: 6px; overflow: hidden; display: flex;
+  background: rgba(0,0,0,.25); border: 1px solid rgba(255,255,255,.12); margin: 14px 0 6px; }
+.progress .p-sm { background: linear-gradient(90deg, var(--smashers-deep), var(--smashers)); }
+.progress .p-dk { background: linear-gradient(270deg, var(--dinkers-deep), var(--dinkers)); }
+.progress-note { text-align: center; font-size: 12px; color: var(--text-dim); }
+
+.lead-banner { text-align: center; padding: 12px 10px 4px; }
+.lead-banner .cup { font-size: 36px; }
+.lead-banner .who { font-size: 20px; font-weight: 800; margin-top: 4px; }
+.lead-banner .who.sm { color: var(--smashers); }
+.lead-banner .who.dk { color: var(--dinkers); }
+.lead-banner .who.tie { color: var(--gold); }
+.lead-banner .txt { color: var(--text-dim); font-size: 12.5px; margin-top: 3px; }
+
 /* ---------- lists ---------- */
 .list { display: flex; flex-direction: column; gap: 9px; }
 .row-item {
@@ -195,59 +227,68 @@ select option { color: #10142c; }
   padding: 13px 15px; border-radius: var(--radius-sm);
   background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.14);
 }
-.row-item .main { min-width: 0; }
+.row-item .main { min-width: 0; flex: 1; }
 .row-item .ttl { font-weight: 700; font-size: 14.5px; overflow: hidden; text-overflow: ellipsis; }
 .row-item .meta { font-size: 12px; color: var(--text-dim); margin-top: 3px; }
 .row-item.clickable { cursor: pointer; transition: background .18s; }
 .row-item.clickable:hover { background: rgba(255,255,255,.12); }
+.row-item.won-sm { border-left: 3px solid var(--smashers); }
+.row-item.won-dk { border-left: 3px solid var(--dinkers); }
 
 .pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12px;
   padding: 6px 10px; border-radius: 999px; background: rgba(255,255,255,.08);
   border: 1px solid rgba(255,255,255,.16); white-space: nowrap; }
-.pill.win { color: var(--gold); border-color: rgba(255,212,121,.4); }
+.pill.sm { color: var(--smashers); border-color: rgba(197,157,255,.45); }
+.pill.dk { color: var(--dinkers); border-color: rgba(123,220,255,.45); }
+.pill.gold { color: var(--gold); border-color: rgba(255,212,121,.4); }
 .pills { display: flex; flex-wrap: wrap; gap: 8px; }
-.chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.team-chip { display: inline-flex; align-items: center; gap: 8px; font-size: 13px;
-  padding: 7px 12px; border-radius: 999px; background: rgba(255,255,255,.08);
-  border: 1px solid rgba(255,255,255,.16); }
-.team-chip button { appearance: none; background: none; border: 0; color: var(--text-faint);
-  cursor: pointer; font-size: 15px; line-height: 1; padding: 0; }
-.team-chip button:hover { color: var(--bad); }
 
 .inline-form { display: flex; gap: 10px; flex-wrap: wrap; align-items: end; }
 .inline-form .field { margin: 0; flex: 1 1 130px; }
 .grow { flex: 1 1 auto; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 420px) { .two-col { grid-template-columns: 1fr; } }
 
-/* ---------- standings table ---------- */
-.table-wrap { overflow-x: auto; border-radius: var(--radius-sm); }
-table.standings { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 430px; }
-.standings th, .standings td { padding: 10px 10px; text-align: center; }
-.standings th { font-size: 10.5px; text-transform: uppercase; letter-spacing: .6px;
-  color: var(--text-faint); font-weight: 700; border-bottom: 1px solid rgba(255,255,255,.14); }
-.standings td { border-bottom: 1px solid rgba(255,255,255,.07); font-variant-numeric: tabular-nums; }
-.standings td.team { text-align: left; font-weight: 600; }
-.standings tr:first-child td .rank { color: var(--gold); }
-.rank { display: inline-block; width: 20px; color: var(--text-faint); font-weight: 700; }
-.standings td.w { color: var(--good); font-weight: 700; }
-.standings td.pts { font-weight: 800; }
+/* ---------- contest detail ---------- */
+.side-block { padding: 13px; border-radius: var(--radius-sm);
+  background: rgba(0,0,0,.14); border: 1px solid rgba(255,255,255,.1); }
+.side-block .side-name { font-weight: 800; font-size: 13px; margin-bottom: 9px; }
+.side-block.sm { border-color: rgba(197,157,255,.35); }
+.side-block.sm .side-name { color: var(--smashers); }
+.side-block.dk { border-color: rgba(123,220,255,.35); }
+.side-block.dk .side-name { color: var(--dinkers); }
+.side-block .field { margin-bottom: 8px; }
+.side-block .field:last-child { margin-bottom: 0; }
 
-/* ---------- leaderboard ---------- */
-.lb-row { display: flex; align-items: center; gap: 12px; padding: 11px 4px;
-  border-bottom: 1px solid rgba(255,255,255,.08); }
-.lb-row:last-child { border-bottom: 0; }
-.lb-rank { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center;
-  font-size: 12px; font-weight: 800; background: rgba(255,255,255,.09);
-  border: 1px solid rgba(255,255,255,.16); color: var(--text-dim); flex: none; }
-.lb-row.first .lb-rank { color: #0b1026; background: linear-gradient(150deg, #ffd479, #ffb35c); border: 0; }
-.lb-name { flex: 1; font-weight: 700; font-size: 14.5px; min-width: 0;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.lb-count { font-size: 13px; color: var(--text-dim); white-space: nowrap; }
-.lb-bar { height: 6px; border-radius: 4px; background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
+.game-row { display: grid; grid-template-columns: auto 1fr auto 1fr; gap: 8px; align-items: center; margin-bottom: 8px; }
+.game-row .glbl { font-size: 11px; color: var(--text-faint); text-transform: uppercase; letter-spacing: .6px; width: 52px; }
+.game-row .dash { color: var(--text-faint); font-weight: 800; }
+.game-row input { text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; }
 
-.champion-banner { text-align: center; padding: 14px 10px 10px; }
-.champion-banner .cup { font-size: 38px; }
-.champion-banner .who { font-size: 21px; font-weight: 800; margin-top: 4px; color: var(--gold); }
-.champion-banner .txt { color: var(--text-dim); font-size: 12.5px; margin-top: 3px; }
+.result-line { text-align: center; padding: 10px 0 2px; }
+.result-line .players { font-size: 14px; font-weight: 700; }
+.result-line .players .side-a { color: var(--smashers); }
+.result-line .players .side-b { color: var(--dinkers); }
+.result-line .scoreline { font-size: 26px; font-weight: 800; font-variant-numeric: tabular-nums; margin-top: 4px; }
+.result-line .note { font-size: 12px; color: var(--text-dim); margin-top: 3px; }
+
+/* ---------- houses tab ---------- */
+.house-card { position: relative; overflow: hidden; }
+.house-card.sm { border-color: rgba(197,157,255,.4); }
+.house-card.dk { border-color: rgba(123,220,255,.4); }
+.house-card .hc-top { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
+.house-card .hc-crest { font-size: 34px; }
+.house-card .hc-name { font-size: 19px; font-weight: 800; margin: 0; }
+.house-card.sm .hc-name { color: var(--smashers); }
+.house-card.dk .hc-name { color: var(--dinkers); }
+.house-card .hc-title { font-size: 12px; color: var(--text-dim); margin: 1px 0 0; }
+.house-card .hc-motto { font-size: 12.5px; font-style: italic; color: var(--text-faint); margin: 8px 0 14px; }
+.roster { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 14px; }
+.roster .player { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600;
+  padding: 6px 8px; border-radius: 10px; background: rgba(255,255,255,.05); }
+.roster .num { width: 20px; height: 20px; border-radius: 50%; flex: none;
+  display: grid; place-items: center; font-size: 10px; font-weight: 800;
+  background: rgba(255,255,255,.1); color: var(--text-dim); }
 
 /* ---------- misc ---------- */
 .empty { text-align: center; color: var(--text-dim); padding: 24px 14px; font-size: 14px; }
@@ -258,10 +299,7 @@ table.standings { width: 100%; border-collapse: collapse; font-size: 13.5px; min
 .back-link { display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
   color: var(--text-dim); font-size: 14px; margin-bottom: 12px; background: none; border: 0; font-family: inherit; padding: 4px 0; }
 .back-link:hover { color: var(--text); }
-.hero { text-align: center; padding: 26px 20px 22px; }
-.hero .trophy { font-size: 44px; }
-.hero h2 { font-size: 22px; margin: 10px 0 4px; }
-.hero .sub { margin: 0; }
+.decree { font-size: 12px; color: var(--text-faint); text-align: center; line-height: 1.6; }
   </style>
 </head>
 <body>
@@ -275,45 +313,83 @@ table.standings { width: 100%; border-collapse: collapse; font-size: 13.5px; min
     <div class="brand">
       <div class="brand-mark">🏆</div>
       <div class="brand-text">
-        <h1 id="headerTitle">RallyGlass</h1>
-        <p>Tournament scores</p>
+        <h1>The Verandas Pickleball Cup</h1>
+        <p>Two houses · One cup · Endless glory</p>
       </div>
     </div>
   </header>
 
   <main class="app-main">
     <section id="tab-overview" class="tab-panel is-active"></section>
-    <section id="tab-categories" class="tab-panel"></section>
-    <section id="tab-results" class="tab-panel"></section>
+    <section id="tab-contests" class="tab-panel"></section>
+    <section id="tab-houses" class="tab-panel"></section>
   </main>
 
   <nav class="bottom-nav" role="tablist">
     <button class="bnav is-active" data-tab="overview" role="tab"><span class="ico">🏆</span>Overview</button>
-    <button class="bnav" data-tab="categories" role="tab"><span class="ico">🗂️</span>Categories</button>
-    <button class="bnav" data-tab="results" role="tab"><span class="ico">📜</span>Results</button>
+    <button class="bnav" data-tab="contests" role="tab"><span class="ico">⚔️</span>Contests</button>
+    <button class="bnav" data-tab="houses" role="tab"><span class="ico">🛡️</span>Houses</button>
   </nav>
 
   <script>
 /* ============================================================
-   RallyGlass — single-tournament scores (tournament edition)
-   One tournament, many categories. Record end scores per
-   category; most category wins takes the title.
-   Vanilla JS, persisted to localStorage. No build step.
+   The Verandas Pickleball Cup — scorekeeper
+   Soni Smashers vs Sam Dinkers across the Roll of Contests.
+   Each contest won awards its points (10 by decree); most
+   points claims the throne. Vanilla JS + localStorage.
    ============================================================ */
 (function () {
   "use strict";
 
-  const SPORTS = {
-    tennis:     { name: "Tennis",     icon: "🎾" },
-    padel:      { name: "Padel",      icon: "🟡" },
-    pickleball: { name: "Pickleball", icon: "🥒" },
-    badminton:  { name: "Badminton",  icon: "🏸" },
-    squash:     { name: "Squash",     icon: "🟠" },
-  };
+  /* ---------------- the two houses ---------------- */
+  const HOUSES = [
+    {
+      key: "sm", name: "Soni Smashers", crest: "🟣",
+      title: "House of the Mighty Smash",
+      motto: "“We came to smash, not to curtsy.”",
+      roster: ["Chandni", "Avni", "Satish", "Suryansh", "Kevin", "Vyom", "Tarun",
+               "Dhruv", "Rahul", "Harsh", "Aloke", "Manish", "Gautam", "Amrish"],
+    },
+    {
+      key: "dk", name: "Sam Dinkers", crest: "🔵",
+      title: "Order of the Noble Dink",
+      motto: "“A gentle dink, a ruthless mind.”",
+      roster: ["Jannat", "Amy", "Shivam", "Amitabh", "Rashmi", "Ryan", "Pranav",
+               "Garv", "Nitin", "Kunal", "Prashant", "Sanjay", "Pahuja", "Manoj"],
+    },
+  ];
 
-  /* ---------------- storage (+ migration from v1/v2) ---------------- */
-  const KEY = "rallyglass_v3";
-  const defaultStore = () => ({ name: "", categories: [], created: Date.now() });
+  /* ---------------- Exhibit A + B — the Roll of Contests ---------------- */
+  // kind: "singles" (1 player/house) | "doubles" (2) | "special" (whole team)
+  const DEFAULT_CONTESTS = [
+    { name: "Risers Doubles", kind: "doubles", icon: "⬆️",
+      desc: "For the improved newcomers of the community — rising swiftly through the ranks." },
+    { name: "Risers Singles", kind: "singles", icon: "⬆️",
+      desc: "For the improved newcomers — each rising warrior fights alone." },
+    { name: "Women’s Doubles", kind: "doubles", icon: "👑",
+      desc: "A noble pairing of lady contenders, battling side by side for glory." },
+    { name: "Mixed Doubles", kind: "doubles", icon: "🤝",
+      desc: "A balanced alliance of lady and gent, forged for strategy, mischief, and victory." },
+    { name: "50+ Doubles", kind: "doubles", icon: "🎖️",
+      desc: "For seasoned champions of 50 years and above — wisdom paired with precision." },
+    { name: "50+ Singles", kind: "singles", icon: "🎖️",
+      desc: "For seasoned champions of 50 and above — one paddle, one player, one destiny." },
+    { name: "Men’s Doubles", kind: "doubles", icon: "🦁",
+      desc: "For the pro gentlemen of the realm — a fierce two-man campaign for honor." },
+    { name: "Men’s Singles", kind: "singles", icon: "🗡️",
+      desc: "For the pro gentlemen of the realm — every warrior stands alone." },
+    { name: "Combined Age 80+ Doubles", kind: "doubles", icon: "🛡️",
+      desc: "Open to pairs whose combined age is 80 or greater — experience is a deadly weapon." },
+    { name: "Split Age 50+/− Doubles", kind: "doubles", icon: "⚖️",
+      desc: "One player above 50, one below — a cross-generational alliance of guile and energy." },
+    { name: "Gender Neutral Open Doubles", kind: "doubles", icon: "😈",
+      desc: "Open to all pairings of the realm — if thou canst paddle, thou canst battle." },
+    { name: "Grand Team Rally", kind: "special", icon: "🃏", points: 0,
+      desc: "Exhibit B — further details shall be revealed in due course… suspense is part of the sport. Set its points when the council decrees them." },
+  ];
+
+  /* ---------------- storage ---------------- */
+  const KEY = "verandas_cup_v1";
 
   function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
   const esc = (s) =>
@@ -321,112 +397,63 @@ table.standings { width: 100%; border-collapse: collapse; font-size: 13.5px; min
       ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const buzz = (ms) => { try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) {} };
 
-  function normalizeCategory(c) {
-    return {
-      id: c.id || uid(),
-      name: c.name || "Category",
-      sport: SPORTS[c.sport] ? c.sport : "tennis",
-      teams: Array.isArray(c.teams) ? c.teams : [],
-      matches: Array.isArray(c.matches) ? c.matches : [],
-      done: !!c.done,
-    };
+  function seedContests() {
+    return DEFAULT_CONTESTS.map((c) => ({
+      id: uid() + Math.random().toString(36).slice(2, 5),
+      name: c.name, kind: c.kind, icon: c.icon, desc: c.desc,
+      points: c.points != null ? c.points : 10,
+      playersA: [], playersB: [],   // fielded players per house
+      games: [],                     // [{a,b}] game scores
+      winner: null,                  // 0 = Smashers, 1 = Dinkers
+      done: false,
+    }));
   }
+  const defaultStore = () => ({ contests: seedContests(), created: Date.now() });
 
   function load() {
     try {
       const raw = localStorage.getItem(KEY);
-      if (raw) return Object.assign(defaultStore(), JSON.parse(raw));
-
-      // v2 (multi-tournament with categories): adopt the first tournament
-      const v2 = localStorage.getItem("rallyglass_v2");
-      if (v2) {
-        const old = JSON.parse(v2);
-        const t = (old.tournaments || [])[0];
-        if (t) {
-          const s = defaultStore();
-          s.name = t.name || "";
-          s.categories = (t.categories || []).map(normalizeCategory);
-          localStorage.setItem(KEY, JSON.stringify(s));
-          return s;
-        }
-      }
-      // v1 (flat teams/matches per tournament): adopt the first as one category
-      const v1 = localStorage.getItem("rallyglass_v1");
-      if (v1) {
-        const old = JSON.parse(v1);
-        const t = (old.tournaments || [])[0];
-        if (t) {
-          const s = defaultStore();
-          s.name = t.name || "";
-          s.categories = [normalizeCategory({ name: "Open", sport: t.sport, teams: t.teams, matches: t.matches })];
-          localStorage.setItem(KEY, JSON.stringify(s));
-          return s;
-        }
+      if (raw) {
+        const s = JSON.parse(raw);
+        if (Array.isArray(s.contests)) return s;
       }
     } catch (e) {}
-    return defaultStore();
+    const s = defaultStore();
+    try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {}
+    return s;
   }
   function save() {
     try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {}
   }
 
   let store = load();
-  const ui = { tab: "overview", categoryId: null, renaming: false };
+  const ui = { tab: "overview", contestId: null, edit: null };
 
-  /* ============================================================
-     TOURNAMENT MATH
-     ============================================================ */
-  function computeStandings(cat) {
-    const table = {};
-    cat.teams.forEach((name) => { table[name] = { name, P: 0, W: 0, L: 0, PF: 0, PA: 0 }; });
-    cat.matches.forEach((mt) => {
-      const A = table[mt.teamA], B = table[mt.teamB];
-      if (!A || !B) return;
-      A.P++; B.P++;
-      A.PF += mt.scoreA; A.PA += mt.scoreB;
-      B.PF += mt.scoreB; B.PA += mt.scoreA;
-      if (mt.scoreA > mt.scoreB) { A.W++; B.L++; } else { B.W++; A.L++; }
+  const findContest = (id) => store.contests.find((c) => c.id === id);
+
+  /* ---------------- cup math ---------------- */
+  function gamesWon(c) {
+    let a = 0, b = 0;
+    c.games.forEach((g) => { if (g.a > g.b) a++; else if (g.b > g.a) b++; });
+    return [a, b];
+  }
+
+  function cupTotals() {
+    const pts = [0, 0], cats = [0, 0];
+    let decided = 0;
+    store.contests.forEach((c) => {
+      if (!c.done || c.winner == null) return;
+      decided++;
+      cats[c.winner]++;
+      pts[c.winner] += c.points || 0;
     });
-    return Object.values(table).sort((a, b) =>
-      b.W - a.W || (b.PF - b.PA) - (a.PF - a.PA) || b.PF - a.PF || a.name.localeCompare(b.name));
+    return { pts, cats, decided, total: store.contests.length };
   }
 
-  function categoryLeader(cat) {
-    if (!cat.matches.length) return null;
-    const s = computeStandings(cat);
-    return s.length ? s[0].name : null;
-  }
-
-  // team → number of finished categories won, sorted
-  function categoryWins() {
-    const wins = {};
-    store.categories.forEach((c) => {
-      if (!c.done) return;
-      const w = categoryLeader(c);
-      if (w) wins[w] = (wins[w] || 0) + 1;
-    });
-    return Object.entries(wins)
-      .map(([name, n]) => ({ name, n }))
-      .sort((a, b) => b.n - a.n || a.name.localeCompare(b.name));
-  }
-
-  function findCategory(id) { return store.categories.find((c) => c.id === id); }
-
-  function championBannerHtml() {
-    const total = store.categories.length;
-    const allDone = total > 0 && store.categories.every((c) => c.done);
-    const wins = categoryWins();
-    if (!allDone || !wins.length) return "";
-    const maxWins = wins[0].n;
-    const champs = wins.filter((w) => w.n === maxWins);
-    return '<div class="champion-banner"><div class="cup">👑</div>' +
-      '<div class="who">' + champs.map((c) => esc(c.name)).join(" & ") + "</div>" +
-      '<div class="txt">' + (champs.length > 1 ? "share the title" : "wins the tournament") +
-      " · " + maxWins + " of " + total + " categories</div></div>";
-  }
-
-  function updateHeader() {
-    document.getElementById("headerTitle").textContent = store.name || "RallyGlass";
+  function playersLabel(c, side) {
+    const arr = side === 0 ? c.playersA : c.playersB;
+    const names = (arr || []).filter(Boolean);
+    return names.length ? names.join(" & ") : HOUSES[side].name;
   }
 
   /* ============================================================
@@ -435,331 +462,349 @@ table.standings { width: 100%; border-collapse: collapse; font-size: 13.5px; min
   const overviewEl = document.getElementById("tab-overview");
 
   function renderOverview() {
-    updateHeader();
+    const { pts, cats, decided, total } = cupTotals();
+    const allDone = decided === total;
+    const leader = pts[0] > pts[1] ? 0 : pts[1] > pts[0] ? 1 : null;
 
-    // first run: name the tournament
-    if (!store.name) {
-      overviewEl.innerHTML =
-        '<div class="card glass hero">' +
-        '<div class="trophy">🏆</div>' +
-        "<h2>Set up your tournament</h2>" +
-        '<p class="sub">One tournament, many categories. Record the end score of every match — whoever wins the most categories takes the title.</p>' +
-        '<div class="spacer"></div><div class="spacer"></div>' +
-        '<div class="field" style="text-align:left;"><label>Tournament name</label>' +
-        '<input type="text" id="tourName" placeholder="e.g. Summer Club Championship" maxlength="60" /></div>' +
-        '<button class="btn primary block" id="setName">Create tournament</button>' +
-        "</div>";
-      return;
+    let banner = "";
+    if (decided > 0) {
+      if (allDone) {
+        banner = leader == null
+          ? '<div class="lead-banner"><div class="cup">🤝</div><div class="who tie">The houses share the glory</div>' +
+            '<div class="txt">level on ' + pts[0] + ' points after all ' + total + " contests</div></div>"
+          : '<div class="lead-banner"><div class="cup">👑</div><div class="who ' + HOUSES[leader].key + '">' +
+            esc(HOUSES[leader].name) + '</div><div class="txt">claim the throne · ' +
+            pts[leader] + " points to " + pts[leader ^ 1] + "</div></div>";
+      } else if (leader != null) {
+        banner = '<div class="lead-banner"><div class="cup">⚔️</div><div class="who ' + HOUSES[leader].key + '">' +
+          esc(HOUSES[leader].name) + ' lead</div><div class="txt">' +
+          pts[leader] + " – " + pts[leader ^ 1] + " with " + (total - decided) + " contests to fight</div></div>";
+      } else {
+        banner = '<div class="lead-banner"><div class="cup">⚔️</div><div class="who tie">All square</div>' +
+          '<div class="txt">' + pts[0] + " – " + pts[1] + " with " + (total - decided) + " contests to fight</div></div>";
+      }
     }
 
-    const total = store.categories.length;
-    const done = store.categories.filter((c) => c.done).length;
-    const teams = new Set();
-    let matchCount = 0;
-    store.categories.forEach((c) => { c.teams.forEach((t) => teams.add(t)); matchCount += c.matches.length; });
+    const pctSm = decided ? Math.round((cats[0] / total) * 100) : 0;
+    const pctDk = decided ? Math.round((cats[1] / total) * 100) : 0;
 
-    const wins = categoryWins();
-    const maxWins = wins.length ? wins[0].n : 0;
-    const lbRows = wins.length
-      ? wins.map((w, i) =>
-          '<div class="lb-row' + (i === 0 ? " first" : "") + '">' +
-          '<div class="lb-rank">' + (i + 1) + "</div>" +
-          '<div class="lb-name">' + esc(w.name) + "</div>" +
-          '<div class="lb-bar" style="width:' + Math.round((w.n / Math.max(maxWins, 1)) * 70) + 'px;"></div>' +
-          '<div class="lb-count">' + w.n + " " + (w.n === 1 ? "category" : "categories") + "</div></div>").join("")
-      : '<div class="empty">Finish a category to put its winner on the board.</div>';
+    const houseCol = (i) =>
+      '<div class="house ' + HOUSES[i].key + '"><div class="crest">' + HOUSES[i].crest + "</div>" +
+      '<div class="hname">' + esc(HOUSES[i].name) + "</div>" +
+      '<div class="score">' + pts[i] + "</div>" +
+      '<div class="cats">' + cats[i] + (cats[i] === 1 ? " contest" : " contests") + " won</div></div>";
 
-    const nameBlock = ui.renaming
-      ? '<div class="inline-form"><div class="field grow"><label>Tournament name</label>' +
-        '<input type="text" id="tourName" value="' + esc(store.name) + '" maxlength="60" /></div>' +
-        '<button class="btn primary" id="setName">Save</button></div>'
-      : '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">' +
-        "<div><h2>🏆 " + esc(store.name) + "</h2>" +
-        '<p class="sub" style="margin-bottom:0;">Most category wins takes the title</p></div>' +
-        '<button class="btn ghost small" id="renameTour">Rename</button></div>';
+    const decidedRows = store.contests.filter((c) => c.done && c.winner != null);
+    const recent = decidedRows.length
+      ? decidedRows.map((c) => {
+          const w = c.winner;
+          const scoreline = c.games.length ? c.games.map((g) => g.a + "–" + g.b).join(", ") : "";
+          return '<div class="row-item won-' + HOUSES[w].key + '">' +
+            '<div class="main"><div class="ttl">' + c.icon + " " + esc(c.name) + "</div>" +
+            '<div class="meta">' + esc(playersLabel(c, w)) + " won" + (scoreline ? " · " + scoreline : "") + "</div></div>" +
+            '<span class="pill ' + HOUSES[w].key + '">+' + (c.points || 0) + " pts</span></div>";
+        }).join("")
+      : '<div class="empty"><span class="big">⚔️</span>No contests decided yet.<br/>Record results in the Contests tab.</div>';
 
     overviewEl.innerHTML =
-      '<div class="card glass">' + nameBlock +
-      '<div class="spacer"></div><div class="spacer"></div>' +
-      '<div class="pills">' +
-      '<span class="pill">🗂️ ' + total + (total === 1 ? " category" : " categories") + "</span>" +
-      '<span class="pill">✅ ' + done + " finished</span>" +
-      '<span class="pill">👥 ' + teams.size + (teams.size === 1 ? " team" : " teams") + "</span>" +
-      '<span class="pill">🎾 ' + matchCount + (matchCount === 1 ? " match" : " matches") + "</span>" +
+      '<div class="card glass">' +
+      '<div class="h2h">' + houseCol(0) + '<div class="vs">VS</div>' + houseCol(1) + "</div>" +
+      banner +
+      '<div class="progress">' +
+      '<div class="p-sm" style="width:' + pctSm + '%"></div>' +
+      '<div style="flex:1"></div>' +
+      '<div class="p-dk" style="width:' + pctDk + '%"></div>' +
       "</div>" +
-      championBannerHtml() +
-      '<hr class="divider" />' +
-      '<p class="section-title">Leaderboard — category wins</p>' + lbRows +
+      '<div class="progress-note">' + decided + " of " + total + " contests decided</div>" +
       "</div>" +
-      '<div class="card glass"><p class="section-title">Danger zone</p>' +
-      '<button class="btn danger block" id="resetTournament">Start a new tournament (erase everything)</button></div>';
+      '<div class="card glass"><p class="section-title">Contests decided</p><div class="spacer"></div>' +
+      '<div class="list">' + recent + "</div></div>" +
+      '<div class="card glass"><p class="decree">⚖️ By decree: rally point scoring, golden point settles tied games.<br/>' +
+      "Races to 15 or 21 as proclaimed per contest. Each contest won awards its points.<br/>" +
+      "Rules may change. Because the council said so. 😎</p>" +
+      '<hr class="divider" /><button class="btn danger block" id="resetAll">Reset all results</button></div>';
   }
 
   overviewEl.addEventListener("click", (e) => {
-    if (e.target.closest("#setName")) {
-      const name = (document.getElementById("tourName").value || "").trim();
-      if (!name) { alert("Please enter a tournament name."); return; }
-      store.name = name;
-      ui.renaming = false;
-      save();
-      renderAll();
-      return;
-    }
-    if (e.target.closest("#renameTour")) { ui.renaming = true; renderOverview(); return; }
-    if (e.target.closest("#resetTournament")) {
-      if (confirm("Erase this tournament — all categories, teams and results?") &&
-          confirm("Really erase everything? This cannot be undone.")) {
+    if (e.target.closest("#resetAll")) {
+      if (confirm("Clear every recorded result (contests stay)?") &&
+          confirm("Really reset the whole cup? This cannot be undone.")) {
         store = defaultStore();
-        ui.categoryId = null;
+        ui.contestId = null; ui.edit = null;
         save();
         renderAll();
       }
     }
   });
-  overviewEl.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && e.target.id === "tourName") {
-      e.preventDefault();
-      const btn = document.getElementById("setName");
-      if (btn) btn.click();
-    }
-  });
 
   /* ============================================================
-     CATEGORIES TAB — list → category detail
+     CONTESTS TAB — roll of contests → contest detail
      ============================================================ */
-  const catEl = document.getElementById("tab-categories");
+  const conEl = document.getElementById("tab-contests");
 
-  function renderCategories() {
-    const c = ui.categoryId && findCategory(ui.categoryId);
-    if (c) return renderCategoryDetail(c);
-    ui.categoryId = null;
-    renderCategoryList();
+  function renderContests() {
+    const c = ui.contestId && findContest(ui.contestId);
+    if (c) return renderContestDetail(c);
+    ui.contestId = null; ui.edit = null;
+    renderContestList();
   }
 
-  function renderCategoryList() {
-    const sportOptions = Object.entries(SPORTS)
-      .map(([k, s]) => '<option value="' + k + '">' + s.icon + " " + s.name + "</option>").join("");
+  function renderContestList() {
+    const rows = store.contests.map((c) => {
+      const status = c.done && c.winner != null
+        ? '<span class="pill ' + HOUSES[c.winner].key + '">🏅 ' + esc(HOUSES[c.winner].name.split(" ")[1]) + "</span>"
+        : '<span class="pill">' + (c.points ? c.points + " pts" : "pts TBD") + "</span>";
+      return '<div class="row-item clickable' + (c.done && c.winner != null ? " won-" + HOUSES[c.winner].key : "") +
+        '" data-open="' + c.id + '">' +
+        '<div class="main"><div class="ttl">' + c.icon + " " + esc(c.name) + "</div>" +
+        '<div class="meta">' + (c.kind === "special" ? "Exhibit B · whole team" :
+          c.kind === "singles" ? "Singles · 1 per house" : "Doubles · 2 per house") +
+        (c.done ? " · decided" : "") + "</div></div>" + status + "</div>";
+    }).join("");
 
-    const rows = store.categories.length
-      ? store.categories.map((c) => {
-          const icon = SPORTS[c.sport].icon;
-          const leader = categoryLeader(c);
-          const status = c.done
-            ? '<span class="pill win">🏅 ' + esc(leader || "—") + "</span>"
-            : leader
-              ? '<span class="pill">Leading: ' + esc(leader) + "</span>"
-              : '<span class="pill">Not started</span>';
-          return '<div class="row-item clickable" data-open-cat="' + c.id + '">' +
-            '<div class="main"><div class="ttl">' + icon + " " + esc(c.name) + "</div>" +
-            '<div class="meta">' + c.teams.length + " teams · " + c.matches.length + " matches" +
-            (c.done ? " · finished" : "") + "</div></div>" + status + "</div>";
-        }).join("")
-      : '<div class="empty"><span class="big">🗂️</span>No categories yet.<br/>Add the first one above — e.g. Men’s Singles, Mixed Doubles.</div>';
-
-    catEl.innerHTML =
-      '<div class="card glass"><h2>Add a category</h2>' +
-      '<p class="sub">Each category has its own teams, results and standings.</p>' +
-      '<div class="inline-form"><div class="field grow"><label>Category name</label>' +
-      '<input type="text" id="catName" placeholder="e.g. Men’s Singles" maxlength="50" /></div>' +
-      '<div class="field"><label>Sport</label><select id="catSport">' + sportOptions + "</select></div>" +
-      '<button class="btn primary" id="addCategory">Add</button></div></div>' +
-      '<div class="card glass"><p class="section-title">Categories</p><div class="spacer"></div>' +
-      '<div class="list">' + rows + "</div></div>";
+    conEl.innerHTML =
+      '<div class="card glass"><h2>⚔️ The Roll of Contests</h2>' +
+      '<p class="sub">Exhibit A — the championship divisions, plus the Grand Team Rally. Tap a contest to record its result.</p>' +
+      '<div class="list">' + rows + "</div>" +
+      '<hr class="divider" />' +
+      '<div class="inline-form"><div class="field grow"><label>Add a contest (the council may decree more)</label>' +
+      '<input type="text" id="newContestName" placeholder="Contest name" maxlength="50" /></div>' +
+      '<button class="btn" id="addContest">Add</button></div></div>';
   }
 
-  function renderCategoryDetail(c) {
-    const sport = SPORTS[c.sport];
+  function editState(c) {
+    if (ui.edit && ui.edit.id === c.id) return ui.edit;
+    ui.edit = {
+      id: c.id,
+      playersA: [c.playersA[0] || "", c.playersA[1] || ""],
+      playersB: [c.playersB[0] || "", c.playersB[1] || ""],
+      games: c.games.length ? c.games.map((g) => ({ a: String(g.a), b: String(g.b) })) : [{ a: "", b: "" }],
+      points: String(c.points != null ? c.points : 10),
+      specialWinner: c.winner,
+    };
+    return ui.edit;
+  }
 
-    const teamChips = c.teams.length
-      ? c.teams.map((name) =>
-          '<span class="team-chip">' + esc(name) +
-          '<button data-remove-team="' + esc(name) + '" title="Remove">×</button></span>').join("")
-      : '<span class="hint">No teams yet — add your first team above.</span>';
+  function playerSelect(side, slot, val) {
+    const h = HOUSES[side];
+    const opts = ['<option value="">— player ' + (slot + 1) + " —</option>"].concat(
+      h.roster.map((p) => '<option value="' + esc(p) + '"' + (p === val ? " selected" : "") + ">" + esc(p) + "</option>"));
+    return '<select data-player="' + side + "-" + slot + '">' + opts.join("") + "</select>";
+  }
 
-    const teamSelect = c.teams.map((n) => '<option value="' + esc(n) + '">' + esc(n) + "</option>").join("");
-    const canRecord = c.teams.length >= 2 && !c.done;
+  function renderContestDetail(c) {
+    const slots = c.kind === "singles" ? 1 : 2;
 
-    const matchList = c.matches.length
-      ? c.matches.slice().reverse().map((mt) => {
-          const aWon = mt.scoreA > mt.scoreB;
-          return '<div class="row-item"><div class="main"><div class="ttl">' +
-            '<span style="color:' + (aWon ? "var(--good)" : "inherit") + '">' + esc(mt.teamA) + "</span>" +
-            '<span style="color:var(--text-faint)"> ' + mt.scoreA + " – " + mt.scoreB + " </span>" +
-            '<span style="color:' + (!aWon ? "var(--good)" : "inherit") + '">' + esc(mt.teamB) + "</span></div>" +
-            '<div class="meta">' + new Date(mt.date).toLocaleDateString() + "</div></div>" +
-            (c.done ? "" : '<button class="btn ghost small" data-del-match="' + mt.id + '">Delete</button>') +
-            "</div>";
-        }).join("")
-      : '<div class="empty">No matches recorded yet.</div>';
+    if (c.done && c.winner != null) {
+      // decided view
+      const w = c.winner;
+      const scoreline = c.games.length ? c.games.map((g) => g.a + " – " + g.b).join(" · ") : "";
+      conEl.innerHTML =
+        '<button class="back-link" id="backToRoll">← Roll of Contests</button>' +
+        '<div class="card glass">' +
+        "<h2>" + c.icon + " " + esc(c.name) + "</h2>" +
+        '<p class="sub">' + esc(c.desc) + "</p>" +
+        '<div class="result-line">' +
+        '<div class="players"><span class="side-a">' + esc(playersLabel(c, 0)) + "</span>" +
+        ' <span style="color:var(--text-faint)">vs</span> ' +
+        '<span class="side-b">' + esc(playersLabel(c, 1)) + "</span></div>" +
+        (scoreline ? '<div class="scoreline">' + scoreline + "</div>" : "") +
+        '<div class="note">🏅 ' + esc(HOUSES[w].name) + " take the contest · +" + (c.points || 0) + " points</div>" +
+        "</div>" +
+        '<div class="spacer"></div><div class="spacer"></div>' +
+        '<div style="display:flex;gap:10px;">' +
+        '<button class="btn ghost grow" id="reopenContest">Reopen &amp; edit</button>' +
+        '<button class="btn danger small" id="deleteContest">Delete contest</button></div>' +
+        "</div>";
+      return;
+    }
 
-    const standings = computeStandings(c);
-    const standingsRows = standings.map((s, i) =>
-      "<tr><td class=\"team\"><span class=\"rank\">" + (i + 1) + "</span>" + esc(s.name) + "</td>" +
-      "<td>" + s.P + '</td><td class="w">' + s.W + "</td><td>" + s.L + "</td>" +
-      "<td>" + s.PF + "</td><td>" + s.PA + "</td>" +
-      "<td>" + (s.PF - s.PA > 0 ? "+" : "") + (s.PF - s.PA) + "</td>" +
-      '<td class="pts">' + s.W * 2 + "</td></tr>").join("");
+    const ed = editState(c);
+    const isSpecial = c.kind === "special";
 
-    const winner = categoryLeader(c);
-    const doneBanner = c.done
-      ? '<div class="champion-banner"><div class="cup">🏅</div>' +
-        '<div class="who">' + esc(winner || "—") + "</div>" +
-        '<div class="txt">wins ' + esc(c.name) + "</div></div>"
+    const sideBlock = (side) => {
+      const h = HOUSES[side];
+      let inner = "";
+      for (let s = 0; s < slots; s++) {
+        inner += '<div class="field">' + playerSelect(side, s, side === 0 ? ed.playersA[s] : ed.playersB[s]) + "</div>";
+      }
+      return '<div class="side-block ' + h.key + '"><div class="side-name">' + h.crest + " " + esc(h.name) + "</div>" + inner + "</div>";
+    };
+
+    const gameRows = ed.games.map((g, i) =>
+      '<div class="game-row"><span class="glbl">Game ' + (i + 1) + "</span>" +
+      '<input type="number" min="0" max="99" data-game="' + i + '-a" value="' + esc(g.a) + '" placeholder="0" />' +
+      '<span class="dash">–</span>' +
+      '<input type="number" min="0" max="99" data-game="' + i + '-b" value="' + esc(g.b) + '" placeholder="0" /></div>').join("");
+
+    const specialPick = isSpecial
+      ? '<p class="section-title">Winner</p>' +
+        '<div class="two-col">' +
+        '<button class="btn ' + (ed.specialWinner === 0 ? "primary" : "ghost") + '" data-special-win="0">' + HOUSES[0].crest + " " + esc(HOUSES[0].name) + "</button>" +
+        '<button class="btn ' + (ed.specialWinner === 1 ? "primary" : "ghost") + '" data-special-win="1">' + HOUSES[1].crest + " " + esc(HOUSES[1].name) + "</button>" +
+        '</div><div class="spacer"></div>'
       : "";
 
-    catEl.innerHTML =
-      '<button class="back-link" id="backToCats">← All categories</button>' +
+    conEl.innerHTML =
+      '<button class="back-link" id="backToRoll">← Roll of Contests</button>' +
       '<div class="card glass">' +
-      '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">' +
-      "<div><h2>" + sport.icon + " " + esc(c.name) + "</h2>" +
-      '<p class="sub">' + sport.name + " · " + c.teams.length + " teams · " + c.matches.length + " matches</p></div>" +
-      '<div style="display:flex;gap:8px;">' +
-      '<button class="btn small ' + (c.done ? "ghost" : "primary") + '" id="toggleDone"' +
-      (!c.done && !c.matches.length ? " disabled" : "") + ">" +
-      (c.done ? "Reopen" : "Finish category") + "</button>" +
-      '<button class="btn danger small" id="deleteCategory">Delete</button></div></div>' +
-      doneBanner +
-      (c.done ? "" :
-        '<p class="section-title">Teams</p>' +
-        '<div class="inline-form"><div class="field grow"><label>Add a team</label>' +
-        '<input type="text" id="teamName" placeholder="Team or player name" maxlength="40" /></div>' +
-        '<button class="btn" id="addTeam">Add team</button></div>' +
-        '<div class="spacer"></div><div class="chips">' + teamChips + "</div>") +
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">' +
+      "<div><h2>" + c.icon + " " + esc(c.name) + "</h2>" +
+      '<p class="sub">' + esc(c.desc) + "</p></div>" +
+      '<button class="btn danger small" id="deleteContest">Delete</button></div>' +
+      (isSpecial ? "" :
+        '<p class="section-title">Who takes the court</p>' +
+        '<div class="two-col">' + sideBlock(0) + sideBlock(1) + "</div>" +
+        '<hr class="divider" />' +
+        '<p class="section-title">Game scores <span style="text-transform:none;letter-spacing:0;">(' +
+        esc(HOUSES[0].name) + " – " + esc(HOUSES[1].name) + ")</span></p>" +
+        gameRows +
+        (ed.games.length < 3 ? '<button class="btn ghost small" id="addGame">+ Add game</button>' : "") +
+        '<p class="hint">Rally point scoring · race to 15 or 21 · golden point settles a tied game.</p>' +
+        '<hr class="divider" />') +
+      specialPick +
+      '<div class="inline-form">' +
+      '<div class="field" style="flex:0 0 130px;"><label>Points at stake</label>' +
+      '<input type="number" id="contestPoints" min="0" max="99" value="' + esc(ed.points) + '" /></div>' +
+      '<button class="btn primary grow" id="recordResult">Record result 🏅</button>' +
       "</div>" +
-      '<div class="card glass"><p class="section-title">Record a result</p>' +
-      (canRecord
-        ? '<div class="inline-form">' +
-          '<div class="field"><label>Team 1</label><select id="mTeamA">' + teamSelect + "</select></div>" +
-          '<div class="field" style="flex:0 0 80px;"><label>Score</label><input type="number" id="mScoreA" min="0" step="1" placeholder="0" /></div>' +
-          '<div class="field" style="flex:0 0 80px;"><label>Score</label><input type="number" id="mScoreB" min="0" step="1" placeholder="0" /></div>' +
-          '<div class="field"><label>Team 2</label><select id="mTeamB">' + teamSelect + "</select></div></div>" +
-          '<div class="spacer"></div><button class="btn primary" id="recordMatch">Add result</button>' +
-          '<p class="hint">Enter the final score (sets, games or points won). The higher score wins.</p>'
-        : c.done
-          ? '<div class="empty">Category finished — reopen it to record more results.</div>'
-          : '<div class="empty">Add at least two teams to start recording results.</div>') +
-      "</div>" +
-      '<div class="card glass"><p class="section-title">Standings</p><div class="spacer"></div>' +
-      (standings.length
-        ? '<div class="table-wrap"><table class="standings"><thead><tr>' +
-          '<th style="text-align:left;">Team</th><th>P</th><th>W</th><th>L</th><th>PF</th><th>PA</th><th>Diff</th><th>Pts</th>' +
-          "</tr></thead><tbody>" + standingsRows + "</tbody></table></div>" +
-          '<p class="hint">P played · W won · L lost · PF/PA points for & against · Pts = 2 per win.</p>' +
-          '<p class="hint">Rank order: wins, then point difference, then points for.</p>'
-        : '<div class="empty">Standings appear once teams are added.</div>') +
-      "</div>" +
-      '<div class="card glass"><p class="section-title">Matches in this category</p><div class="spacer"></div>' +
-      '<div class="list">' + matchList + "</div></div>";
+      (isSpecial ? '<p class="hint">Exhibit B — set the points once the council reveals them, pick the winner, record.</p>' : "") +
+      "</div>";
   }
 
-  /* ---- category actions ---- */
-  function addCategory() {
-    const name = (document.getElementById("catName").value || "").trim();
-    const sport = document.getElementById("catSport").value;
-    if (!name) { alert("Please enter a category name."); return; }
-    if (!store.name) store.name = "My Tournament";
-    const c = { id: uid(), name, sport, teams: [], matches: [], done: false };
-    store.categories.push(c);
-    ui.categoryId = c.id;
-    save();
-    renderAll();
-  }
+  /* ---- contest actions ---- */
+  function commitResult(c) {
+    const ed = editState(c);
+    const points = Math.max(0, Math.min(99, parseInt(ed.points, 10) || 0));
 
-  function addTeam(c) {
-    const input = document.getElementById("teamName");
-    const name = (input.value || "").trim();
-    if (!name) return;
-    if (c.teams.some((n) => n.toLowerCase() === name.toLowerCase())) {
-      alert("That team is already in this category."); return;
+    if (c.kind === "special") {
+      if (ed.specialWinner == null) { alert("Pick the winning house first."); return; }
+      c.winner = ed.specialWinner;
+      c.games = [];
+      c.playersA = []; c.playersB = [];
+    } else {
+      const games = [];
+      for (const g of ed.games) {
+        const a = parseInt(g.a, 10), b = parseInt(g.b, 10);
+        if (isNaN(a) && isNaN(b)) continue;           // untouched row
+        if (isNaN(a) || isNaN(b)) { alert("Fill in both sides of every game score."); return; }
+        if (a === b) { alert("A game can't end tied — golden point decides it!"); return; }
+        games.push({ a, b });
+      }
+      if (!games.length) { alert("Enter at least one game score."); return; }
+      let wa = 0, wb = 0;
+      games.forEach((g) => { if (g.a > g.b) wa++; else wb++; });
+      if (wa === wb) { alert("Games are level — add a deciding game."); return; }
+      c.games = games;
+      c.winner = wa > wb ? 0 : 1;
+      c.playersA = ed.playersA.filter(Boolean);
+      c.playersB = ed.playersB.filter(Boolean);
     }
-    c.teams.push(name);
-    save();
-    renderCategories();
-  }
 
-  function recordMatch(c) {
-    const teamA = document.getElementById("mTeamA").value;
-    const teamB = document.getElementById("mTeamB").value;
-    const scoreA = parseInt(document.getElementById("mScoreA").value, 10);
-    const scoreB = parseInt(document.getElementById("mScoreB").value, 10);
-    if (teamA === teamB) { alert("Pick two different teams."); return; }
-    if (isNaN(scoreA) || isNaN(scoreB)) { alert("Enter a score for both teams."); return; }
-    if (scoreA === scoreB) { alert("A match can't end in a tie — enter a winning score."); return; }
-    c.matches.push({ id: uid(), teamA, teamB, scoreA, scoreB, date: Date.now() });
-    buzz(12);
+    c.points = points;
+    c.done = true;
+    ui.edit = null;
+    buzz(20);
     save();
     renderAll();
   }
 
-  catEl.addEventListener("click", (e) => {
-    if (e.target.closest("#addCategory")) return addCategory();
+  conEl.addEventListener("click", (e) => {
+    const openBtn = e.target.closest("[data-open]");
+    if (openBtn) { ui.contestId = openBtn.dataset.open; ui.edit = null; renderContests(); return; }
+    if (e.target.closest("#backToRoll")) { ui.contestId = null; ui.edit = null; renderContests(); return; }
 
-    const openCat = e.target.closest("[data-open-cat]");
-    if (openCat) { ui.categoryId = openCat.dataset.openCat; renderCategories(); return; }
-    if (e.target.closest("#backToCats")) { ui.categoryId = null; renderCategories(); return; }
+    if (e.target.closest("#addContest")) {
+      const name = (document.getElementById("newContestName").value || "").trim();
+      if (!name) { alert("Name the new contest first."); return; }
+      store.contests.push({
+        id: uid(), name, kind: "doubles", icon: "🆕",
+        desc: "Decreed by the council mid-tournament. Rules may change. 😎",
+        points: 10, playersA: [], playersB: [], games: [], winner: null, done: false,
+      });
+      save();
+      renderContests();
+      return;
+    }
 
-    const c = ui.categoryId && findCategory(ui.categoryId);
+    const c = ui.contestId && findContest(ui.contestId);
     if (!c) return;
 
-    if (e.target.closest("#addTeam")) return addTeam(c);
-    if (e.target.closest("#recordMatch")) return recordMatch(c);
-    if (e.target.closest("#toggleDone")) { c.done = !c.done; save(); renderAll(); return; }
-    if (e.target.closest("#deleteCategory")) {
-      if (confirm('Delete category "' + c.name + '" and its results?')) {
-        store.categories = store.categories.filter((x) => x.id !== c.id);
-        ui.categoryId = null; save(); renderAll();
+    if (e.target.closest("#recordResult")) return commitResult(c);
+    if (e.target.closest("#reopenContest")) { c.done = false; ui.edit = null; save(); renderAll(); return; }
+    if (e.target.closest("#deleteContest")) {
+      if (confirm('Remove "' + c.name + '" from the roll?')) {
+        store.contests = store.contests.filter((x) => x.id !== c.id);
+        ui.contestId = null; ui.edit = null;
+        save(); renderAll();
       }
       return;
     }
-    const rmTeam = e.target.closest("[data-remove-team]");
-    if (rmTeam) {
-      c.teams = c.teams.filter((n) => n !== rmTeam.dataset.removeTeam);
-      save(); renderAll(); return;
+    if (e.target.closest("#addGame")) {
+      const ed = editState(c);
+      if (ed.games.length < 3) ed.games.push({ a: "", b: "" });
+      renderContestDetail(c);
+      return;
     }
-    const delMatch = e.target.closest("[data-del-match]");
-    if (delMatch) {
-      c.matches = c.matches.filter((m) => m.id !== delMatch.dataset.delMatch);
-      save(); renderAll(); return;
+    const sw = e.target.closest("[data-special-win]");
+    if (sw) {
+      const ed = editState(c);
+      ed.specialWinner = parseInt(sw.dataset.specialWin, 10);
+      renderContestDetail(c);
+      return;
     }
   });
 
-  catEl.addEventListener("keydown", (e) => {
-    if (e.key !== "Enter") return;
-    if (e.target.id === "catName") { e.preventDefault(); addCategory(); }
-    else if (e.target.id === "teamName") {
-      const c = ui.categoryId && findCategory(ui.categoryId);
-      if (c) { e.preventDefault(); addTeam(c); }
+  // keep typed values in the transient edit state across re-renders
+  conEl.addEventListener("input", (e) => {
+    const c = ui.contestId && findContest(ui.contestId);
+    if (!c) return;
+    const ed = editState(c);
+    if (e.target.dataset.game) {
+      const [i, side] = e.target.dataset.game.split("-");
+      ed.games[+i][side] = e.target.value;
+    } else if (e.target.id === "contestPoints") {
+      ed.points = e.target.value;
+    }
+  });
+  conEl.addEventListener("change", (e) => {
+    const c = ui.contestId && findContest(ui.contestId);
+    if (!c) return;
+    const ed = editState(c);
+    if (e.target.dataset.player) {
+      const [side, slot] = e.target.dataset.player.split("-").map(Number);
+      (side === 0 ? ed.playersA : ed.playersB)[slot] = e.target.value;
+    }
+  });
+  conEl.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && e.target.id === "newContestName") {
+      e.preventDefault();
+      document.getElementById("addContest").click();
     }
   });
 
   /* ============================================================
-     RESULTS TAB — every match across all categories
+     HOUSES TAB — the roll call of the realm
      ============================================================ */
-  const resEl = document.getElementById("tab-results");
+  const housesEl = document.getElementById("tab-houses");
 
-  function renderResults() {
-    const all = [];
-    store.categories.forEach((c) => {
-      c.matches.forEach((mt) => all.push({ cat: c, mt }));
-    });
-    all.sort((a, b) => b.mt.date - a.mt.date);
+  function renderHouses() {
+    const houseCard = (i) => {
+      const h = HOUSES[i];
+      const players = h.roster.map((p, n) =>
+        '<div class="player"><span class="num">' + (n + 1) + "</span>" + esc(p) + "</div>").join("");
+      return '<div class="card glass house-card ' + h.key + '">' +
+        '<div class="hc-top"><div class="hc-crest">' + h.crest + "</div>" +
+        '<div><h2 class="hc-name">' + esc(h.name) + '</h2><p class="hc-title">' + esc(h.title) + "</p></div></div>" +
+        '<p class="hc-motto">' + esc(h.motto) + "</p>" +
+        '<div class="roster">' + players + "</div></div>";
+    };
 
-    const rows = all.length
-      ? all.map(({ cat, mt }) => {
-          const aWon = mt.scoreA > mt.scoreB;
-          return '<div class="row-item"><div class="main"><div class="ttl">' +
-            '<span style="color:' + (aWon ? "var(--good)" : "inherit") + '">' + esc(mt.teamA) + "</span>" +
-            '<span style="color:var(--text-faint)"> ' + mt.scoreA + " – " + mt.scoreB + " </span>" +
-            '<span style="color:' + (!aWon ? "var(--good)" : "inherit") + '">' + esc(mt.teamB) + "</span></div>" +
-            '<div class="meta">' + SPORTS[cat.sport].icon + " " + esc(cat.name) +
-            " · " + new Date(mt.date).toLocaleDateString() + "</div></div></div>";
-        }).join("")
-      : '<div class="empty"><span class="big">📜</span>No results yet.<br/>Record match scores inside a category.</div>';
-
-    resEl.innerHTML =
-      '<div class="card glass"><h2>All results</h2>' +
-      '<p class="sub">Every recorded match, across all categories, newest first.</p>' +
-      '<div class="list">' + rows + "</div></div>";
+    housesEl.innerHTML =
+      houseCard(0) + houseCard(1) +
+      '<div class="card glass"><p class="decree">📜 Roll Call of the Realm · 14 warriors per house<br/>' +
+      "Max 2 games per player, min 1 (Team Rally excluded). NO CHITCHING!<br/>" +
+      "May the best house claim the throne. 🪑👑</p></div>";
   }
 
   /* ============================================================
@@ -767,8 +812,8 @@ table.standings { width: 100%; border-collapse: collapse; font-size: 13.5px; min
      ============================================================ */
   function renderAll() {
     renderOverview();
-    renderCategories();
-    renderResults();
+    renderContests();
+    renderHouses();
   }
 
   document.querySelectorAll(".bnav").forEach((btn) => {
@@ -779,8 +824,8 @@ table.standings { width: 100%; border-collapse: collapse; font-size: 13.5px; min
       document.querySelectorAll(".tab-panel").forEach((p) =>
         p.classList.toggle("is-active", p.id === "tab-" + ui.tab));
       if (ui.tab === "overview") renderOverview();
-      else if (ui.tab === "categories") renderCategories();
-      else renderResults();
+      else if (ui.tab === "contests") renderContests();
+      else renderHouses();
     });
   });
 

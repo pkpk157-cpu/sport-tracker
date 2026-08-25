@@ -1,30 +1,37 @@
-# 🏆 RallyGlass — Tournament Scores
+# 🏆 The Verandas Pickleball Cup
 
-A liquid-glass, app-style scoreboard for **one racquet-sports tournament**.
-Create categories, add team names, record end scores — the app keeps
-standings per category and crowns the tournament champion.
+*Two houses. One cup. Endless glory.*
 
-Sports supported per category: **Tennis, Padel, Pickleball, Badminton, Squash**.
+A liquid-glass, app-style scorekeeper built for one tournament:
+**Soni Smashers** (House of the Mighty Smash) vs **Sam Dinkers**
+(Order of the Noble Dink), battling across the Roll of Contests.
 
 ## How it works
 
 ### 🏆 Overview tab
-- Name (and rename) your tournament.
-- At-a-glance stats: categories, finished, teams, matches.
-- **Leaderboard of category wins** — whoever wins the most categories wins
-  the tournament. When every category is finished, the champion is crowned
-  automatically (ties share the title).
-- Danger zone: wipe everything and start a new tournament.
+- Head-to-head scoreboard: total **points** and contests won per house,
+  live leader banner, and a progress bar of decided contests.
+- The champion is crowned once all contests are decided (ties share the glory).
+- List of every decided contest with players, score line and points awarded.
+- Reset button to clear all results.
 
-### 🗂️ Categories tab
-- Add categories (e.g. Men's Singles, Mixed Doubles), each with a sport.
-- Inside a category: add/remove **team names**, record match end scores,
-  and watch the **standings** (played, won, lost, points for/against,
-  difference, 2 points per win; ranked by wins → point difference).
-- **Finish** a category to lock in its winner (reopen any time).
+### ⚔️ Contests tab
+Pre-loaded with **Exhibit A — the 11 championship divisions** (Risers
+Doubles & Singles, Women's Doubles, Mixed Doubles, 50+ Doubles & Singles,
+Men's Doubles & Singles, Combined Age 80+ Doubles, Split Age 50+/− Doubles,
+Gender Neutral Open Doubles) **plus Exhibit B — the Grand Team Rally**.
 
-### 📜 Results tab
-- Every recorded match across all categories, newest first.
+Per contest:
+- Pick the fielded players from each house's roster (1 for singles, 2 for doubles).
+- Enter game scores (1–3 games, rally scoring, races to 15 or 21, golden
+  point settles ties — the app rejects tied games and level match scores).
+- **Points at stake** are editable (10 by decree; the Team Rally starts at
+  TBD until the council reveals its points — rules may change 😎).
+- Record → the winning house banks the points. Reopen & edit any time.
+- The council can add extra contests mid-tournament.
+
+### 🛡️ Houses tab
+The Roll Call of the Realm — both 14-player rosters with crests and mottos.
 
 ## Running it
 
@@ -36,8 +43,8 @@ open index.html               # or double-click it
 python3 -m http.server 8000   # http://localhost:8000
 ```
 
-All data lives in your browser (`localStorage`): works offline, survives
-reloads, nothing leaves your device.
+All data lives in the browser (`localStorage`): works offline, survives
+reloads, nothing leaves the device.
 
 ## Hosting on GitHub Pages
 
@@ -50,4 +57,4 @@ reloads, nothing leaves your device.
 
 | File | Purpose |
 |------|---------|
-| `index.html` | The entire app — HTML, liquid-glass CSS and tournament JS |
+| `index.html` | The entire app — HTML, liquid-glass CSS and cup-scoring JS |
