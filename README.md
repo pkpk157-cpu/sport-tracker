@@ -27,18 +27,21 @@ tournament:
 Pre-loaded with Exhibit A — the 11 championship divisions — plus
 Exhibit B, the Grand Team Rally. Recording a contest is a **two-step flow**:
 
-**Step 1 — Players & setup**: court & time scheduling, fielded players
+**Step 1 — Players & rules**: court & time scheduling, fielded players
 picked from the rosters (with **rule-of-2 warnings** — dropdowns flag
-"⚠ 2 played" and picking them anyway raises a NO CHITCHING toast), note
-and photo. Then choose how to record the score.
+"⚠ 2 played" and picking them anyway raises a NO CHITCHING toast), and
+**every game rule** — rally-to 11/15/21, scoring (every rally vs on
+serve only) and first serve — plus optional note and photo. Then choose
+how to record the score.
 
-**Step 2 — The scoring page**: a **true-proportion (20×44) court** drawn
-like an aerial photo — green apron, blue court, white lines, kitchen
-bands, black net — with players placed in their actual service courts,
-moving by the real rules (pairs swap sides when they score on serve,
-singles stand right/left by score parity, the server glows with the
-ball). **Two large house-colored buttons** below the court record which
-side won each rally.
+**Step 2 — The scoring page** is just the court and the buttons: a
+**true-proportion (20×44) court** drawn like an aerial photo — green
+apron, blue court, white lines, kitchen bands, black net — with
+**player figurines** standing in their actual service courts, moving by
+the real rules (pairs swap sides when they score on serve, singles
+stand right/left by score parity, the server's figurine glows yellow
+with the ball). **Two large house-colored buttons** below the court
+record which side won each rally.
 - **Two recording modes**:
   - ✍️ **Final score** — type end scores (1–3 games; ties rejected).
   - 🎯 **Point by point** — tap-to-score with rally-to 11/15/21, a

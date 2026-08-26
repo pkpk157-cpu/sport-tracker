@@ -431,13 +431,18 @@ select option { color: #10142c; }
 .c-net { height: 9px; flex: none; position: relative; z-index: 1;
   background: repeating-linear-gradient(90deg, #101416 0 4px, #33393d 4px 8px);
   box-shadow: 0 2px 6px rgba(0,0,0,.4); }
-.c-player { display: inline-flex; align-items: center; gap: 4px; max-width: 96%;
-  font-size: 11.5px; font-weight: 700; padding: 5px 10px; border-radius: 999px;
-  background: rgba(255,255,255,.94); color: #14344c; border: 2px solid transparent;
+.c-fig { position: relative; display: flex; flex-direction: column; align-items: center;
+  gap: 3px; max-width: 96%; }
+.c-fig svg { width: 26px; height: auto; fill: #fff;
+  filter: drop-shadow(0 2px 3px rgba(0,0,0,.45)); }
+.c-fig.serving svg { fill: #ffd23f;
+  filter: drop-shadow(0 0 7px rgba(255,210,63,.95)); }
+.fig-name { font-size: 10.5px; font-weight: 700; color: #fff; max-width: 100%;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  box-shadow: 0 2px 8px rgba(0,0,0,.25); }
-.c-player.serving { border-color: #ffd23f; box-shadow: 0 0 12px rgba(255,210,63,.7); }
-.c-player .ball { font-size: 9px; }
+  text-shadow: 0 1px 3px rgba(0,0,0,.65); letter-spacing: .2px; }
+.fig-ball { position: absolute; top: 14px; right: calc(50% - 22px);
+  width: 8px; height: 8px; border-radius: 50%; background: #ffd23f;
+  box-shadow: 0 0 6px rgba(255,210,63,.9); }
 .c-score { position: absolute; top: 6px; right: 6px; font-size: 14px; font-weight: 800;
   font-variant-numeric: tabular-nums; color: #fff; padding: 2px 9px; border-radius: 8px; }
 .c-score.sm { background: var(--smashers-deep); }
@@ -3718,11 +3723,15 @@ var qrcode = function() {
       const arr = side === 0 ? ed.playersA : ed.playersB;
       return (arr[idx] || "").trim() || (st.doubles ? "Player " + (idx + 1) : HOUSES[side].name.split(" ")[1]);
     };
+    const FIG = '<svg viewBox="0 0 24 30" aria-hidden="true">' +
+      '<circle cx="12" cy="6.5" r="5.5"/>' +
+      '<path d="M3.5 29c0-6.6 3.8-10.6 8.5-10.6s8.5 4 8.5 10.6z"/></svg>';
     const chip = (side, idx) => {
       const isServer = !gameOver && st.serving === side &&
         (st.doubles ? st.serverPerson === idx : true);
-      return '<span class="c-player' + (isServer ? " serving" : "") + '">' +
-        (isServer ? '<span class="ball">🟡</span>' : "") + esc(playerName(side, idx)) + "</span>";
+      return '<span class="c-fig' + (isServer ? " serving" : "") + '">' + FIG +
+        '<span class="fig-name">' + esc(playerName(side, idx)) + "</span>" +
+        (isServer ? '<span class="fig-ball"></span>' : "") + "</span>";
     };
     // which box (right/left court) holds which player
     const boxes = (side) => {
@@ -3763,28 +3772,8 @@ var qrcode = function() {
       half(1, false) +
       "</div></div>" + serveNote + tapRow;
 
-    const rulesOpen = !lv.log.length || ed.showRules;
-    const rulesBlock = rulesOpen
-      ? '<div class="live-top"><p class="section-title" style="margin:0;">Rally to</p>' +
-        '<div class="seg" style="flex:0 0 170px;">' +
-        [11, 15, 21].map((t) =>
-          '<button data-lt="' + t + '" class="' + (lv.target === t ? "is-active" : "") + '">' + t + "</button>").join("") +
-        "</div>" + gpBadge + "</div>" +
-        '<div class="two-col" style="margin-top:10px;">' +
-        '<div class="field" style="margin:0;"><label>Scoring rule</label><div class="seg">' +
-        '<button data-lr="rally" class="' + (lv.rule === "rally" ? "is-active" : "") + '">Every rally</button>' +
-        '<button data-lr="sideout" class="' + (lv.rule === "sideout" ? "is-active" : "") + '">On serve only</button>' +
-        "</div></div>" +
-        '<div class="field" style="margin:0;"><label>First serve</label><div class="seg">' +
-        '<button data-fsv="0" class="' + (lv.firstServer === 0 ? "is-active" : "") + '">' + esc(HOUSES[0].name.split(" ")[1]) + "</button>" +
-        '<button data-fsv="1" class="' + (lv.firstServer === 1 ? "is-active" : "") + '">' + esc(HOUSES[1].name.split(" ")[1]) + "</button>" +
-        "</div></div></div>"
-      : '<div class="live-top">' +
-        '<button class="pill" id="rulesToggle" style="cursor:pointer;font-family:inherit;color:var(--text-dim);">⚙ To ' +
-        lv.target + " · " + (lv.rule === "sideout" ? "on serve only" : "every rally") + "</button>" +
-        gpBadge + "</div>";
     const pointsPanel =
-      rulesBlock +
+      (gpBadge ? '<div class="live-top" style="justify-content:center;">' + gpBadge + "</div>" : "") +
       courtHtml +
       '<div style="display:flex;gap:10px;flex-wrap:wrap;">' +
       (gameOver
@@ -3794,28 +3783,7 @@ var qrcode = function() {
       '<button class="btn ghost" id="liveReset"' + (lv.log.length ? "" : " disabled") + ">Reset</button>" +
       '<button class="btn ghost" id="openBoard">📺 Scoreboard</button>' +
       "</div>" +
-      (lv.log.length
-        ? '<div class="rally-line">' + lv.log.slice(-40).map((s) =>
-            '<span class="rally-dot ' + HOUSES[s].key + '"></span>').join("") + "</div>" +
-          (function () {
-            let best = 0, bestSide = 0, run = 0, prev = -1;
-            lv.log.forEach((s) => {
-              run = s === prev ? run + 1 : 1;
-              prev = s;
-              if (run > best) { best = run; bestSide = s; }
-            });
-            return best >= 3
-              ? '<div class="run-note">🔥 Longest run: ' + best + " straight (rallies) — " + esc(edSideLabel(ed, bestSide)) + "</div>"
-              : "";
-          })()
-        : "") +
       savedLine;
-
-    const modeSeg =
-      '<div class="seg" style="flex:0 0 auto;">' +
-      '<button data-mode="final" class="' + (ed.mode === "final" ? "is-active" : "") + '">✍️ Final score</button>' +
-      '<button data-mode="points" class="' + (ed.mode === "points" ? "is-active" : "") + '">🎯 Point by point</button>' +
-      "</div>";
 
     const specialPick = isSpecial
       ? '<p class="section-title">Winner</p>' +
@@ -3843,13 +3811,32 @@ var qrcode = function() {
       return;
     }
 
+    const lvS = ed.live;
+    const rulesSection =
+      '<hr class="divider" />' +
+      '<p class="section-title">Game rules</p>' +
+      '<div class="field"><label>Rally to</label><div class="seg">' +
+      [11, 15, 21].map((t) =>
+        '<button data-lt="' + t + '" class="' + (lvS.target === t ? "is-active" : "") + '">' + t + "</button>").join("") +
+      "</div></div>" +
+      '<div class="two-col">' +
+      '<div class="field" style="margin:0;"><label>Scoring</label><div class="seg">' +
+      '<button data-lr="rally" class="' + (lvS.rule === "rally" ? "is-active" : "") + '">Every rally</button>' +
+      '<button data-lr="sideout" class="' + (lvS.rule === "sideout" ? "is-active" : "") + '">On serve only</button>' +
+      "</div></div>" +
+      '<div class="field" style="margin:0;"><label>First serve</label><div class="seg">' +
+      '<button data-fsv="0" class="' + (lvS.firstServer === 0 ? "is-active" : "") + '">' + esc(HOUSES[0].name.split(" ")[1]) + "</button>" +
+      '<button data-fsv="1" class="' + (lvS.firstServer === 1 ? "is-active" : "") + '">' + esc(HOUSES[1].name.split(" ")[1]) + "</button>" +
+      "</div></div></div>";
+
     if (ed.step === "setup") {
-      // ---- step 1: who takes the court ----
+      // ---- step 1: players, schedule and every game rule ----
       conEl.innerHTML =
         '<button class="back-link" id="backToRoll">← Roll of Contests</button>' +
         '<div class="card glass">' + header + schedRow +
         '<p class="section-title">Who takes the court</p>' +
         '<div class="two-col">' + sideBlock(0) + sideBlock(1) + "</div>" +
+        rulesSection +
         '<hr class="divider" />' + noteRow +
         "</div>" +
         '<div class="card glass"><p class="section-title">Record the score</p>' +
@@ -3862,16 +3849,14 @@ var qrcode = function() {
       return;
     }
 
-    // ---- step 2: the scoring page ----
+    // ---- step 2: just the court and the point buttons ----
     conEl.innerHTML =
-      '<button class="back-link" id="backToSetup">← Players &amp; setup</button>' +
+      '<button class="back-link" id="backToSetup">← Players &amp; rules</button>' +
       '<div class="card glass">' +
-      '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">' +
       '<div style="min-width:0;"><h2 style="margin:0;">' + c.icon + " " + esc(c.name) + "</h2>" +
-      '<p class="sub" style="margin:2px 0 0;">' +
+      '<p class="sub" style="margin:2px 0 10px;">' +
       esc(edSideLabel(ed, 0)) + ' <span style="color:var(--text-faint)">vs</span> ' + esc(edSideLabel(ed, 1)) +
-      "</p></div>" + modeSeg + "</div>" +
-      '<hr class="divider" />' +
+      "</p></div>" +
       (ed.mode === "final" ? finalPanel : pointsPanel) +
       '<hr class="divider" />' +
       '<button class="btn primary block" id="recordResult">Record result 🏅 (+1 point)</button>' +
@@ -4157,11 +4142,6 @@ var qrcode = function() {
     if (sw) {
       const ed = editState(c);
       ed.specialWinner = parseInt(sw.dataset.specialWin, 10);
-      renderContestDetail(c);
-      return;
-    }
-    if (e.target.closest("#rulesToggle")) {
-      editState(c).showRules = true;
       renderContestDetail(c);
       return;
     }
