@@ -33,6 +33,55 @@
   --radius-sm: 16px;
   --shadow: 0 18px 50px rgba(4, 8, 30, 0.45);
   --blur: blur(22px) saturate(180%);
+  --page-bg: #0b1026;
+  --surface-0: rgba(255,255,255,.05);
+  --surface-1: rgba(255,255,255,.06);
+  --surface-2: rgba(255,255,255,.08);
+  --line: rgba(255,255,255,.14);
+  --line-2: rgba(255,255,255,.2);
+  --hover: rgba(255,255,255,.16);
+  --inset: rgba(0,0,0,.2);
+  --nav-bg: rgba(14,18,44,.55);
+}
+
+/* ---------- light theme ---------- */
+html[data-theme="light"] {
+  --page-bg: #e9edfb;
+  --glass-bg: rgba(255,255,255,.6);
+  --glass-bg-strong: rgba(255,255,255,.75);
+  --glass-border: rgba(255,255,255,.95);
+  --glass-highlight: rgba(255,255,255,1);
+  --text: #1c2344;
+  --text-dim: rgba(38,48,92,.7);
+  --text-faint: rgba(38,48,92,.48);
+  --accent: #1f8fd8;
+  --accent-2: #7a4fd0;
+  --good: #0c9d66;
+  --gold: #b9821a;
+  --bad: #d63b62;
+  --smashers: #7a3ff2;
+  --smashers-deep: #5b2bc0;
+  --dinkers: #0f7fc4;
+  --dinkers-deep: #0a5c96;
+  --surface-0: rgba(35,50,120,.05);
+  --surface-1: rgba(35,50,120,.06);
+  --surface-2: rgba(35,50,120,.08);
+  --line: rgba(35,50,120,.16);
+  --line-2: rgba(35,50,120,.24);
+  --hover: rgba(35,50,120,.12);
+  --inset: rgba(35,50,120,.08);
+  --nav-bg: rgba(255,255,255,.7);
+  --shadow: 0 18px 50px rgba(90,110,190,.28);
+}
+html[data-theme="light"] .bg {
+  background:
+    radial-gradient(1200px 800px at 80% -10%, #dfe7ff 0%, transparent 60%),
+    radial-gradient(1000px 900px at -10% 110%, #f0e2ff 0%, transparent 55%),
+    linear-gradient(160deg, #eef2ff 0%, #e9edfb 45%, #f4ecfd 100%);
+}
+html[data-theme="light"] .blob { opacity: .3; }
+html[data-theme="light"] .glass {
+  box-shadow: var(--shadow), inset 0 1px 0 var(--glass-highlight);
 }
 
 * { box-sizing: border-box; }
@@ -42,7 +91,7 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
     Arial, "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
   color: var(--text);
-  background: #0b1026;
+  background: var(--page-bg);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
@@ -126,7 +175,7 @@ body {
   display: flex; justify-content: space-around; align-items: stretch;
   padding: 8px 8px;
   border-radius: 26px;
-  background: rgba(14, 18, 44, 0.55);
+  background: var(--nav-bg);
   backdrop-filter: var(--blur);
   -webkit-backdrop-filter: var(--blur);
   border: 1px solid var(--glass-border);
@@ -162,13 +211,13 @@ body {
 input[type="text"], input[type="number"], select {
   width: 100%; color: var(--text); font-size: 15px; font-family: inherit;
   padding: 11px 13px; border-radius: var(--radius-sm);
-  background: rgba(255,255,255,.08);
-  border: 1px solid rgba(255,255,255,.2);
+  background: var(--surface-2);
+  border: 1px solid var(--line-2);
   transition: border .2s, background .2s;
 }
 input::placeholder { color: var(--text-faint); }
 input:focus, select:focus { outline: none; border-color: var(--accent);
-  background: rgba(255,255,255,.13); }
+  background: var(--hover); }
 select option { color: #10142c; }
 
 /* ---------- buttons ---------- */
@@ -179,7 +228,7 @@ select option { color: #10142c; }
   box-shadow: inset 0 1px 0 var(--glass-highlight);
   transition: transform .12s ease, background .2s ease;
 }
-.btn:hover { background: rgba(255,255,255,.22); }
+.btn:hover { background: var(--hover); }
 .btn:active { transform: scale(.97); }
 .btn.primary {
   color: #0b1026; border-color: transparent;
@@ -187,7 +236,7 @@ select option { color: #10142c; }
   box-shadow: 0 10px 24px rgba(130,150,255,.35), inset 0 1px 0 rgba(255,255,255,.6);
 }
 .btn.primary:hover { filter: brightness(1.05); }
-.btn.ghost { background: rgba(255,255,255,.06); }
+.btn.ghost { background: var(--surface-1); }
 .btn.danger { color: var(--bad); }
 .btn.small { padding: 8px 12px; font-size: 13px; border-radius: 11px; }
 .btn.block { width: 100%; }
@@ -207,7 +256,7 @@ select option { color: #10142c; }
 .h2h .vs { font-size: 18px; color: var(--text-faint); font-weight: 800; padding: 0 2px; }
 
 .progress { height: 10px; border-radius: 6px; overflow: hidden; display: flex;
-  background: rgba(0,0,0,.25); border: 1px solid rgba(255,255,255,.12); margin: 14px 0 6px; }
+  background: var(--inset); border: 1px solid var(--line); margin: 14px 0 6px; }
 .progress .p-sm { background: linear-gradient(90deg, var(--smashers-deep), var(--smashers)); }
 .progress .p-dk { background: linear-gradient(270deg, var(--dinkers-deep), var(--dinkers)); }
 .progress-note { text-align: center; font-size: 12px; color: var(--text-dim); }
@@ -225,19 +274,19 @@ select option { color: #10142c; }
 .row-item {
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
   padding: 13px 15px; border-radius: var(--radius-sm);
-  background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.14);
+  background: var(--surface-1); border: 1px solid var(--line);
 }
 .row-item .main { min-width: 0; flex: 1; }
 .row-item .ttl { font-weight: 700; font-size: 14.5px; overflow: hidden; text-overflow: ellipsis; }
 .row-item .meta { font-size: 12px; color: var(--text-dim); margin-top: 3px; }
 .row-item.clickable { cursor: pointer; transition: background .18s; }
-.row-item.clickable:hover { background: rgba(255,255,255,.12); }
+.row-item.clickable:hover { background: var(--line); }
 .row-item.won-sm { border-left: 3px solid var(--smashers); }
 .row-item.won-dk { border-left: 3px solid var(--dinkers); }
 
 .pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12px;
-  padding: 6px 10px; border-radius: 999px; background: rgba(255,255,255,.08);
-  border: 1px solid rgba(255,255,255,.16); white-space: nowrap; }
+  padding: 6px 10px; border-radius: 999px; background: var(--surface-2);
+  border: 1px solid var(--line); white-space: nowrap; }
 .pill.sm { color: var(--smashers); border-color: rgba(197,157,255,.45); }
 .pill.dk { color: var(--dinkers); border-color: rgba(123,220,255,.45); }
 .pill.gold { color: var(--gold); border-color: rgba(255,212,121,.4); }
@@ -251,7 +300,7 @@ select option { color: #10142c; }
 
 /* ---------- contest detail ---------- */
 .side-block { padding: 13px; border-radius: var(--radius-sm);
-  background: rgba(0,0,0,.14); border: 1px solid rgba(255,255,255,.1); }
+  background: var(--inset); border: 1px solid rgba(255,255,255,.1); }
 .side-block .side-name { font-weight: 800; font-size: 13px; margin-bottom: 9px; }
 .side-block.sm { border-color: rgba(197,157,255,.35); }
 .side-block.sm .side-name { color: var(--smashers); }
@@ -285,14 +334,14 @@ select option { color: #10142c; }
 .house-card .hc-motto { font-size: 12.5px; font-style: italic; color: var(--text-faint); margin: 8px 0 14px; }
 .roster { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 14px; }
 .roster .player { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600;
-  padding: 6px 8px; border-radius: 10px; background: rgba(255,255,255,.05); }
+  padding: 6px 8px; border-radius: 10px; background: var(--surface-0); }
 .roster .num { width: 20px; height: 20px; border-radius: 50%; flex: none;
   display: grid; place-items: center; font-size: 10px; font-weight: 800;
-  background: rgba(255,255,255,.1); color: var(--text-dim); }
+  background: var(--surface-2); color: var(--text-dim); }
 
 /* ---------- segmented control ---------- */
 .seg { display: flex; gap: 4px; padding: 4px; border-radius: 14px;
-  background: rgba(0,0,0,.2); border: 1px solid rgba(255,255,255,.13); }
+  background: var(--inset); border: 1px solid var(--line); }
 .seg button {
   appearance: none; border: 0; cursor: pointer; flex: 1;
   color: var(--text-dim); background: transparent;
@@ -334,7 +383,7 @@ select option { color: #10142c; }
 
 /* ---------- roster records ---------- */
 .player.clickable { cursor: pointer; transition: background .18s; }
-.player.clickable:hover { background: rgba(255,255,255,.12); }
+.player.clickable:hover { background: var(--line); }
 .player .pname { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .rec { display: inline-flex; gap: 5px; font-size: 10.5px; font-weight: 800; flex: none; }
 .rec .rw { color: var(--good); }
@@ -346,7 +395,7 @@ select option { color: #10142c; }
 /* ---------- misc ---------- */
 .empty { text-align: center; color: var(--text-dim); padding: 24px 14px; font-size: 14px; }
 .empty .big { font-size: 32px; display: block; margin-bottom: 10px; opacity: .8; }
-.divider { height: 1px; background: rgba(255,255,255,.12); margin: 16px 0; border: 0; }
+.divider { height: 1px; background: var(--line); margin: 16px 0; border: 0; }
 .spacer { height: 8px; }
 .hint { font-size: 12px; color: var(--text-faint); margin-top: 8px; line-height: 1.5; }
 .back-link { display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
@@ -376,12 +425,14 @@ select option { color: #10142c; }
     <section id="tab-overview" class="tab-panel is-active"></section>
     <section id="tab-contests" class="tab-panel"></section>
     <section id="tab-houses" class="tab-panel"></section>
+    <section id="tab-settings" class="tab-panel"></section>
   </main>
 
   <nav class="bottom-nav" role="tablist">
     <button class="bnav is-active" data-tab="overview" role="tab"><span class="ico">🏆</span>Overview</button>
     <button class="bnav" data-tab="contests" role="tab"><span class="ico">⚔️</span>Contests</button>
     <button class="bnav" data-tab="houses" role="tab"><span class="ico">🛡️</span>Houses</button>
+    <button class="bnav" data-tab="settings" role="tab"><span class="ico">⚙️</span>Settings</button>
   </nav>
 
   <script>
@@ -482,6 +533,29 @@ select option { color: #10142c; }
   let store = load();
   const ui = { tab: "overview", contestId: null, edit: null, playerOpen: null };
 
+  /* ---------------- theme (light / dark / system) ---------------- */
+  const THEME_KEY = "verandas_theme";
+  const sysDark = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+
+  function themePref() {
+    try { return localStorage.getItem(THEME_KEY) || "system"; } catch (e) { return "system"; }
+  }
+  function applyTheme() {
+    const pref = themePref();
+    const dark = pref === "system" ? (sysDark ? sysDark.matches : true) : pref === "dark";
+    document.documentElement.dataset.theme = dark ? "dark" : "light";
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute("content", dark ? "#0b1026" : "#e9edfb");
+  }
+  function setThemePref(pref) {
+    try { localStorage.setItem(THEME_KEY, pref); } catch (e) {}
+    applyTheme();
+  }
+  if (sysDark && sysDark.addEventListener) {
+    sysDark.addEventListener("change", () => { if (themePref() === "system") applyTheme(); });
+  }
+  applyTheme();
+
   const findContest = (id) => store.contests.find((c) => c.id === id);
 
   /* ---------------- cup math ---------------- */
@@ -574,21 +648,9 @@ select option { color: #10142c; }
       '<div class="list">' + recent + "</div></div>" +
       '<div class="card glass"><p class="decree">⚖️ By decree: rally point scoring, golden point settles tied games.<br/>' +
       "Races to 15 or 21 as proclaimed per contest. <b>Each contest won = 1 point.</b><br/>" +
-      "Rules may change. Because the council said so. 😎</p>" +
-      '<hr class="divider" /><button class="btn danger block" id="resetAll">Reset all results</button></div>';
+      "Rules may change. Because the council said so. 😎</p></div>";
   }
 
-  overviewEl.addEventListener("click", (e) => {
-    if (e.target.closest("#resetAll")) {
-      if (confirm("Clear every recorded result (contests stay)?") &&
-          confirm("Really reset the whole cup? This cannot be undone.")) {
-        store = defaultStore();
-        ui.contestId = null; ui.edit = null;
-        save();
-        renderAll();
-      }
-    }
-  });
 
   /* ============================================================
      CONTESTS TAB — roll of contests → contest detail
@@ -1033,12 +1095,106 @@ select option { color: #10142c; }
   });
 
   /* ============================================================
+     SETTINGS TAB — theme, backup, danger zone
+     ============================================================ */
+  const settingsEl = document.getElementById("tab-settings");
+
+  function backupJson() {
+    return JSON.stringify({ app: "verandas-cup", exported: new Date().toISOString(), data: store }, null, 2);
+  }
+
+  function renderSettings() {
+    const pref = themePref();
+    const seg = (val, label) =>
+      '<button data-theme-pref="' + val + '" class="' + (pref === val ? "is-active" : "") + '">' + label + "</button>";
+
+    settingsEl.innerHTML =
+      '<div class="card glass"><h2>⚙️ Settings</h2>' +
+      '<p class="sub">Appearance and data for this device.</p>' +
+      '<p class="section-title">Appearance</p>' +
+      '<div class="seg">' + seg("light", "☀️ Light") + seg("dark", "🌙 Dark") + seg("system", "📱 System") + "</div>" +
+      '<p class="hint">System follows your device’s light/dark preference automatically.</p>' +
+      "</div>" +
+      '<div class="card glass"><p class="section-title">Backup &amp; restore</p>' +
+      '<p class="hint" style="margin:0 0 12px;">Scores live in this browser only. Download a backup to keep them safe, or move the cup to another phone by importing the file’s contents there.</p>' +
+      '<div style="display:flex;gap:10px;flex-wrap:wrap;">' +
+      '<button class="btn grow" id="exportFile">⬇️ Download backup</button>' +
+      '<button class="btn ghost" id="exportCopy">Copy</button></div>' +
+      '<hr class="divider" />' +
+      '<div class="field"><label>Restore from a backup — paste it here</label>' +
+      '<input type="text" id="importBox" placeholder=\'{"app":"verandas-cup", …}\' /></div>' +
+      '<button class="btn block" id="importBtn">Import backup</button>' +
+      "</div>" +
+      '<div class="card glass"><p class="section-title">Danger zone</p>' +
+      '<button class="btn danger block" id="resetAll">Reset all results</button>' +
+      '<p class="hint">Clears every recorded result. The Roll of Contests and rosters stay.</p>' +
+      "</div>" +
+      '<div class="card glass"><p class="decree">🏆 The Verandas Pickleball Cup · scorekeeper<br/>' +
+      "Two houses. One cup. Endless glory.</p></div>";
+  }
+
+  settingsEl.addEventListener("click", (e) => {
+    const th = e.target.closest("[data-theme-pref]");
+    if (th) { setThemePref(th.dataset.themePref); buzz(8); renderSettings(); return; }
+
+    if (e.target.closest("#exportFile")) {
+      const blob = new Blob([backupJson()], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "verandas-cup-backup.json";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+      return;
+    }
+    if (e.target.closest("#exportCopy")) {
+      const txt = backupJson();
+      const done = () => alert("Backup copied — paste it somewhere safe.");
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(txt).then(done, () => prompt("Copy the backup below:", txt));
+      } else {
+        prompt("Copy the backup below:", txt);
+      }
+      return;
+    }
+    if (e.target.closest("#importBtn")) {
+      const raw = (document.getElementById("importBox").value || "").trim();
+      if (!raw) { alert("Paste a backup first."); return; }
+      try {
+        const parsed = JSON.parse(raw);
+        const data = parsed && parsed.app === "verandas-cup" ? parsed.data : parsed;
+        if (!data || !Array.isArray(data.contests)) throw new Error("bad shape");
+        if (!confirm("Replace everything on this device with the imported backup?")) return;
+        store = data;
+        ui.contestId = null; ui.edit = null; ui.playerOpen = null;
+        save();
+        renderAll();
+        alert("Backup imported — the cup is restored. 🏆");
+      } catch (err) {
+        alert("That doesn’t look like a Verandas Cup backup — check the pasted text.");
+      }
+      return;
+    }
+    if (e.target.closest("#resetAll")) {
+      if (confirm("Clear every recorded result (contests stay)?") &&
+          confirm("Really reset the whole cup? This cannot be undone.")) {
+        store = defaultStore();
+        ui.contestId = null; ui.edit = null; ui.playerOpen = null;
+        save();
+        renderAll();
+      }
+    }
+  });
+
+  /* ============================================================
      NAV + BOOT
      ============================================================ */
   function renderAll() {
     renderOverview();
     renderContests();
     renderHouses();
+    renderSettings();
   }
 
   document.querySelectorAll(".bnav").forEach((btn) => {
@@ -1050,7 +1206,8 @@ select option { color: #10142c; }
         p.classList.toggle("is-active", p.id === "tab-" + ui.tab));
       if (ui.tab === "overview") renderOverview();
       else if (ui.tab === "contests") renderContests();
-      else renderHouses();
+      else if (ui.tab === "houses") renderHouses();
+      else renderSettings();
     });
   });
 

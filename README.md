@@ -33,6 +33,13 @@ Per contest:
 - Record → the winning house banks **1 point**. Reopen & edit any time.
 - The council can add extra contests mid-tournament.
 
+### ⚙️ Settings tab
+- **Appearance**: Light / Dark / System theme (System follows the device
+  preference live); choice persists per device.
+- **Backup & restore**: download the cup as a JSON file or copy it, and
+  restore by pasting a backup — moves scores between devices.
+- Danger zone: reset all results.
+
 ### 🛡️ Houses tab
 The Roll Call of the Realm — both 14-player rosters with crests and mottos,
 plus **live player records**: each player shows their W–L tally, and tapping
