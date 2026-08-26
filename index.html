@@ -6,6 +6,8 @@
   <meta name="theme-color" content="#0b1026" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
   <title>The Verandas Pickleball Cup</title>
   <style>
 /* ============================================================
@@ -392,6 +394,76 @@ select option { color: #10142c; }
 .phist-title { font-size: 13px; font-weight: 800; margin: 0 0 10px; }
 .phist-title .who { color: var(--gold); }
 
+/* ---------- toast ---------- */
+.toast {
+  position: fixed; left: 50%; transform: translateX(-50%) translateY(20px);
+  bottom: calc(86px + env(safe-area-inset-bottom));
+  z-index: 60; display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px; border-radius: 16px; max-width: min(400px, calc(100% - 32px));
+  background: var(--nav-bg);
+  backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow), inset 0 1px 0 var(--glass-highlight);
+  font-size: 13.5px; font-weight: 600;
+  opacity: 0; pointer-events: none; transition: all .25s ease;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+.toast button { appearance: none; border: 0; cursor: pointer; font-family: inherit;
+  font-size: 13px; font-weight: 800; color: var(--accent); background: none; padding: 4px 6px; }
+
+/* ---------- switch rows ---------- */
+.switch-row { display: flex; align-items: center; gap: 12px; padding: 11px 2px;
+  border-bottom: 1px solid var(--surface-1); cursor: pointer; }
+.switch-row:last-child { border-bottom: 0; }
+.switch-row .sw-text { flex: 1; min-width: 0; }
+.switch-row .sw-title { font-size: 14px; font-weight: 700; }
+.switch-row .sw-sub { font-size: 11.5px; color: var(--text-faint); margin-top: 1px; }
+.switch { width: 44px; height: 26px; border-radius: 999px; flex: none; position: relative;
+  background: var(--inset); border: 1px solid var(--line); transition: all .2s ease; }
+.switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px;
+  border-radius: 50%; background: var(--text-faint); transition: all .2s ease; }
+.switch.on { background: linear-gradient(150deg, #9be8ff, #a99bff); border-color: transparent; }
+.switch.on::after { left: 20px; background: #0b1026; }
+
+/* ---------- rally timeline ---------- */
+.rally-line { display: flex; flex-wrap: wrap; gap: 4px; margin: 10px 0 2px; min-height: 8px; }
+.rally-dot { width: 8px; height: 8px; border-radius: 50%; }
+.rally-dot.sm { background: var(--smashers); }
+.rally-dot.dk { background: var(--dinkers); }
+.run-note { font-size: 11.5px; color: var(--text-faint); margin-top: 6px; }
+
+/* ---------- momentum chart ---------- */
+.momentum svg { width: 100%; height: 74px; display: block; }
+
+/* ---------- snapshot banner ---------- */
+.snapshot-note {
+  max-width: 640px; width: calc(100% - 24px); margin: 10px auto -6px;
+  padding: 10px 16px; border-radius: 16px; text-align: center;
+  font-size: 12.5px; font-weight: 700; color: #0b1026;
+  background: linear-gradient(150deg, #ffd479, #ffb35c);
+  box-shadow: 0 8px 22px rgba(255,190,90,.35);
+}
+
+/* ---------- confetti ---------- */
+.confetti { position: fixed; top: -20px; z-index: 70; pointer-events: none;
+  font-size: 18px; animation: confall linear forwards; }
+@keyframes confall {
+  to { transform: translateY(110vh) rotate(720deg); opacity: .6; }
+}
+
+/* ---------- contest extras ---------- */
+.sched-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
+.sched-row .field { flex: 1 1 120px; margin-bottom: 8px; }
+.contest-photo { width: 100%; border-radius: var(--radius-sm); margin-top: 12px;
+  border: 1px solid var(--line); display: block; }
+.note-line { font-size: 13px; color: var(--text-dim); font-style: italic;
+  text-align: center; margin-top: 8px; }
+
+/* ---------- roster edit ---------- */
+.player .rmv { appearance: none; border: 0; background: none; cursor: pointer;
+  color: var(--text-faint); font-size: 15px; line-height: 1; padding: 0 2px; flex: none; }
+.player .rmv:hover { color: var(--bad); }
+
 /* ---------- misc ---------- */
 .empty { text-align: center; color: var(--text-dim); padding: 24px 14px; font-size: 14px; }
 .empty .big { font-size: 32px; display: block; margin-bottom: 10px; opacity: .8; }
@@ -512,14 +584,21 @@ select option { color: #10142c; }
       done: false,
     }));
   }
-  const defaultStore = () => ({ contests: seedContests(), created: Date.now() });
+  const defaultStore = () => ({
+    contests: seedContests(),
+    rosters: [HOUSES[0].roster.slice(), HOUSES[1].roster.slice()],
+    created: Date.now(),
+  });
 
   function load() {
     try {
       const raw = localStorage.getItem(KEY);
       if (raw) {
         const s = JSON.parse(raw);
-        if (Array.isArray(s.contests)) return s;
+        if (Array.isArray(s.contests)) {
+          if (!Array.isArray(s.rosters)) s.rosters = [HOUSES[0].roster.slice(), HOUSES[1].roster.slice()];
+          return s;
+        }
       }
     } catch (e) {}
     const s = defaultStore();
@@ -527,6 +606,7 @@ select option { color: #10142c; }
     return s;
   }
   function save() {
+    if (VIEW) return;   // never persist a shared snapshot
     try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {}
   }
 
@@ -556,7 +636,110 @@ select option { color: #10142c; }
   }
   applyTheme();
 
+  /* ---------------- preferences ---------------- */
+  const PREFS_KEY = "verandas_prefs";
+  const defaultPrefs = () => ({ wake: true, autosave: true, speech: false, sound: false });
+  let prefs = defaultPrefs();
+  try { prefs = Object.assign(defaultPrefs(), JSON.parse(localStorage.getItem(PREFS_KEY) || "{}")); } catch (e) {}
+  function savePrefs() { try { localStorage.setItem(PREFS_KEY, JSON.stringify(prefs)); } catch (e) {} }
+
+  /* ---------------- read-only snapshot mode (#s=…) ---------------- */
+  let VIEW = false;
+  (function () {
+    const m = location.hash.match(/^#s=(.+)$/);
+    if (!m) return;
+    try {
+      const json = decodeURIComponent(escape(atob(decodeURIComponent(m[1]))));
+      const snap = JSON.parse(json);
+      if (snap && Array.isArray(snap.contests)) {
+        store = { contests: snap.contests, rosters: snap.rosters || store.rosters, created: snap.t || Date.now() };
+        VIEW = true;
+        const note = document.createElement("div");
+        note.className = "snapshot-note";
+        note.innerHTML = "👁️ Read-only snapshot · " +
+          (snap.t ? new Date(snap.t).toLocaleString() : "shared scoreboard");
+        const header = document.querySelector(".app-header");
+        header.parentNode.insertBefore(note, header.nextSibling);
+      }
+    } catch (e) {}
+  })();
+
+  /* ---------------- toast ---------------- */
+  const toastEl = document.createElement("div");
+  toastEl.className = "toast";
+  document.body.appendChild(toastEl);
+  let toastTimer = null;
+  function toast(msg, actionLabel, actionFn) {
+    clearTimeout(toastTimer);
+    toastEl.innerHTML = "<span>" + msg + "</span>" +
+      (actionLabel ? '<button id="toastAction">' + actionLabel + "</button>" : "");
+    if (actionLabel) {
+      toastEl.querySelector("#toastAction").addEventListener("click", () => {
+        hideToast();
+        actionFn();
+      });
+    }
+    toastEl.classList.add("show");
+    toastTimer = setTimeout(hideToast, 6000);
+  }
+  function hideToast() { toastEl.classList.remove("show"); }
+
+  /* ---------------- sound effects (WebAudio) ---------------- */
+  let audioCtx = null;
+  function beep(freq, dur, delay) {
+    if (!prefs.sound) return;
+    try {
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      const t = audioCtx.currentTime + (delay || 0);
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = "sine"; osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.12, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+      osc.connect(gain).connect(audioCtx.destination);
+      osc.start(t); osc.stop(t + dur);
+    } catch (e) {}
+  }
+  const pointSound = (side) => beep(side === 0 ? 620 : 460, 0.09);
+  const fanfare = () => { beep(523, 0.12); beep(659, 0.12, 0.12); beep(784, 0.2, 0.24); };
+
+  /* ---------------- score announcements ---------------- */
+  function announce(text) {
+    if (!prefs.speech || !window.speechSynthesis) return;
+    try {
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.rate = 1.05;
+      speechSynthesis.speak(u);
+    } catch (e) {}
+  }
+
+  /* ---------------- screen wake lock ---------------- */
+  let wakeLock = null;
+  async function acquireWake() {
+    if (!prefs.wake || !("wakeLock" in navigator)) return;
+    try { wakeLock = await navigator.wakeLock.request("screen"); } catch (e) {}
+  }
+  function releaseWake() {
+    if (wakeLock) { try { wakeLock.release(); } catch (e) {} wakeLock = null; }
+  }
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible" && ui.edit && ui.edit.mode === "points") acquireWake();
+  });
+
   const findContest = (id) => store.contests.find((c) => c.id === id);
+
+  const roster = (i) => store.rosters[i];
+
+  // decided, non-special contests a player was fielded in (decree: max 2)
+  function fieldedCount(name) {
+    let n = 0;
+    store.contests.forEach((c) => {
+      if (!c.done || c.winner == null || c.kind === "special") return;
+      if (c.playersA.indexOf(name) >= 0 || c.playersB.indexOf(name) >= 0) n++;
+    });
+    return n;
+  }
 
   /* ---------------- cup math ---------------- */
   function gamesWon(c) {
@@ -588,10 +771,98 @@ select option { color: #10142c; }
      ============================================================ */
   const overviewEl = document.getElementById("tab-overview");
 
+  function shareUrl() {
+    const contests = store.contests.map((c) => ({
+      id: c.id, name: c.name, kind: c.kind, icon: c.icon, desc: c.desc,
+      court: c.court || "", time: c.time || "", note: c.note || "",
+      playersA: c.playersA, playersB: c.playersB,
+      games: c.games, winner: c.winner, done: c.done,
+    }));
+    const payload = { v: 1, t: Date.now(), contests, rosters: store.rosters };
+    const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+    return location.href.split("#")[0] + "#s=" + encodeURIComponent(b64);
+  }
+
+  function momentumHtml() {
+    const seq = store.contests.filter((c) => c.done && c.winner != null);
+    if (seq.length < 2) return "";
+    let a = 0, b = 0;
+    const pa = [[0, 0]], pb = [[0, 0]];
+    seq.forEach((c, i) => {
+      if (c.winner === 0) a++; else b++;
+      pa.push([i + 1, a]); pb.push([i + 1, b]);
+    });
+    const max = Math.max(a, b, 1), n = seq.length;
+    const px = (x) => (x / n) * 100;
+    const py = (y) => 36 - (y / max) * 30;
+    const pts = (arr) => arr.map((p) => px(p[0]).toFixed(1) + "," + py(p[1]).toFixed(1)).join(" ");
+    const line = (arr, col) =>
+      '<polyline points="' + pts(arr) + '" fill="none" stroke="var(--' + col + ')" stroke-width="2.5" ' +
+      'stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>';
+    return '<div class="momentum"><svg viewBox="0 0 100 40" preserveAspectRatio="none">' +
+      line(pa, "smashers") + line(pb, "dinkers") + "</svg></div>" +
+      '<div class="progress-note">Momentum — points as each contest was decided</div>';
+  }
+
+  function scoreboardCanvas() {
+    const t = cupTotals();
+    const cv = document.createElement("canvas");
+    cv.width = 1000; cv.height = 1250;
+    const x = cv.getContext("2d");
+    const g = x.createLinearGradient(0, 0, 1000, 1250);
+    g.addColorStop(0, "#141a3d"); g.addColorStop(1, "#221040");
+    x.fillStyle = g; x.fillRect(0, 0, 1000, 1250);
+    x.textAlign = "center";
+    x.fillStyle = "#f4f7ff"; x.font = "bold 46px Arial";
+    x.fillText("🏆 THE VERANDAS PICKLEBALL CUP", 500, 105);
+    x.fillStyle = "rgba(233,238,255,.6)"; x.font = "26px Arial";
+    x.fillText("Two houses · One cup · Endless glory", 500, 152);
+    x.font = "bold 38px Arial";
+    x.fillStyle = "#c59dff"; x.fillText("SONI SMASHERS", 260, 270);
+    x.fillStyle = "#7bdcff"; x.fillText("SAM DINKERS", 740, 270);
+    x.font = "bold 150px Arial";
+    x.fillStyle = "#c59dff"; x.fillText(t.pts[0], 260, 440);
+    x.fillStyle = "#7bdcff"; x.fillText(t.pts[1], 740, 440);
+    x.fillStyle = "rgba(233,238,255,.5)"; x.font = "bold 34px Arial"; x.fillText("VS", 500, 380);
+    x.font = "26px Arial";
+    x.fillText(t.decided + " of " + t.total + " contests decided", 500, 512);
+    x.textAlign = "left"; x.font = "28px Arial";
+    let y = 590;
+    store.contests.filter((c) => c.done && c.winner != null).slice(0, 13).forEach((c) => {
+      x.fillStyle = c.winner === 0 ? "#c59dff" : "#7bdcff";
+      const score = c.games.length ? "  (" + c.games.map((gm) => gm.a + "-" + gm.b).join(", ") + ")" : "";
+      x.fillText((c.icon || "•") + "  " + c.name + " — " + HOUSES[c.winner].name.split(" ")[1] + score, 80, y);
+      y += 46;
+    });
+    x.textAlign = "center"; x.fillStyle = "rgba(233,238,255,.45)"; x.font = "24px Arial";
+    x.fillText(new Date().toLocaleDateString(), 500, 1205);
+    return cv;
+  }
+
+  function celebrate() {
+    try {
+      if (sessionStorage.getItem("verandas_conf")) return;
+      sessionStorage.setItem("verandas_conf", "1");
+    } catch (e) {}
+    const glyphs = ["🎉", "🏆", "🥒", "✨", "🎊"];
+    for (let i = 0; i < 60; i++) {
+      const s = document.createElement("span");
+      s.className = "confetti";
+      s.textContent = glyphs[i % glyphs.length];
+      s.style.left = Math.random() * 100 + "vw";
+      s.style.animationDuration = (2.5 + Math.random() * 2.5) + "s";
+      s.style.animationDelay = (Math.random() * 1.2) + "s";
+      document.body.appendChild(s);
+      setTimeout(() => s.remove(), 6500);
+    }
+  }
+
   function renderOverview() {
     const { pts, decided, total } = cupTotals();
     const allDone = decided === total;
     const leader = pts[0] > pts[1] ? 0 : pts[1] > pts[0] ? 1 : null;
+
+    if (allDone && leader != null) celebrate();
 
     let banner = "";
     if (decided > 0) {
@@ -628,7 +899,8 @@ select option { color: #10142c; }
           const scoreline = c.games.length ? c.games.map((g) => g.a + "–" + g.b).join(", ") : "";
           return '<div class="row-item won-' + HOUSES[w].key + '">' +
             '<div class="main"><div class="ttl">' + c.icon + " " + esc(c.name) + "</div>" +
-            '<div class="meta">' + esc(playersLabel(c, w)) + " won" + (scoreline ? " · " + scoreline : "") + "</div></div>" +
+            '<div class="meta">' + esc(playersLabel(c, w)) + " won" + (scoreline ? " · " + scoreline : "") +
+            (c.note ? " · “" + esc(c.note) + "”" : "") + "</div></div>" +
             '<span class="pill ' + HOUSES[w].key + '">+1 pt</span></div>';
         }).join("")
       : '<div class="empty"><span class="big">⚔️</span>No contests decided yet.<br/>Record results in the Contests tab.</div>';
@@ -643,7 +915,27 @@ select option { color: #10142c; }
       '<div class="p-dk" style="width:' + pctDk + '%"></div>' +
       "</div>" +
       '<div class="progress-note">' + decided + " of " + total + " contests decided</div>" +
+      momentumHtml() +
+      '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;">' +
+      (VIEW
+        ? '<button class="btn primary grow" id="exitSnap">Open my own scorer</button>'
+        : '<button class="btn grow" id="shareSnap">🔗 Share standings</button>') +
+      '<button class="btn ghost" id="shareImage">📸 Image</button>' +
       "</div>" +
+      "</div>" +
+      (function () {
+        const upcoming = store.contests.filter((c) => !c.done).slice(0, 3);
+        if (!upcoming.length || decided === total) return "";
+        return '<div class="card glass"><p class="section-title">Up next</p><div class="spacer"></div>' +
+          '<div class="list">' + upcoming.map((c) =>
+            '<div class="row-item clickable" data-goto-contest="' + c.id + '">' +
+            '<div class="main"><div class="ttl">' + c.icon + " " + esc(c.name) + "</div>" +
+            '<div class="meta">' +
+            [(c.court ? "📍 " + esc(c.court) : ""), (c.time ? "🕐 " + esc(c.time) : "")].filter(Boolean).join(" · ") +
+            ((c.court || c.time) ? "" : "Awaiting schedule") + "</div></div>" +
+            '<span class="pill">' + (VIEW ? "Pending" : "Score →") + "</span></div>").join("") +
+          "</div></div>";
+      })() +
       '<div class="card glass"><p class="section-title">Contests decided</p><div class="spacer"></div>' +
       '<div class="list">' + recent + "</div></div>" +
       '<div class="card glass"><p class="decree">⚖️ By decree: rally point scoring, golden point settles tied games.<br/>' +
@@ -651,6 +943,45 @@ select option { color: #10142c; }
       "Rules may change. Because the council said so. 😎</p></div>";
   }
 
+
+  overviewEl.addEventListener("click", (e) => {
+    if (e.target.closest("#shareSnap")) {
+      const url = shareUrl();
+      const finish = () => toast("🔗 Share link copied — anyone who opens it sees a read-only scoreboard.");
+      if (navigator.share) {
+        navigator.share({ title: "The Verandas Pickleball Cup", url }).catch(() => {});
+      } else if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(finish, () => prompt("Copy the share link:", url));
+      } else {
+        prompt("Copy the share link:", url);
+      }
+      return;
+    }
+    if (e.target.closest("#shareImage")) {
+      scoreboardCanvas().toBlob((blob) => {
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "verandas-cup-scoreboard.png";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+        toast("📸 Scoreboard image saved.");
+      }, "image/png");
+      return;
+    }
+    if (e.target.closest("#exitSnap")) {
+      location.hash = "";
+      location.reload();
+      return;
+    }
+    const goto = e.target.closest("[data-goto-contest]");
+    if (goto) {
+      ui.contestId = goto.dataset.gotoContest;
+      ui.edit = null;
+      document.querySelector('.bnav[data-tab="contests"]').click();
+    }
+  });
 
   /* ============================================================
      CONTESTS TAB — roll of contests → contest detail
@@ -674,6 +1005,8 @@ select option { color: #10142c; }
         '<div class="main"><div class="ttl">' + c.icon + " " + esc(c.name) + "</div>" +
         '<div class="meta">' + (c.kind === "special" ? "Exhibit B · whole team" :
           c.kind === "singles" ? "Singles · 1 per house" : "Doubles · 2 per house") +
+        (c.court ? " · 📍 " + esc(c.court) : "") +
+        (c.time ? " · 🕐 " + esc(c.time) : "") +
         (c.done ? " · decided" : "") + "</div></div>" + status + "</div>";
     }).join("");
 
@@ -681,10 +1014,12 @@ select option { color: #10142c; }
       '<div class="card glass"><h2>⚔️ The Roll of Contests</h2>' +
       '<p class="sub">Exhibit A — the championship divisions, plus the Grand Team Rally. Tap a contest to record its result.</p>' +
       '<div class="list">' + rows + "</div>" +
-      '<hr class="divider" />' +
-      '<div class="inline-form"><div class="field grow"><label>Add a contest (the council may decree more)</label>' +
-      '<input type="text" id="newContestName" placeholder="Contest name" maxlength="50" /></div>' +
-      '<button class="btn" id="addContest">Add</button></div></div>';
+      (VIEW ? "" :
+        '<hr class="divider" />' +
+        '<div class="inline-form"><div class="field grow"><label>Add a contest (the council may decree more)</label>' +
+        '<input type="text" id="newContestName" placeholder="Contest name" maxlength="50" /></div>' +
+        '<button class="btn" id="addContest">Add</button></div>') +
+      "</div>";
   }
 
   function editState(c) {
@@ -707,9 +1042,12 @@ select option { color: #10142c; }
   }
 
   function playerSelect(side, slot, val) {
-    const h = HOUSES[side];
     const opts = ['<option value="">— player ' + (slot + 1) + " —</option>"].concat(
-      h.roster.map((p) => '<option value="' + esc(p) + '"' + (p === val ? " selected" : "") + ">" + esc(p) + "</option>"));
+      roster(side).map((p) => {
+        const n = fieldedCount(p);
+        const tag = n >= 2 ? " ⚠ " + n + " played" : n === 1 ? " · 1 played" : "";
+        return '<option value="' + esc(p) + '"' + (p === val ? " selected" : "") + ">" + esc(p) + tag + "</option>";
+      }));
     return '<select data-player="' + side + "-" + slot + '">' + opts.join("") + "</select>";
   }
 
@@ -732,11 +1070,29 @@ select option { color: #10142c; }
         (scoreline ? '<div class="scoreline">' + scoreline + "</div>" : "") +
         '<div class="note">🏅 ' + esc(HOUSES[w].name) + " take the contest · +1 point</div>" +
         "</div>" +
+        (c.note ? '<p class="note-line">“' + esc(c.note) + "”</p>" : "") +
+        (c.photo ? '<img class="contest-photo" src="' + c.photo + '" alt="Contest photo" />' : "") +
         '<div class="spacer"></div><div class="spacer"></div>' +
-        '<div style="display:flex;gap:10px;">' +
-        '<button class="btn ghost grow" id="reopenContest">Reopen &amp; edit</button>' +
-        '<button class="btn danger small" id="deleteContest">Delete contest</button></div>' +
+        (VIEW ? "" :
+          '<div style="display:flex;gap:10px;">' +
+          '<button class="btn ghost grow" id="reopenContest">Reopen &amp; edit</button>' +
+          '<button class="btn danger small" id="deleteContest">Delete contest</button></div>') +
         "</div>";
+      return;
+    }
+
+    // pending contest in a read-only snapshot
+    if (VIEW) {
+      conEl.innerHTML =
+        '<button class="back-link" id="backToRoll">← Roll of Contests</button>' +
+        '<div class="card glass"><h2>' + c.icon + " " + esc(c.name) + "</h2>" +
+        '<p class="sub">' + esc(c.desc) + "</p>" +
+        ((c.court || c.time)
+          ? '<div class="pills">' +
+            (c.court ? '<span class="pill">📍 ' + esc(c.court) + "</span>" : "") +
+            (c.time ? '<span class="pill">🕐 ' + esc(c.time) + "</span>" : "") + "</div>"
+          : "") +
+        '<div class="empty"><span class="big">⏳</span>Awaiting result.</div></div>';
       return;
     }
 
@@ -769,6 +1125,24 @@ select option { color: #10142c; }
       gameRows +
       (ed.games.length < 3 ? '<button class="btn ghost small" id="addGame">+ Add game</button>' : "") +
       '<p class="hint">Rally point scoring · race to 15 or 21 · golden point settles a tied game.</p>';
+
+    const schedRow =
+      '<div class="sched-row">' +
+      '<div class="field"><label>Court</label><select id="schedCourt">' +
+      ["", "Court 1", "Court 2"].map((v) =>
+        '<option value="' + v + '"' + ((c.court || "") === v ? " selected" : "") + ">" + (v || "— court —") + "</option>").join("") +
+      "</select></div>" +
+      '<div class="field"><label>Time</label><input type="text" id="schedTime" value="' + esc(c.time || "") + '" placeholder="e.g. Sat 9:30" maxlength="24" /></div>' +
+      "</div>";
+
+    const noteRow =
+      '<div class="field"><label>Note (optional)</label>' +
+      '<input type="text" id="contestNote" value="' + esc(c.note || "") + '" placeholder="e.g. golden point thriller!" maxlength="90" /></div>' +
+      '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">' +
+      '<button class="btn ghost small" id="photoBtn">📷 ' + (c.photo ? "Replace photo" : "Add photo") + "</button>" +
+      (c.photo ? '<button class="btn ghost small danger" id="photoRemove">Remove photo</button>' : "") +
+      '<input type="file" id="photoInput" accept="image/*" style="display:none;" /></div>' +
+      (c.photo ? '<img class="contest-photo" src="' + c.photo + '" alt="Contest photo" />' : "");
 
     // point-by-point scorer (golden point ⇒ first to the target wins)
     const lv = ed.live;
@@ -803,8 +1177,24 @@ select option { color: #10142c; }
       '<button class="btn ghost" id="liveUndo"' + (lv.log.length ? "" : " disabled") + ">↩︎ Undo</button>" +
       '<button class="btn ghost" id="liveReset"' + (lv.log.length ? "" : " disabled") + ">Reset</button>" +
       "</div>" +
+      (lv.log.length
+        ? '<div class="rally-line">' + lv.log.slice(-40).map((s) =>
+            '<span class="rally-dot ' + HOUSES[s].key + '"></span>').join("") + "</div>" +
+          (function () {
+            let best = 0, bestSide = 0, run = 0, prev = -1;
+            lv.log.forEach((s) => {
+              run = s === prev ? run + 1 : 1;
+              prev = s;
+              if (run > best) { best = run; bestSide = s; }
+            });
+            return best >= 3
+              ? '<div class="run-note">🔥 Longest run: ' + best + " straight — " + esc(edSideLabel(ed, bestSide)) + "</div>"
+              : "";
+          })()
+        : "") +
       '<p class="hint">Rally point scoring — every rally scores. Golden point: first to ' + lv.target + " wins, even from " +
-      (lv.target - 1) + "–" + (lv.target - 1) + ".</p>" +
+      (lv.target - 1) + "–" + (lv.target - 1) + "." +
+      (prefs.autosave ? " Finished games save automatically." : "") + "</p>" +
       savedLine;
 
     const modeSeg =
@@ -830,6 +1220,7 @@ select option { color: #10142c; }
       "<div><h2>" + c.icon + " " + esc(c.name) + "</h2>" +
       '<p class="sub">' + esc(c.desc) + "</p></div>" +
       '<button class="btn danger small" id="deleteContest">Delete</button></div>' +
+      schedRow +
       (isSpecial ? "" :
         '<p class="section-title">Who takes the court</p>' +
         '<div class="two-col">' + sideBlock(0) + sideBlock(1) + "</div>" +
@@ -838,6 +1229,8 @@ select option { color: #10142c; }
         (ed.mode === "final" ? finalPanel : pointsPanel) +
         '<hr class="divider" />') +
       specialPick +
+      noteRow +
+      '<div class="spacer"></div>' +
       '<button class="btn primary block" id="recordResult">Record result 🏅 (+1 point)</button>' +
       "</div>";
   }
@@ -892,14 +1285,21 @@ select option { color: #10142c; }
     c.done = true;
     ui.edit = null;
     buzz(20);
+    fanfare();
     save();
     renderAll();
+    toast("🏅 " + esc(HOUSES[c.winner].name) + " take " + esc(c.name), "Undo", () => {
+      c.done = false;
+      ui.edit = null;
+      save();
+      renderAll();
+    });
   }
 
   conEl.addEventListener("click", (e) => {
     const openBtn = e.target.closest("[data-open]");
     if (openBtn) { ui.contestId = openBtn.dataset.open; ui.edit = null; renderContests(); return; }
-    if (e.target.closest("#backToRoll")) { ui.contestId = null; ui.edit = null; renderContests(); return; }
+    if (e.target.closest("#backToRoll")) { ui.contestId = null; ui.edit = null; releaseWake(); renderContests(); return; }
 
     if (e.target.closest("#addContest")) {
       const name = (document.getElementById("newContestName").value || "").trim();
@@ -936,7 +1336,12 @@ select option { color: #10142c; }
 
     // --- point-by-point scorer ---
     const modeBtn = e.target.closest("[data-mode]");
-    if (modeBtn) { editState(c).mode = modeBtn.dataset.mode; renderContestDetail(c); return; }
+    if (modeBtn) {
+      editState(c).mode = modeBtn.dataset.mode;
+      if (modeBtn.dataset.mode === "points") acquireWake(); else releaseWake();
+      renderContestDetail(c);
+      return;
+    }
 
     const targetBtn = e.target.closest("[data-lt]");
     if (targetBtn) {
@@ -948,11 +1353,28 @@ select option { color: #10142c; }
     const tapBtn = e.target.closest("[data-tap]");
     if (tapBtn) {
       const ed = editState(c);
+      const lv = ed.live;
       const side = parseInt(tapBtn.dataset.tap, 10);
-      if (ed.live.a < ed.live.target && ed.live.b < ed.live.target) {
-        ed.live.log.push(side);
-        if (side === 0) ed.live.a++; else ed.live.b++;
+      if (lv.a < lv.target && lv.b < lv.target) {
+        lv.log.push(side);
+        if (side === 0) lv.a++; else lv.b++;
         buzz(12);
+        pointSound(side);
+        const over = lv.a >= lv.target || lv.b >= lv.target;
+        if (over) {
+          fanfare();
+          announce("Game, " + edSideLabel(ed, lv.a > lv.b ? 0 : 1) + ", " + lv.a + ", " + lv.b);
+          if (prefs.autosave) {
+            const line = lv.a + "–" + lv.b;
+            if (saveLiveGame(ed)) toast("Game saved " + line + " ✔");
+          }
+        } else if (lv.a === lv.target - 1 && lv.b === lv.target - 1) {
+          announce("Golden point!");
+        } else if (lv.a === lv.target - 1 || lv.b === lv.target - 1) {
+          announce("Game point, " + lv.a + ", " + lv.b);
+        } else {
+          announce(lv.a + ", " + lv.b);
+        }
         renderContestDetail(c);
       }
       return;
@@ -983,6 +1405,47 @@ select option { color: #10142c; }
       renderContestDetail(c);
       return;
     }
+    if (e.target.closest("#photoBtn")) {
+      const inp = document.getElementById("photoInput");
+      if (inp) inp.click();
+      return;
+    }
+    if (e.target.closest("#photoRemove")) {
+      c.photo = null;
+      save();
+      renderContestDetail(c);
+      return;
+    }
+  });
+
+  // photo attach: downscale to keep localStorage happy
+  conEl.addEventListener("change", (e) => {
+    if (e.target.id !== "photoInput") return;
+    const c = ui.contestId && findContest(ui.contestId);
+    const file = e.target.files && e.target.files[0];
+    if (!c || !file) return;
+    const img = new Image();
+    img.onload = () => {
+      const scale = Math.min(1, 900 / Math.max(img.width, img.height));
+      const cv = document.createElement("canvas");
+      cv.width = Math.round(img.width * scale);
+      cv.height = Math.round(img.height * scale);
+      cv.getContext("2d").drawImage(img, 0, 0, cv.width, cv.height);
+      let data = cv.toDataURL("image/jpeg", 0.72);
+      if (data.length > 350000) data = cv.toDataURL("image/jpeg", 0.5);
+      URL.revokeObjectURL(img.src);
+      const prev = c.photo;
+      c.photo = data;
+      try {
+        localStorage.setItem(KEY, JSON.stringify(store));
+        renderContestDetail(c);
+      } catch (err) {
+        c.photo = prev;
+        alert("Not enough browser storage for this photo — try removing another photo first.");
+      }
+    };
+    img.src = URL.createObjectURL(file);
+    e.target.value = "";
   });
 
   // keep typed values in the transient edit state across re-renders
@@ -993,15 +1456,24 @@ select option { color: #10142c; }
     if (e.target.dataset.game) {
       const [i, side] = e.target.dataset.game.split("-");
       ed.games[+i][side] = e.target.value;
+    } else if (e.target.id === "schedTime") {
+      c.time = e.target.value.trim(); save();
+    } else if (e.target.id === "contestNote") {
+      c.note = e.target.value.trim(); save();
     }
   });
   conEl.addEventListener("change", (e) => {
     const c = ui.contestId && findContest(ui.contestId);
     if (!c) return;
+    if (e.target.id === "schedCourt") { c.court = e.target.value; save(); return; }
     const ed = editState(c);
     if (e.target.dataset.player) {
       const [side, slot] = e.target.dataset.player.split("-").map(Number);
       (side === 0 ? ed.playersA : ed.playersB)[slot] = e.target.value;
+      const name = e.target.value;
+      if (name && fieldedCount(name) >= 2) {
+        toast("⚠️ " + esc(name) + " has already played 2 contests — the decree allows max 2. NO CHITCHING!");
+      }
     }
   });
   conEl.addEventListener("keydown", (e) => {
@@ -1049,48 +1521,108 @@ select option { color: #10142c; }
         }).join("")
       : '<div class="empty">No decided contests yet for ' + esc(name) + ".</div>";
 
+    let pf = 0, pa = 0;
+    hist.forEach((h) => {
+      h.c.games.forEach((g) => { pf += h.side === 0 ? g.a : g.b; pa += h.side === 0 ? g.b : g.a; });
+    });
+    const totals = hist.length && (pf || pa)
+      ? '<p class="hint" style="margin:10px 0 0;text-align:center;">Rally points across games: <b style="color:var(--good)">' +
+        pf + " won</b> · <b style=\"color:var(--bad)\">" + pa + " conceded</b></p>"
+      : "";
+
     return '<div class="card glass">' +
       '<p class="phist-title">📜 <span class="who">' + esc(name) + "</span> — battle record</p>" +
-      '<div class="list">' + rows + "</div></div>";
+      '<div class="list">' + rows + "</div>" + totals + "</div>";
   }
 
   function renderHouses() {
     const houseCard = (i) => {
       const h = HOUSES[i];
-      const players = h.roster.map((p, n) => {
+      const editing = ui.editRoster === i && !VIEW;
+      const players = roster(i).map((p, n) => {
         const hist = playerHistory(p);
         const w = hist.filter((x) => x.won).length;
         const l = hist.length - w;
+        const fc = fieldedCount(p);
         const rec = hist.length
-          ? '<span class="rec">' + (w ? '<b class="rw">' + w + "W</b>" : "") + (l ? '<b class="rl">' + l + "L</b>" : "") + "</span>"
+          ? '<span class="rec">' + (w ? '<b class="rw">' + w + "W</b>" : "") + (l ? '<b class="rl">' + l + "L</b>" : "") +
+            (fc > 2 ? " ⚠️" : "") + "</span>"
           : '<span class="rec dim">—</span>';
+        const rm = editing ? '<button class="rmv" data-rm-player="' + esc(p) + '" title="Remove">×</button>' : "";
         return '<div class="player clickable" data-pl="' + esc(p) + '"><span class="num">' + (n + 1) + "</span>" +
-          '<span class="pname">' + esc(p) + "</span>" + rec + "</div>";
+          '<span class="pname">' + esc(p) + "</span>" + rec + rm + "</div>";
       }).join("");
-      const openHist = ui.playerOpen && h.roster.indexOf(ui.playerOpen) >= 0
+      const addForm = editing
+        ? '<div class="inline-form" style="margin-top:12px;"><div class="field grow">' +
+          '<input type="text" data-add-player-input="' + i + '" placeholder="New player name" maxlength="30" /></div>' +
+          '<button class="btn small" data-add-player="' + i + '">Add</button></div>'
+        : "";
+      const openHist = ui.playerOpen && roster(i).indexOf(ui.playerOpen) >= 0
         ? playerHistoryCard(ui.playerOpen, i)
         : "";
       return '<div class="card glass house-card ' + h.key + '">' +
         '<div class="hc-top"><div class="hc-crest">' + h.crest + "</div>" +
-        '<div><h2 class="hc-name">' + esc(h.name) + '</h2><p class="hc-title">' + esc(h.title) + "</p></div></div>" +
+        '<div style="flex:1;min-width:0;"><h2 class="hc-name">' + esc(h.name) + '</h2><p class="hc-title">' + esc(h.title) + "</p></div>" +
+        (VIEW ? "" : '<button class="btn ghost small" data-edit-roster="' + i + '">' + (editing ? "Done" : "✏️ Edit") + "</button>") +
+        "</div>" +
         '<p class="hc-motto">' + esc(h.motto) + "</p>" +
-        '<div class="roster">' + players + "</div>" +
+        '<div class="roster">' + players + "</div>" + addForm +
         '<p class="hint">Tap a player to see who they played, won and lost against.</p>' +
         "</div>" + openHist;
     };
 
     housesEl.innerHTML =
       houseCard(0) + houseCard(1) +
-      '<div class="card glass"><p class="decree">📜 Roll Call of the Realm · 14 warriors per house<br/>' +
-      "Max 2 games per player, min 1 (Team Rally excluded). NO CHITCHING!<br/>" +
+      '<div class="card glass"><p class="decree">📜 Roll Call of the Realm<br/>' +
+      "Max 2 contests per player, min 1 (Team Rally excluded). NO CHITCHING!<br/>" +
       "May the best house claim the throne. 🪑👑</p></div>";
   }
 
+  function addRosterPlayer(i) {
+    const input = housesEl.querySelector('[data-add-player-input="' + i + '"]');
+    const name = (input.value || "").trim();
+    if (!name) return;
+    if (store.rosters[0].concat(store.rosters[1]).some((p) => p.toLowerCase() === name.toLowerCase())) {
+      alert("That name is already on a roster."); return;
+    }
+    store.rosters[i].push(name);
+    save();
+    renderHouses();
+  }
+
   housesEl.addEventListener("click", (e) => {
+    const editBtn = e.target.closest("[data-edit-roster]");
+    if (editBtn) {
+      const i = parseInt(editBtn.dataset.editRoster, 10);
+      ui.editRoster = ui.editRoster === i ? null : i;
+      renderHouses();
+      return;
+    }
+    const addBtn = e.target.closest("[data-add-player]");
+    if (addBtn) return addRosterPlayer(parseInt(addBtn.dataset.addPlayer, 10));
+
+    const rmBtn = e.target.closest("[data-rm-player]");
+    if (rmBtn) {
+      const name = rmBtn.dataset.rmPlayer;
+      const played = playerHistory(name).length;
+      if (!confirm("Remove " + name + " from the roster?" +
+          (played ? " Their " + played + " recorded contest(s) keep their name." : ""))) return;
+      store.rosters = store.rosters.map((r) => r.filter((p) => p !== name));
+      if (ui.playerOpen === name) ui.playerOpen = null;
+      save();
+      renderHouses();
+      return;
+    }
     const pl = e.target.closest("[data-pl]");
     if (pl) {
       ui.playerOpen = ui.playerOpen === pl.dataset.pl ? null : pl.dataset.pl;
       renderHouses();
+    }
+  });
+  housesEl.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && e.target.matches("[data-add-player-input]")) {
+      e.preventDefault();
+      addRosterPlayer(parseInt(e.target.dataset.addPlayerInput, 10));
     }
   });
 
@@ -1108,12 +1640,33 @@ select option { color: #10142c; }
     const seg = (val, label) =>
       '<button data-theme-pref="' + val + '" class="' + (pref === val ? "is-active" : "") + '">' + label + "</button>";
 
-    settingsEl.innerHTML =
+    const switchRow = (key, title, sub) =>
+      '<div class="switch-row" data-pref="' + key + '">' +
+      '<div class="sw-text"><div class="sw-title">' + title + '</div><div class="sw-sub">' + sub + "</div></div>" +
+      '<div class="switch ' + (prefs[key] ? "on" : "") + '"></div></div>';
+
+    const appearance =
       '<div class="card glass"><h2>⚙️ Settings</h2>' +
-      '<p class="sub">Appearance and data for this device.</p>' +
+      '<p class="sub">' + (VIEW ? "You’re viewing a read-only snapshot." : "Appearance, scoring and data for this device.") + "</p>" +
       '<p class="section-title">Appearance</p>' +
       '<div class="seg">' + seg("light", "☀️ Light") + seg("dark", "🌙 Dark") + seg("system", "📱 System") + "</div>" +
       '<p class="hint">System follows your device’s light/dark preference automatically.</p>' +
+      "</div>";
+
+    if (VIEW) {
+      settingsEl.innerHTML = appearance +
+        '<div class="card glass"><p class="section-title">Snapshot</p>' +
+        '<button class="btn primary block" id="exitSnapSettings">Open my own scorer</button>' +
+        '<p class="hint">Leaves this shared snapshot; your device keeps its own scores.</p></div>';
+      return;
+    }
+
+    settingsEl.innerHTML = appearance +
+      '<div class="card glass"><p class="section-title">Scoring</p>' +
+      switchRow("wake", "Keep screen awake", "While scoring point by point, the screen won’t sleep.") +
+      switchRow("autosave", "Auto-save finished games", "A game reaching its target drops straight into the score rows.") +
+      switchRow("speech", "Announce scores", "Speaks the score after every rally, plus game and golden points.") +
+      switchRow("sound", "Sound effects", "A tick per point (a different note per house) and a game-over fanfare.") +
       "</div>" +
       '<div class="card glass"><p class="section-title">Backup &amp; restore</p>' +
       '<p class="hint" style="margin:0 0 12px;">Scores live in this browser only. Download a backup to keep them safe, or move the cup to another phone by importing the file’s contents there.</p>' +
@@ -1136,6 +1689,24 @@ select option { color: #10142c; }
   settingsEl.addEventListener("click", (e) => {
     const th = e.target.closest("[data-theme-pref]");
     if (th) { setThemePref(th.dataset.themePref); buzz(8); renderSettings(); return; }
+
+    const swRow = e.target.closest("[data-pref]");
+    if (swRow) {
+      const key = swRow.dataset.pref;
+      prefs[key] = !prefs[key];
+      savePrefs();
+      buzz(8);
+      if (key === "sound" && prefs.sound) pointSound(0);
+      if (key === "speech" && prefs.speech) announce("Score announcements on.");
+      if (key === "wake" && !prefs.wake) releaseWake();
+      renderSettings();
+      return;
+    }
+    if (e.target.closest("#exitSnapSettings")) {
+      location.hash = "";
+      location.reload();
+      return;
+    }
 
     if (e.target.closest("#exportFile")) {
       const blob = new Blob([backupJson()], { type: "application/json" });
@@ -1212,6 +1783,11 @@ select option { color: #10142c; }
   });
 
   renderAll();
+
+  // install-to-homescreen + offline (only when served over http/https)
+  if ("serviceWorker" in navigator && location.protocol.indexOf("http") === 0) {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  }
 })();
   </script>
 </body>

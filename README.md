@@ -2,7 +2,7 @@
 
 *Two houses. One cup. Endless glory.*
 
-A liquid-glass, app-style scorekeeper built for one tournament:
+A liquid-glass, installable web app scorekeeper built for one tournament:
 **Soni Smashers** (House of the Mighty Smash) vs **Sam Dinkers**
 (Order of the Noble Dink), battling across the Roll of Contests.
 
@@ -10,54 +10,58 @@ A liquid-glass, app-style scorekeeper built for one tournament:
 
 ### 🏆 Overview tab
 - Head-to-head scoreboard — **every contest won = 1 point** to the house.
-- Live leader banner, progress bar of decided contests, and the champion
-  crowned once all contests are decided (ties share the glory).
-- List of every decided contest with players and score line.
-- Reset button to clear all results.
+- Live leader banner, progress bar, and a **momentum chart** of points as
+  each contest was decided.
+- **Up next** card with each pending contest's court and time — tap to score.
+- **🔗 Share standings** — generates a link anyone can open to see a
+  **read-only snapshot** of the scoreboard (no install, nothing to sync).
+- **📸 Image** — renders the scoreboard as a PNG to post in the group chat.
+- Champion crowned when all contests are decided — with confetti. 🎉
 
 ### ⚔️ Contests tab
-Pre-loaded with **Exhibit A — the 11 championship divisions** (Risers
-Doubles & Singles, Women's Doubles, Mixed Doubles, 50+ Doubles & Singles,
-Men's Doubles & Singles, Combined Age 80+ Doubles, Split Age 50+/− Doubles,
-Gender Neutral Open Doubles) **plus Exhibit B — the Grand Team Rally**.
-
-Per contest:
-- Pick the fielded players from each house's roster (1 for singles, 2 for doubles).
+Pre-loaded with Exhibit A — the 11 championship divisions — plus
+Exhibit B, the Grand Team Rally. Per contest:
+- **Court & time scheduling** (shown in the roll and the Up next card).
+- Fielded players picked from the rosters — with **rule-of-2 warnings**
+  (the decree allows max 2 contests per player: dropdowns flag "⚠ 2 played"
+  and picking them anyway raises a NO CHITCHING toast).
 - **Two recording modes**:
-  - ✍️ **Final score** — type the end score of each game (1–3 games; tied
-    games and level match scores are rejected).
-  - 🎯 **Point by point** — tap-to-score live scorer with rally-to 11/15/21,
-    rally point scoring, game-point and **GOLDEN POINT** badges (first to
-    the target wins, even from 14–14), undo and reset. Finished games save
-    into the score rows automatically.
-- Record → the winning house banks **1 point**. Reopen & edit any time.
-- The council can add extra contests mid-tournament.
-
-### ⚙️ Settings tab
-- **Appearance**: Light / Dark / System theme (System follows the device
-  preference live); choice persists per device.
-- **Backup & restore**: download the cup as a JSON file or copy it, and
-  restore by pasting a backup — moves scores between devices.
-- Danger zone: reset all results.
+  - ✍️ **Final score** — type end scores (1–3 games; ties rejected).
+  - 🎯 **Point by point** — tap-to-score with rally-to 11/15/21,
+    game-point & **GOLDEN POINT** badges, a **rally timeline** with
+    longest-run stat, undo/reset, optional **score announcements** and
+    per-house **sound effects**, and **auto-saved finished games**.
+    The screen **stays awake** while scoring (toggleable).
+- A **note** and a **photo** can be attached to any contest.
+- Record banks 1 point — an **Undo toast** gives 6 seconds to take it back;
+  reopen & edit any time. Extra contests can be added mid-tournament.
 
 ### 🛡️ Houses tab
-The Roll Call of the Realm — both 14-player rosters with crests and mottos,
-plus **live player records**: each player shows their W–L tally, and tapping
-a player opens their battle record — every contest they played, with partner,
-opponents, score line (from their perspective) and won/lost.
+The Roll Call of the Realm with **live player records** (W–L per player,
+⚠️ flag past the 2-contest limit). Tap a player for their **battle record**:
+every contest with partner, opponents, perspective score lines, won/lost,
+and total rally points won/conceded. Rosters are **editable in-app**
+(add or remove players).
+
+### ⚙️ Settings tab
+- **Appearance**: ☀️ Light / 🌙 Dark / 📱 System (follows the device live).
+- **Scoring**: keep screen awake · auto-save finished games ·
+  announce scores · sound effects.
+- **Backup & restore**: download/copy the cup as JSON, paste to restore.
+- Danger zone: reset all results.
+
+## Install & offline (PWA)
+When hosted (e.g. GitHub Pages), the app is installable to the home screen
+(`manifest.webmanifest` + `icon.svg`) and works fully **offline** via a
+service worker (`sw.js`). Scores always live in the device's browser.
 
 ## Running it
 
-A **single self-contained `index.html`** — no build step, no dependencies:
-
 ```bash
 open index.html               # or double-click it
-# …or serve it locally
+# …or serve it locally (enables the service worker)
 python3 -m http.server 8000   # http://localhost:8000
 ```
-
-All data lives in the browser (`localStorage`): works offline, survives
-reloads, nothing leaves the device.
 
 ## Hosting on GitHub Pages
 
@@ -70,4 +74,7 @@ reloads, nothing leaves the device.
 
 | File | Purpose |
 |------|---------|
-| `index.html` | The entire app — HTML, liquid-glass CSS and cup-scoring JS |
+| `index.html` | The app — HTML, liquid-glass CSS (light + dark) and all JS |
+| `sw.js` | Service worker: offline cache |
+| `manifest.webmanifest` | PWA install manifest |
+| `icon.svg` | App icon |
