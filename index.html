@@ -290,6 +290,59 @@ select option { color: #10142c; }
   display: grid; place-items: center; font-size: 10px; font-weight: 800;
   background: rgba(255,255,255,.1); color: var(--text-dim); }
 
+/* ---------- segmented control ---------- */
+.seg { display: flex; gap: 4px; padding: 4px; border-radius: 14px;
+  background: rgba(0,0,0,.2); border: 1px solid rgba(255,255,255,.13); }
+.seg button {
+  appearance: none; border: 0; cursor: pointer; flex: 1;
+  color: var(--text-dim); background: transparent;
+  padding: 9px 8px; border-radius: 10px;
+  font-family: inherit; font-size: 13px; font-weight: 600;
+  transition: all .18s ease; white-space: nowrap;
+}
+.seg button.is-active {
+  color: #0b1026;
+  background: linear-gradient(150deg, #eaf3ff, #cfe0ff);
+  box-shadow: 0 4px 12px rgba(120,170,255,.3);
+}
+
+/* ---------- point-by-point scorer ---------- */
+.live-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; margin: 12px 0 4px; }
+.tap-btn {
+  appearance: none; cursor: pointer; font-family: inherit; color: var(--text);
+  text-align: center; padding: 18px 10px 15px; border-radius: 18px;
+  border: 1px solid var(--glass-border); box-shadow: inset 0 1px 0 var(--glass-highlight);
+  transition: transform .12s, filter .2s;
+}
+.tap-btn:active { transform: scale(.96); }
+.tap-btn:disabled { opacity: .55; cursor: default; }
+.tap-btn.sm { background: linear-gradient(150deg, rgba(197,157,255,.30), rgba(197,157,255,.10)); }
+.tap-btn.dk { background: linear-gradient(150deg, rgba(123,220,255,.30), rgba(123,220,255,.10)); }
+.tap-btn .lscore { font-size: 40px; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1.05; }
+.tap-btn.sm .lscore { color: var(--smashers); }
+.tap-btn.dk .lscore { color: var(--dinkers); }
+.tap-btn .lwho { font-size: 12.5px; font-weight: 700; margin-top: 4px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tap-btn .ltap { font-size: 10.5px; color: var(--text-faint); margin-top: 2px; }
+.badge.gp { color: #0b1026; font-weight: 800; border: 0;
+  background: linear-gradient(150deg, #ffd479, #ffb35c);
+  box-shadow: 0 4px 14px rgba(255,190,90,.4);
+  animation: pulse 1.4s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+.live-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.saved-games { font-size: 12.5px; color: var(--text-dim); margin-top: 8px; }
+
+/* ---------- roster records ---------- */
+.player.clickable { cursor: pointer; transition: background .18s; }
+.player.clickable:hover { background: rgba(255,255,255,.12); }
+.player .pname { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rec { display: inline-flex; gap: 5px; font-size: 10.5px; font-weight: 800; flex: none; }
+.rec .rw { color: var(--good); }
+.rec .rl { color: var(--bad); }
+.rec.dim { color: var(--text-faint); font-weight: 600; }
+.phist-title { font-size: 13px; font-weight: 800; margin: 0 0 10px; }
+.phist-title .who { color: var(--gold); }
+
 /* ---------- misc ---------- */
 .empty { text-align: center; color: var(--text-dim); padding: 24px 14px; font-size: 14px; }
 .empty .big { font-size: 32px; display: block; margin-bottom: 10px; opacity: .8; }
@@ -427,7 +480,7 @@ select option { color: #10142c; }
   }
 
   let store = load();
-  const ui = { tab: "overview", contestId: null, edit: null };
+  const ui = { tab: "overview", contestId: null, edit: null, playerOpen: null };
 
   const findContest = (id) => store.contests.find((c) => c.id === id);
 
@@ -438,16 +491,16 @@ select option { color: #10142c; }
     return [a, b];
   }
 
+  // one point per contest won — by decree
   function cupTotals() {
-    const pts = [0, 0], cats = [0, 0];
+    const pts = [0, 0];
     let decided = 0;
     store.contests.forEach((c) => {
       if (!c.done || c.winner == null) return;
       decided++;
-      cats[c.winner]++;
-      pts[c.winner] += c.points || 0;
+      pts[c.winner]++;
     });
-    return { pts, cats, decided, total: store.contests.length };
+    return { pts, decided, total: store.contests.length };
   }
 
   function playersLabel(c, side) {
@@ -462,7 +515,7 @@ select option { color: #10142c; }
   const overviewEl = document.getElementById("tab-overview");
 
   function renderOverview() {
-    const { pts, cats, decided, total } = cupTotals();
+    const { pts, decided, total } = cupTotals();
     const allDone = decided === total;
     const leader = pts[0] > pts[1] ? 0 : pts[1] > pts[0] ? 1 : null;
 
@@ -485,14 +538,14 @@ select option { color: #10142c; }
       }
     }
 
-    const pctSm = decided ? Math.round((cats[0] / total) * 100) : 0;
-    const pctDk = decided ? Math.round((cats[1] / total) * 100) : 0;
+    const pctSm = decided ? Math.round((pts[0] / total) * 100) : 0;
+    const pctDk = decided ? Math.round((pts[1] / total) * 100) : 0;
 
     const houseCol = (i) =>
       '<div class="house ' + HOUSES[i].key + '"><div class="crest">' + HOUSES[i].crest + "</div>" +
       '<div class="hname">' + esc(HOUSES[i].name) + "</div>" +
       '<div class="score">' + pts[i] + "</div>" +
-      '<div class="cats">' + cats[i] + (cats[i] === 1 ? " contest" : " contests") + " won</div></div>";
+      '<div class="cats">' + (pts[i] === 1 ? "point · 1 contest won" : "points · " + pts[i] + " contests won") + "</div></div>";
 
     const decidedRows = store.contests.filter((c) => c.done && c.winner != null);
     const recent = decidedRows.length
@@ -502,7 +555,7 @@ select option { color: #10142c; }
           return '<div class="row-item won-' + HOUSES[w].key + '">' +
             '<div class="main"><div class="ttl">' + c.icon + " " + esc(c.name) + "</div>" +
             '<div class="meta">' + esc(playersLabel(c, w)) + " won" + (scoreline ? " · " + scoreline : "") + "</div></div>" +
-            '<span class="pill ' + HOUSES[w].key + '">+' + (c.points || 0) + " pts</span></div>";
+            '<span class="pill ' + HOUSES[w].key + '">+1 pt</span></div>';
         }).join("")
       : '<div class="empty"><span class="big">⚔️</span>No contests decided yet.<br/>Record results in the Contests tab.</div>';
 
@@ -520,7 +573,7 @@ select option { color: #10142c; }
       '<div class="card glass"><p class="section-title">Contests decided</p><div class="spacer"></div>' +
       '<div class="list">' + recent + "</div></div>" +
       '<div class="card glass"><p class="decree">⚖️ By decree: rally point scoring, golden point settles tied games.<br/>' +
-      "Races to 15 or 21 as proclaimed per contest. Each contest won awards its points.<br/>" +
+      "Races to 15 or 21 as proclaimed per contest. <b>Each contest won = 1 point.</b><br/>" +
       "Rules may change. Because the council said so. 😎</p>" +
       '<hr class="divider" /><button class="btn danger block" id="resetAll">Reset all results</button></div>';
   }
@@ -553,7 +606,7 @@ select option { color: #10142c; }
     const rows = store.contests.map((c) => {
       const status = c.done && c.winner != null
         ? '<span class="pill ' + HOUSES[c.winner].key + '">🏅 ' + esc(HOUSES[c.winner].name.split(" ")[1]) + "</span>"
-        : '<span class="pill">' + (c.points ? c.points + " pts" : "pts TBD") + "</span>";
+        : '<span class="pill">1 pt</span>';
       return '<div class="row-item clickable' + (c.done && c.winner != null ? " won-" + HOUSES[c.winner].key : "") +
         '" data-open="' + c.id + '">' +
         '<div class="main"><div class="ttl">' + c.icon + " " + esc(c.name) + "</div>" +
@@ -576,13 +629,19 @@ select option { color: #10142c; }
     if (ui.edit && ui.edit.id === c.id) return ui.edit;
     ui.edit = {
       id: c.id,
+      mode: "final",                 // "final" | "points"
       playersA: [c.playersA[0] || "", c.playersA[1] || ""],
       playersB: [c.playersB[0] || "", c.playersB[1] || ""],
       games: c.games.length ? c.games.map((g) => ({ a: String(g.a), b: String(g.b) })) : [{ a: "", b: "" }],
-      points: String(c.points != null ? c.points : 10),
+      live: { target: 15, a: 0, b: 0, log: [] },
       specialWinner: c.winner,
     };
     return ui.edit;
+  }
+
+  function edSideLabel(ed, side) {
+    const names = (side === 0 ? ed.playersA : ed.playersB).filter(Boolean);
+    return names.length ? names.join(" & ") : HOUSES[side].name;
   }
 
   function playerSelect(side, slot, val) {
@@ -609,7 +668,7 @@ select option { color: #10142c; }
         ' <span style="color:var(--text-faint)">vs</span> ' +
         '<span class="side-b">' + esc(playersLabel(c, 1)) + "</span></div>" +
         (scoreline ? '<div class="scoreline">' + scoreline + "</div>" : "") +
-        '<div class="note">🏅 ' + esc(HOUSES[w].name) + " take the contest · +" + (c.points || 0) + " points</div>" +
+        '<div class="note">🏅 ' + esc(HOUSES[w].name) + " take the contest · +1 point</div>" +
         "</div>" +
         '<div class="spacer"></div><div class="spacer"></div>' +
         '<div style="display:flex;gap:10px;">' +
@@ -631,18 +690,75 @@ select option { color: #10142c; }
       return '<div class="side-block ' + h.key + '"><div class="side-name">' + h.crest + " " + esc(h.name) + "</div>" + inner + "</div>";
     };
 
+    const savedGames = ed.games.filter((g) => g.a !== "" && g.b !== "");
+    const savedLine = savedGames.length
+      ? '<div class="saved-games">Saved games: <b>' + savedGames.map((g) => g.a + "–" + g.b).join(" · ") + "</b></div>"
+      : "";
+
     const gameRows = ed.games.map((g, i) =>
       '<div class="game-row"><span class="glbl">Game ' + (i + 1) + "</span>" +
       '<input type="number" min="0" max="99" data-game="' + i + '-a" value="' + esc(g.a) + '" placeholder="0" />' +
       '<span class="dash">–</span>' +
       '<input type="number" min="0" max="99" data-game="' + i + '-b" value="' + esc(g.b) + '" placeholder="0" /></div>').join("");
 
+    const finalPanel =
+      '<p class="section-title">Game scores <span style="text-transform:none;letter-spacing:0;">(' +
+      esc(HOUSES[0].name) + " – " + esc(HOUSES[1].name) + ")</span></p>" +
+      gameRows +
+      (ed.games.length < 3 ? '<button class="btn ghost small" id="addGame">+ Add game</button>' : "") +
+      '<p class="hint">Rally point scoring · race to 15 or 21 · golden point settles a tied game.</p>';
+
+    // point-by-point scorer (golden point ⇒ first to the target wins)
+    const lv = ed.live;
+    const gameOver = lv.a >= lv.target || lv.b >= lv.target;
+    const golden = !gameOver && lv.a === lv.target - 1 && lv.b === lv.target - 1;
+    const gamePoint = !gameOver && !golden && (lv.a === lv.target - 1 || lv.b === lv.target - 1);
+    const gpBadge = gameOver
+      ? '<span class="badge gp">Game ' + lv.a + "–" + lv.b + " — save it!</span>"
+      : golden
+        ? '<span class="badge gp">GOLDEN POINT 😈</span>'
+        : gamePoint
+          ? '<span class="badge gp">Game point · ' + esc(edSideLabel(ed, lv.a > lv.b ? 0 : 1)) + "</span>"
+          : "";
+
+    const tapBtn = (side) =>
+      '<button class="tap-btn ' + HOUSES[side].key + '" data-tap="' + side + '"' + (gameOver ? " disabled" : "") + ">" +
+      '<div class="lscore">' + (side === 0 ? lv.a : lv.b) + "</div>" +
+      '<div class="lwho">' + esc(edSideLabel(ed, side)) + "</div>" +
+      '<div class="ltap">' + (gameOver ? "game over" : "tap to score") + "</div></button>";
+
+    const pointsPanel =
+      '<div class="live-top"><p class="section-title" style="margin:0;">Rally to</p>' +
+      '<div class="seg" style="flex:0 0 170px;">' +
+      [11, 15, 21].map((t) =>
+        '<button data-lt="' + t + '" class="' + (lv.target === t ? "is-active" : "") + '">' + t + "</button>").join("") +
+      "</div>" + gpBadge + "</div>" +
+      '<div class="live-grid">' + tapBtn(0) + tapBtn(1) + "</div>" +
+      '<div style="display:flex;gap:10px;flex-wrap:wrap;">' +
+      (gameOver
+        ? '<button class="btn primary grow" id="saveGame">Save game ' + lv.a + "–" + lv.b + "</button>"
+        : "") +
+      '<button class="btn ghost" id="liveUndo"' + (lv.log.length ? "" : " disabled") + ">↩︎ Undo</button>" +
+      '<button class="btn ghost" id="liveReset"' + (lv.log.length ? "" : " disabled") + ">Reset</button>" +
+      "</div>" +
+      '<p class="hint">Rally point scoring — every rally scores. Golden point: first to ' + lv.target + " wins, even from " +
+      (lv.target - 1) + "–" + (lv.target - 1) + ".</p>" +
+      savedLine;
+
+    const modeSeg =
+      '<div class="seg" style="margin-bottom:14px;">' +
+      '<button data-mode="final" class="' + (ed.mode === "final" ? "is-active" : "") + '">✍️ Final score</button>' +
+      '<button data-mode="points" class="' + (ed.mode === "points" ? "is-active" : "") + '">🎯 Point by point</button>' +
+      "</div>";
+
     const specialPick = isSpecial
       ? '<p class="section-title">Winner</p>' +
         '<div class="two-col">' +
         '<button class="btn ' + (ed.specialWinner === 0 ? "primary" : "ghost") + '" data-special-win="0">' + HOUSES[0].crest + " " + esc(HOUSES[0].name) + "</button>" +
         '<button class="btn ' + (ed.specialWinner === 1 ? "primary" : "ghost") + '" data-special-win="1">' + HOUSES[1].crest + " " + esc(HOUSES[1].name) + "</button>" +
-        '</div><div class="spacer"></div>'
+        '</div><div class="spacer"></div>' +
+        '<p class="hint">Exhibit B — pick the winning house once the Grand Team Rally is fought. Worth 1 point like every contest.</p>' +
+        '<div class="spacer"></div>'
       : "";
 
     conEl.innerHTML =
@@ -656,26 +772,28 @@ select option { color: #10142c; }
         '<p class="section-title">Who takes the court</p>' +
         '<div class="two-col">' + sideBlock(0) + sideBlock(1) + "</div>" +
         '<hr class="divider" />' +
-        '<p class="section-title">Game scores <span style="text-transform:none;letter-spacing:0;">(' +
-        esc(HOUSES[0].name) + " – " + esc(HOUSES[1].name) + ")</span></p>" +
-        gameRows +
-        (ed.games.length < 3 ? '<button class="btn ghost small" id="addGame">+ Add game</button>' : "") +
-        '<p class="hint">Rally point scoring · race to 15 or 21 · golden point settles a tied game.</p>' +
+        modeSeg +
+        (ed.mode === "final" ? finalPanel : pointsPanel) +
         '<hr class="divider" />') +
       specialPick +
-      '<div class="inline-form">' +
-      '<div class="field" style="flex:0 0 130px;"><label>Points at stake</label>' +
-      '<input type="number" id="contestPoints" min="0" max="99" value="' + esc(ed.points) + '" /></div>' +
-      '<button class="btn primary grow" id="recordResult">Record result 🏅</button>' +
-      "</div>" +
-      (isSpecial ? '<p class="hint">Exhibit B — set the points once the council reveals them, pick the winner, record.</p>' : "") +
+      '<button class="btn primary block" id="recordResult">Record result 🏅 (+1 point)</button>' +
       "</div>";
   }
 
   /* ---- contest actions ---- */
+  // store a finished point-by-point game into the game-score rows
+  function saveLiveGame(ed) {
+    const lv = ed.live;
+    const slot = ed.games.find((g) => g.a === "" && g.b === "");
+    if (slot) { slot.a = String(lv.a); slot.b = String(lv.b); }
+    else if (ed.games.length < 3) ed.games.push({ a: String(lv.a), b: String(lv.b) });
+    else { alert("All three game slots are full — clear one first."); return false; }
+    ed.live = { target: lv.target, a: 0, b: 0, log: [] };
+    return true;
+  }
+
   function commitResult(c) {
     const ed = editState(c);
-    const points = Math.max(0, Math.min(99, parseInt(ed.points, 10) || 0));
 
     if (c.kind === "special") {
       if (ed.specialWinner == null) { alert("Pick the winning house first."); return; }
@@ -683,6 +801,13 @@ select option { color: #10142c; }
       c.games = [];
       c.playersA = []; c.playersB = [];
     } else {
+      const lv = ed.live;
+      if (lv.a >= lv.target || lv.b >= lv.target) {
+        if (!saveLiveGame(ed)) return;          // finished live game joins the score rows
+      } else if (lv.log.length &&
+          !confirm("A point-by-point game is still in progress and will be discarded. Record anyway?")) {
+        return;
+      }
       const games = [];
       for (const g of ed.games) {
         const a = parseInt(g.a, 10), b = parseInt(g.b, 10);
@@ -701,7 +826,7 @@ select option { color: #10142c; }
       c.playersB = ed.playersB.filter(Boolean);
     }
 
-    c.points = points;
+    c.points = 1;
     c.done = true;
     ui.edit = null;
     buzz(20);
@@ -746,6 +871,49 @@ select option { color: #10142c; }
       renderContestDetail(c);
       return;
     }
+
+    // --- point-by-point scorer ---
+    const modeBtn = e.target.closest("[data-mode]");
+    if (modeBtn) { editState(c).mode = modeBtn.dataset.mode; renderContestDetail(c); return; }
+
+    const targetBtn = e.target.closest("[data-lt]");
+    if (targetBtn) {
+      const ed = editState(c);
+      ed.live = { target: parseInt(targetBtn.dataset.lt, 10), a: 0, b: 0, log: [] };
+      renderContestDetail(c);
+      return;
+    }
+    const tapBtn = e.target.closest("[data-tap]");
+    if (tapBtn) {
+      const ed = editState(c);
+      const side = parseInt(tapBtn.dataset.tap, 10);
+      if (ed.live.a < ed.live.target && ed.live.b < ed.live.target) {
+        ed.live.log.push(side);
+        if (side === 0) ed.live.a++; else ed.live.b++;
+        buzz(12);
+        renderContestDetail(c);
+      }
+      return;
+    }
+    if (e.target.closest("#liveUndo")) {
+      const ed = editState(c);
+      const last = ed.live.log.pop();
+      if (last === 0) ed.live.a--; else if (last === 1) ed.live.b--;
+      renderContestDetail(c);
+      return;
+    }
+    if (e.target.closest("#liveReset")) {
+      const ed = editState(c);
+      ed.live = { target: ed.live.target, a: 0, b: 0, log: [] };
+      renderContestDetail(c);
+      return;
+    }
+    if (e.target.closest("#saveGame")) {
+      const ed = editState(c);
+      if (saveLiveGame(ed)) { buzz(20); renderContestDetail(c); }
+      return;
+    }
+
     const sw = e.target.closest("[data-special-win]");
     if (sw) {
       const ed = editState(c);
@@ -763,8 +931,6 @@ select option { color: #10142c; }
     if (e.target.dataset.game) {
       const [i, side] = e.target.dataset.game.split("-");
       ed.games[+i][side] = e.target.value;
-    } else if (e.target.id === "contestPoints") {
-      ed.points = e.target.value;
     }
   });
   conEl.addEventListener("change", (e) => {
@@ -784,20 +950,71 @@ select option { color: #10142c; }
   });
 
   /* ============================================================
-     HOUSES TAB — the roll call of the realm
+     HOUSES TAB — the roll call of the realm + player records
      ============================================================ */
   const housesEl = document.getElementById("tab-houses");
+
+  // every decided contest this player was fielded in
+  function playerHistory(name) {
+    const out = [];
+    store.contests.forEach((c) => {
+      if (!c.done || c.winner == null) return;
+      for (const side of [0, 1]) {
+        const arr = side === 0 ? c.playersA : c.playersB;
+        if (arr && arr.indexOf(name) >= 0) out.push({ c, side, won: c.winner === side });
+      }
+    });
+    return out;
+  }
+
+  function playerHistoryCard(name, houseIdx) {
+    const hist = playerHistory(name);
+    const rows = hist.length
+      ? hist.map((h) => {
+          const { c, side, won } = h;
+          const partner = (side === 0 ? c.playersA : c.playersB).filter((p) => p !== name);
+          const opponents = (side === 0 ? c.playersB : c.playersA).filter(Boolean);
+          const scoreline = c.games.length
+            ? c.games.map((g) => (side === 0 ? g.a + "–" + g.b : g.b + "–" + g.a)).join(", ")
+            : "";
+          return '<div class="row-item won-' + HOUSES[c.winner].key + '">' +
+            '<div class="main"><div class="ttl">' + c.icon + " " + esc(c.name) + "</div>" +
+            '<div class="meta">' +
+            (partner.length ? "with " + esc(partner.join(" & ")) + " · " : "") +
+            (opponents.length ? "vs " + esc(opponents.join(" & ")) + " · " : "") +
+            (scoreline ? scoreline : "") + "</div></div>" +
+            '<span class="pill ' + (won ? HOUSES[houseIdx].key : "") + '">' + (won ? "🏅 Won" : "Lost") + "</span></div>";
+        }).join("")
+      : '<div class="empty">No decided contests yet for ' + esc(name) + ".</div>";
+
+    return '<div class="card glass">' +
+      '<p class="phist-title">📜 <span class="who">' + esc(name) + "</span> — battle record</p>" +
+      '<div class="list">' + rows + "</div></div>";
+  }
 
   function renderHouses() {
     const houseCard = (i) => {
       const h = HOUSES[i];
-      const players = h.roster.map((p, n) =>
-        '<div class="player"><span class="num">' + (n + 1) + "</span>" + esc(p) + "</div>").join("");
+      const players = h.roster.map((p, n) => {
+        const hist = playerHistory(p);
+        const w = hist.filter((x) => x.won).length;
+        const l = hist.length - w;
+        const rec = hist.length
+          ? '<span class="rec">' + (w ? '<b class="rw">' + w + "W</b>" : "") + (l ? '<b class="rl">' + l + "L</b>" : "") + "</span>"
+          : '<span class="rec dim">—</span>';
+        return '<div class="player clickable" data-pl="' + esc(p) + '"><span class="num">' + (n + 1) + "</span>" +
+          '<span class="pname">' + esc(p) + "</span>" + rec + "</div>";
+      }).join("");
+      const openHist = ui.playerOpen && h.roster.indexOf(ui.playerOpen) >= 0
+        ? playerHistoryCard(ui.playerOpen, i)
+        : "";
       return '<div class="card glass house-card ' + h.key + '">' +
         '<div class="hc-top"><div class="hc-crest">' + h.crest + "</div>" +
         '<div><h2 class="hc-name">' + esc(h.name) + '</h2><p class="hc-title">' + esc(h.title) + "</p></div></div>" +
         '<p class="hc-motto">' + esc(h.motto) + "</p>" +
-        '<div class="roster">' + players + "</div></div>";
+        '<div class="roster">' + players + "</div>" +
+        '<p class="hint">Tap a player to see who they played, won and lost against.</p>' +
+        "</div>" + openHist;
     };
 
     housesEl.innerHTML =
@@ -806,6 +1023,14 @@ select option { color: #10142c; }
       "Max 2 games per player, min 1 (Team Rally excluded). NO CHITCHING!<br/>" +
       "May the best house claim the throne. 🪑👑</p></div>";
   }
+
+  housesEl.addEventListener("click", (e) => {
+    const pl = e.target.closest("[data-pl]");
+    if (pl) {
+      ui.playerOpen = ui.playerOpen === pl.dataset.pl ? null : pl.dataset.pl;
+      renderHouses();
+    }
+  });
 
   /* ============================================================
      NAV + BOOT
