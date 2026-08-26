@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
-  <meta name="theme-color" content="#0b1026" />
+  <meta name="theme-color" content="#071a2b" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <link rel="manifest" href="manifest.webmanifest" />
@@ -15,27 +15,27 @@
    Two houses. One cup. Endless glory.
    ============================================================ */
 :root {
-  --glass-bg: rgba(255, 255, 255, 0.10);
-  --glass-bg-strong: rgba(255, 255, 255, 0.16);
-  --glass-border: rgba(255, 255, 255, 0.28);
-  --glass-highlight: rgba(255, 255, 255, 0.55);
-  --text: #f4f7ff;
-  --text-dim: rgba(233, 238, 255, 0.66);
-  --text-faint: rgba(233, 238, 255, 0.42);
-  --accent: #7bdcff;
-  --accent-2: #b98cff;
-  --good: #5ff0b0;
-  --gold: #ffd479;
-  --bad: #ff7a97;
+  --glass-bg: rgba(255, 255, 255, 0.09);
+  --glass-bg-strong: rgba(255, 255, 255, 0.15);
+  --glass-border: rgba(255, 255, 255, 0.25);
+  --glass-highlight: rgba(255, 255, 255, 0.45);
+  --text: #f2f8fc;
+  --text-dim: rgba(226, 240, 250, 0.66);
+  --text-faint: rgba(226, 240, 250, 0.42);
+  --accent: #ffd23f;         /* pickleball yellow */
+  --accent-2: #6fdc8c;
+  --good: #7ee08c;
+  --gold: #ffd23f;
+  --bad: #ff8080;
   --smashers: #c59dff;       /* House of the Mighty Smash */
   --smashers-deep: #7a4fd0;
-  --dinkers: #7bdcff;        /* Order of the Noble Dink */
+  --dinkers: #6cc9ff;        /* Order of the Noble Dink */
   --dinkers-deep: #2f7fd0;
-  --radius: 26px;
-  --radius-sm: 16px;
-  --shadow: 0 18px 50px rgba(4, 8, 30, 0.45);
-  --blur: blur(22px) saturate(180%);
-  --page-bg: #0b1026;
+  --radius: 24px;
+  --radius-sm: 15px;
+  --shadow: 0 16px 44px rgba(3, 16, 28, 0.45);
+  --blur: blur(22px) saturate(170%);
+  --page-bg: #071a2b;        /* evening court blue */
   --surface-0: rgba(255,255,255,.05);
   --surface-1: rgba(255,255,255,.06);
   --surface-2: rgba(255,255,255,.08);
@@ -43,43 +43,43 @@
   --line-2: rgba(255,255,255,.2);
   --hover: rgba(255,255,255,.16);
   --inset: rgba(0,0,0,.2);
-  --nav-bg: rgba(14,18,44,.55);
+  --nav-bg: rgba(8,26,42,.6);
 }
 
 /* ---------- light theme ---------- */
 html[data-theme="light"] {
-  --page-bg: #e9edfb;
-  --glass-bg: rgba(255,255,255,.6);
-  --glass-bg-strong: rgba(255,255,255,.75);
+  --page-bg: #edf4e7;        /* daylight grass */
+  --glass-bg: rgba(255,255,255,.62);
+  --glass-bg-strong: rgba(255,255,255,.78);
   --glass-border: rgba(255,255,255,.95);
   --glass-highlight: rgba(255,255,255,1);
-  --text: #1c2344;
-  --text-dim: rgba(38,48,92,.7);
-  --text-faint: rgba(38,48,92,.48);
-  --accent: #1f8fd8;
-  --accent-2: #7a4fd0;
-  --good: #0c9d66;
-  --gold: #b9821a;
-  --bad: #d63b62;
+  --text: #16324a;
+  --text-dim: rgba(24,58,86,.7);
+  --text-faint: rgba(24,58,86,.48);
+  --accent: #1673b1;
+  --accent-2: #2f8f46;
+  --good: #1f9d4d;
+  --gold: #a87b08;
+  --bad: #d63b4e;
   --smashers: #7a3ff2;
   --smashers-deep: #5b2bc0;
   --dinkers: #0f7fc4;
   --dinkers-deep: #0a5c96;
-  --surface-0: rgba(35,50,120,.05);
-  --surface-1: rgba(35,50,120,.06);
-  --surface-2: rgba(35,50,120,.08);
-  --line: rgba(35,50,120,.16);
-  --line-2: rgba(35,50,120,.24);
-  --hover: rgba(35,50,120,.12);
-  --inset: rgba(35,50,120,.08);
-  --nav-bg: rgba(255,255,255,.7);
-  --shadow: 0 18px 50px rgba(90,110,190,.28);
+  --surface-0: rgba(22,60,90,.05);
+  --surface-1: rgba(22,60,90,.06);
+  --surface-2: rgba(22,60,90,.08);
+  --line: rgba(22,60,90,.16);
+  --line-2: rgba(22,60,90,.24);
+  --hover: rgba(22,60,90,.12);
+  --inset: rgba(22,60,90,.08);
+  --nav-bg: rgba(255,255,255,.72);
+  --shadow: 0 16px 44px rgba(60,110,90,.25);
 }
 html[data-theme="light"] .bg {
   background:
-    radial-gradient(1200px 800px at 80% -10%, #dfe7ff 0%, transparent 60%),
-    radial-gradient(1000px 900px at -10% 110%, #f0e2ff 0%, transparent 55%),
-    linear-gradient(160deg, #eef2ff 0%, #e9edfb 45%, #f4ecfd 100%);
+    radial-gradient(1200px 800px at 80% -10%, #cfe6f6 0%, transparent 60%),
+    radial-gradient(1000px 900px at -10% 110%, #d8eec7 0%, transparent 55%),
+    linear-gradient(160deg, #e8f3f9 0%, #edf4e7 45%, #e2efd6 100%);
 }
 html[data-theme="light"] .blob { opacity: .3; }
 html[data-theme="light"] .glass {
@@ -104,22 +104,23 @@ body {
 .bg {
   position: fixed; inset: 0; z-index: -2;
   background:
-    radial-gradient(1200px 800px at 80% -10%, #1b2a6b 0%, transparent 60%),
-    radial-gradient(1000px 900px at -10% 110%, #3a1a5e 0%, transparent 55%),
-    linear-gradient(160deg, #0b1026 0%, #0e1330 45%, #120a2a 100%);
+    radial-gradient(1200px 800px at 80% -10%, #14486e 0%, transparent 60%),
+    radial-gradient(1000px 900px at -10% 110%, #14532b 0%, transparent 55%),
+    linear-gradient(160deg, #071a2b 0%, #0a2036 45%, #0b2a1c 100%);
 }
 .blob { position: fixed; border-radius: 50%; filter: blur(60px); opacity: 0.55; z-index: -1; will-change: transform; }
 .b1 { width: 46vmax; height: 46vmax; left: -8vmax; top: -10vmax;
-  background: radial-gradient(circle at 30% 30%, #7a4fd0, transparent 70%);
+  background: radial-gradient(circle at 30% 30%, #1673b1, transparent 70%);
   animation: drift1 22s ease-in-out infinite; }
 .b2 { width: 40vmax; height: 40vmax; right: -10vmax; top: 8vmax;
-  background: radial-gradient(circle at 50% 50%, #2f7fd0, transparent 70%);
+  background: radial-gradient(circle at 50% 50%, #2f8f46, transparent 70%);
   animation: drift2 26s ease-in-out infinite; }
-.b3 { width: 38vmax; height: 38vmax; left: 20vmax; bottom: -16vmax;
-  background: radial-gradient(circle at 50% 50%, #2fe0d0, transparent 70%);
+.b3 { width: 34vmax; height: 34vmax; left: 20vmax; bottom: -16vmax;
+  background: radial-gradient(circle at 50% 50%, #ffd23f, transparent 70%);
+  opacity: .3;
   animation: drift3 30s ease-in-out infinite; }
 .b4 { width: 30vmax; height: 30vmax; right: 10vmax; bottom: -8vmax;
-  background: radial-gradient(circle at 50% 50%, #ffb35c, transparent 70%);
+  background: radial-gradient(circle at 50% 50%, #24a06b, transparent 70%);
   animation: drift1 34s ease-in-out infinite reverse; }
 @keyframes drift1 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(6vmax, 4vmax) scale(1.1); } }
 @keyframes drift2 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-5vmax, 6vmax) scale(1.08); } }
@@ -192,19 +193,19 @@ body {
 }
 .bnav .ico { font-size: 21px; line-height: 1; filter: grayscale(.6) opacity(.75); transition: all .2s ease; }
 .bnav.is-active {
-  color: #0b1026;
-  background: linear-gradient(150deg, #eaf3ff, #cfe0ff);
-  box-shadow: 0 6px 18px rgba(120,170,255,.4);
+  color: #241a02;
+  background: linear-gradient(150deg, #ffe27a, #ffc93c);
+  box-shadow: 0 6px 18px rgba(255,201,60,.4);
 }
 .bnav.is-active .ico { filter: none; }
 .bnav:not(.is-active):hover { color: var(--text-dim); }
 
 /* ---------- cards & generic ---------- */
-.card { padding: 20px; margin-bottom: 16px; }
-.card h2 { margin: 0 0 4px; font-size: 18px; }
-.card .sub { margin: 0 0 16px; color: var(--text-dim); font-size: 13px; }
-.section-title { font-size: 12px; text-transform: uppercase; letter-spacing: 1.2px;
-  color: var(--text-faint); margin: 0 0 10px; }
+.card { padding: 16px; margin-bottom: 14px; }
+.card h2 { margin: 0 0 3px; font-size: 17px; }
+.card .sub { margin: 0 0 12px; color: var(--text-dim); font-size: 12.5px; }
+.section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px;
+  color: var(--text-faint); margin: 0 0 8px; }
 
 .field { margin-bottom: 12px; }
 .field label { display: block; font-size: 12px; color: var(--text-dim);
@@ -233,9 +234,9 @@ select option { color: #10142c; }
 .btn:hover { background: var(--hover); }
 .btn:active { transform: scale(.97); }
 .btn.primary {
-  color: #0b1026; border-color: transparent;
-  background: linear-gradient(150deg, #9be8ff, #a99bff);
-  box-shadow: 0 10px 24px rgba(130,150,255,.35), inset 0 1px 0 rgba(255,255,255,.6);
+  color: #06220f; border-color: transparent;
+  background: linear-gradient(150deg, #9fe870, #3fae52);
+  box-shadow: 0 10px 24px rgba(63,174,82,.35), inset 0 1px 0 rgba(255,255,255,.5);
 }
 .btn.primary:hover { filter: brightness(1.05); }
 .btn.ghost { background: var(--surface-1); }
@@ -263,9 +264,9 @@ select option { color: #10142c; }
 .progress .p-dk { background: linear-gradient(270deg, var(--dinkers-deep), var(--dinkers)); }
 .progress-note { text-align: center; font-size: 12px; color: var(--text-dim); }
 
-.lead-banner { text-align: center; padding: 12px 10px 4px; }
-.lead-banner .cup { font-size: 36px; }
-.lead-banner .who { font-size: 20px; font-weight: 800; margin-top: 4px; }
+.lead-banner { text-align: center; padding: 8px 10px 2px; }
+.lead-banner .cup { font-size: 26px; }
+.lead-banner .who { font-size: 18px; font-weight: 800; margin-top: 2px; }
 .lead-banner .who.sm { color: var(--smashers); }
 .lead-banner .who.dk { color: var(--dinkers); }
 .lead-banner .who.tie { color: var(--gold); }
@@ -352,9 +353,9 @@ select option { color: #10142c; }
   transition: all .18s ease; white-space: nowrap;
 }
 .seg button.is-active {
-  color: #0b1026;
-  background: linear-gradient(150deg, #eaf3ff, #cfe0ff);
-  box-shadow: 0 4px 12px rgba(120,170,255,.3);
+  color: #241a02;
+  background: linear-gradient(150deg, #ffe27a, #ffc93c);
+  box-shadow: 0 4px 12px rgba(255,201,60,.3);
 }
 
 /* ---------- point-by-point scorer ---------- */
@@ -398,7 +399,7 @@ select option { color: #10142c; }
 
 /* ---------- courtside scoreboard ---------- */
 .board { position: fixed; inset: 0; z-index: 55; display: none; flex-direction: column;
-  background: #070b1e; color: #f4f7ff; }
+  background: #06121f; color: #f2f8fc; }
 .board.open { display: flex; }
 @media (orientation: landscape) { .board.open { flex-direction: row; } }
 .board-half { flex: 1; display: flex; flex-direction: column; align-items: center;
@@ -455,38 +456,42 @@ select option { color: #10142c; }
 .mom-legend { display: flex; gap: 16px; justify-content: center; margin-top: 6px;
   font-size: 11.5px; color: var(--text-dim); font-weight: 600; }
 
-/* ---------- court layout ---------- */
-.court-wrap { margin-top: 14px; border-radius: 18px; overflow: hidden;
-  border: 2px solid var(--line-2); position: relative;
-  box-shadow: inset 0 0 40px rgba(0,0,0,.12); }
+/* ---------- court layout (aerial-photo look) ---------- */
+.court-wrap { margin-top: 14px; border-radius: 16px; padding: 14px 18px;
+  background: linear-gradient(180deg, #74b04a, #619b3d); position: relative;
+  box-shadow: inset 0 2px 14px rgba(0,0,0,.16); }
+.court { border: 2.5px solid rgba(255,255,255,.95); overflow: hidden; position: relative; }
 .c-half { display: block; width: 100%; border: 0; padding: 0; margin: 0;
-  cursor: pointer; font-family: inherit; color: var(--text);
-  position: relative; transition: filter .15s ease; }
-.c-half:active { filter: brightness(1.25); }
-.c-half.over { cursor: default; opacity: .75; }
-.c-half.sm { background: linear-gradient(180deg, rgba(122,79,208,.22), rgba(122,79,208,.10)); }
-.c-half.dk { background: linear-gradient(0deg, rgba(47,127,208,.22), rgba(47,127,208,.10)); }
+  cursor: pointer; font-family: inherit; color: #fff;
+  position: relative; transition: filter .15s ease; background: #1673b1; }
+.c-half:active { filter: brightness(1.22); }
+.c-half.over { cursor: default; }
 .c-row { display: grid; grid-template-columns: 1fr 1fr; }
-.c-box { min-height: 62px; display: flex; align-items: center; justify-content: center;
+.c-box { min-height: 58px; display: flex; align-items: center; justify-content: center;
   padding: 8px 6px; }
-.c-box + .c-box { border-left: 1.5px solid var(--line-2); }
-.c-kitchen { height: 24px; display: grid; place-items: center;
-  font-size: 8.5px; font-weight: 700; letter-spacing: 3px; color: var(--text-faint);
-  border-top: 1.5px solid var(--line-2); border-bottom: 1.5px solid var(--line-2); }
-.c-net { height: 8px;
-  background: repeating-linear-gradient(90deg, var(--line-2) 0 5px, transparent 5px 10px);
-  border-top: 1px solid var(--line-2); border-bottom: 1px solid var(--line-2); }
+.c-box + .c-box { border-left: 2px solid rgba(255,255,255,.92); }
+.c-kitchen { height: 26px; display: grid; place-items: center;
+  font-size: 8px; font-weight: 700; letter-spacing: 3px; color: rgba(255,255,255,.4);
+  background: #146aa5;
+  border-top: 2px solid rgba(255,255,255,.92); border-bottom: 2px solid rgba(255,255,255,.92); }
+.c-half .c-kitchen { border-bottom: 0; }
+.c-half:last-child .c-kitchen { border-top: 0; border-bottom: 2px solid rgba(255,255,255,.92); }
+.c-net { height: 9px; position: relative; z-index: 1;
+  background: repeating-linear-gradient(90deg, #101416 0 4px, #33393d 4px 8px);
+  box-shadow: 0 2px 6px rgba(0,0,0,.4); }
 .c-player { display: inline-flex; align-items: center; gap: 5px; max-width: 100%;
   font-size: 12.5px; font-weight: 700; padding: 5px 11px; border-radius: 999px;
-  background: var(--nav-bg); border: 1px solid var(--line-2);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.c-player.serving { border-color: var(--good); box-shadow: 0 0 12px rgba(95,240,176,.45); }
+  background: rgba(255,255,255,.94); color: #14344c; border: 2px solid transparent;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+.c-player.serving { border-color: #ffd23f; box-shadow: 0 0 12px rgba(255,210,63,.65); }
 .c-player .ball { font-size: 10px; }
-.c-score { position: absolute; top: 6px; right: 10px; font-size: 22px; font-weight: 800;
-  font-variant-numeric: tabular-nums; }
-.c-score.sm { color: var(--smashers); }
-.c-score.dk { color: var(--dinkers); }
-.c-swap { position: absolute; top: 6px; left: 10px; z-index: 2; padding: 5px 10px; font-size: 11.5px; }
+.c-score { position: absolute; top: 6px; right: 8px; font-size: 15px; font-weight: 800;
+  font-variant-numeric: tabular-nums; color: #fff; padding: 2px 10px; border-radius: 9px; }
+.c-score.sm { background: var(--smashers-deep); }
+.c-score.dk { background: var(--dinkers-deep); }
+.c-swap { position: absolute; top: 6px; left: 8px; z-index: 2; padding: 4px 9px; font-size: 11px;
+  background: rgba(255,255,255,.85); color: #14344c; border: 0; box-shadow: none; }
 .serve-note { text-align: center; font-size: 12px; font-weight: 700; color: var(--good);
   margin-top: 10px; }
 .serve-note span { font-weight: 600; }
@@ -3025,7 +3030,7 @@ var qrcode = function() {
     const dark = pref === "system" ? (sysDark ? sysDark.matches : true) : pref === "dark";
     document.documentElement.dataset.theme = dark ? "dark" : "light";
     const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute("content", dark ? "#0b1026" : "#e9edfb");
+    if (meta) meta.setAttribute("content", dark ? "#071a2b" : "#edf4e7");
   }
   function setThemePref(pref) {
     themePrefMem = pref;
@@ -3277,7 +3282,7 @@ var qrcode = function() {
     cv.width = 1000; cv.height = 1250;
     const x = cv.getContext("2d");
     const g = x.createLinearGradient(0, 0, 1000, 1250);
-    g.addColorStop(0, "#141a3d"); g.addColorStop(1, "#221040");
+    g.addColorStop(0, "#0b2740"); g.addColorStop(1, "#0e3520");
     x.fillStyle = g; x.fillRect(0, 0, 1000, 1250);
     x.textAlign = "center";
     x.fillStyle = "#f4f7ff"; x.font = "bold 46px Arial";
@@ -3412,7 +3417,7 @@ var qrcode = function() {
       '<div class="house ' + HOUSES[i].key + '"><div class="crest">' + HOUSES[i].crest + "</div>" +
       '<div class="hname">' + esc(HOUSES[i].name) + "</div>" +
       '<div class="score">' + pts[i] + "</div>" +
-      '<div class="cats">' + (pts[i] === 1 ? "point · 1 contest won" : "points · " + pts[i] + " contests won") + "</div></div>";
+      '<div class="cats">contests won</div></div>';
 
     const decidedRows = store.contests.filter((c) => c.done && c.winner != null);
     const recent = decidedRows.length
@@ -3440,10 +3445,10 @@ var qrcode = function() {
       momentumHtml() +
       '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;">' +
       (VIEW
-        ? '<button class="btn primary grow" id="exitSnap">Open my own scorer</button>'
-        : '<button class="btn grow" id="shareSnap">🔗 Share</button>' +
-          '<button class="btn ghost" id="shareQr">📱 QR</button>') +
-      '<button class="btn ghost" id="shareImage">📸 Image</button>' +
+        ? '<button class="btn primary small grow" id="exitSnap">Open my own scorer</button>'
+        : '<button class="btn small grow" id="shareSnap">🔗 Share</button>' +
+          '<button class="btn ghost small" id="shareQr">📱 QR</button>') +
+      '<button class="btn ghost small" id="shareImage">📸 Image</button>' +
       "</div>" +
       "</div>" +
       (function () {
@@ -3462,9 +3467,7 @@ var qrcode = function() {
       '<div class="card glass"><p class="section-title">Contests decided</p><div class="spacer"></div>' +
       '<div class="list">' + recent + "</div></div>" +
       cupStatsHtml() +
-      '<div class="card glass"><p class="decree">⚖️ By decree: rally point scoring, golden point settles tied games.<br/>' +
-      "Races to 15 or 21 as proclaimed per contest. <b>Each contest won = 1 point.</b><br/>" +
-      "Rules may change. Because the council said so. 😎</p></div>";
+      "";
   }
 
 
@@ -3537,13 +3540,15 @@ var qrcode = function() {
 
     conEl.innerHTML =
       '<div class="card glass"><h2>⚔️ The Roll of Contests</h2>' +
-      '<p class="sub">Exhibit A — the championship divisions, plus the Grand Team Rally. Tap a contest to record its result.</p>' +
+      '<p class="sub">Each contest won = 1 point.</p>' +
       '<div class="list">' + rows + "</div>" +
       (VIEW ? "" :
-        '<hr class="divider" />' +
-        '<div class="inline-form"><div class="field grow"><label>Add a contest (the council may decree more)</label>' +
-        '<input type="text" id="newContestName" placeholder="Contest name" maxlength="50" /></div>' +
-        '<button class="btn" id="addContest">Add</button></div>') +
+        ui.addingContest
+          ? '<hr class="divider" />' +
+            '<div class="inline-form"><div class="field grow">' +
+            '<input type="text" id="newContestName" placeholder="Contest name" maxlength="50" /></div>' +
+            '<button class="btn" id="addContest">Add</button></div>'
+          : '<div class="spacer"></div><button class="btn ghost small" id="showAddContest">＋ Add a contest</button>') +
       "</div>";
   }
 
@@ -3714,7 +3719,10 @@ var qrcode = function() {
       '<div class="field"><label>Time</label><input type="text" id="schedTime" value="' + esc(c.time || "") + '" placeholder="e.g. Sat 9:30" maxlength="24" /></div>' +
       "</div>";
 
-    const noteRow =
+    const showExtras = ed.showExtras || c.note || c.photo;
+    const noteRow = !showExtras
+      ? '<button class="btn ghost small" id="extrasToggle">＋ Note / photo</button>'
+      :
       '<div class="field"><label>Note (optional)</label>' +
       '<input type="text" id="contestNote" value="' + esc(c.note || "") + '" placeholder="e.g. golden point thriller!" maxlength="90" /></div>' +
       '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">' +
@@ -3774,27 +3782,34 @@ var qrcode = function() {
         esc(st.doubles ? playerName(st.serving, st.serverPerson) : edSideLabel(ed, st.serving)) +
         ' · <span style="color:var(--text-faint)">tap the side that ' + (st.sideout ? "won the rally" : "won the point") + "</span></div>";
     const courtHtml =
-      '<div class="court-wrap">' +
+      '<div class="court-wrap"><div class="court">' +
       half(0, true) +
       '<div class="c-net"></div>' +
       half(1, false) +
-      "</div>" + serveNote;
+      "</div></div>" + serveNote;
 
+    const rulesOpen = !lv.log.length || ed.showRules;
+    const rulesBlock = rulesOpen
+      ? '<div class="live-top"><p class="section-title" style="margin:0;">Rally to</p>' +
+        '<div class="seg" style="flex:0 0 170px;">' +
+        [11, 15, 21].map((t) =>
+          '<button data-lt="' + t + '" class="' + (lv.target === t ? "is-active" : "") + '">' + t + "</button>").join("") +
+        "</div>" + gpBadge + "</div>" +
+        '<div class="two-col" style="margin-top:10px;">' +
+        '<div class="field" style="margin:0;"><label>Scoring rule</label><div class="seg">' +
+        '<button data-lr="rally" class="' + (lv.rule === "rally" ? "is-active" : "") + '">Every rally</button>' +
+        '<button data-lr="sideout" class="' + (lv.rule === "sideout" ? "is-active" : "") + '">On serve only</button>' +
+        "</div></div>" +
+        '<div class="field" style="margin:0;"><label>First serve</label><div class="seg">' +
+        '<button data-fsv="0" class="' + (lv.firstServer === 0 ? "is-active" : "") + '">' + esc(HOUSES[0].name.split(" ")[1]) + "</button>" +
+        '<button data-fsv="1" class="' + (lv.firstServer === 1 ? "is-active" : "") + '">' + esc(HOUSES[1].name.split(" ")[1]) + "</button>" +
+        "</div></div></div>"
+      : '<div class="live-top">' +
+        '<button class="pill" id="rulesToggle" style="cursor:pointer;font-family:inherit;color:var(--text-dim);">⚙ To ' +
+        lv.target + " · " + (lv.rule === "sideout" ? "on serve only" : "every rally") + "</button>" +
+        gpBadge + "</div>";
     const pointsPanel =
-      '<div class="live-top"><p class="section-title" style="margin:0;">Rally to</p>' +
-      '<div class="seg" style="flex:0 0 170px;">' +
-      [11, 15, 21].map((t) =>
-        '<button data-lt="' + t + '" class="' + (lv.target === t ? "is-active" : "") + '">' + t + "</button>").join("") +
-      "</div>" + gpBadge + "</div>" +
-      '<div class="two-col" style="margin-top:10px;">' +
-      '<div class="field" style="margin:0;"><label>Scoring rule</label><div class="seg">' +
-      '<button data-lr="rally" class="' + (lv.rule === "rally" ? "is-active" : "") + '">Every rally</button>' +
-      '<button data-lr="sideout" class="' + (lv.rule === "sideout" ? "is-active" : "") + '">On serve only</button>' +
-      "</div></div>" +
-      '<div class="field" style="margin:0;"><label>First serve</label><div class="seg">' +
-      '<button data-fsv="0" class="' + (lv.firstServer === 0 ? "is-active" : "") + '">' + esc(HOUSES[0].name.split(" ")[1]) + "</button>" +
-      '<button data-fsv="1" class="' + (lv.firstServer === 1 ? "is-active" : "") + '">' + esc(HOUSES[1].name.split(" ")[1]) + "</button>" +
-      "</div></div></div>" +
+      rulesBlock +
       courtHtml +
       '<div style="display:flex;gap:10px;flex-wrap:wrap;">' +
       (gameOver
@@ -3819,14 +3834,6 @@ var qrcode = function() {
               : "";
           })()
         : "") +
-      '<p class="hint">' +
-      (lv.rule === "sideout"
-        ? "Point on serve only — tap whoever <b>won the rally</b>; the app handles points, side-outs" +
-          (c.kind === "doubles" ? ", server #1/#2 and the opening 0–0–2 rule" : "") + ". "
-        : "Rally point scoring — every rally scores. ") +
-      "Golden point: first to " + lv.target + " wins, even from " +
-      (lv.target - 1) + "–" + (lv.target - 1) + "." +
-      (prefs.autosave ? " Finished games save automatically." : "") + "</p>" +
       savedLine;
 
     const modeSeg =
@@ -4064,6 +4071,12 @@ var qrcode = function() {
   }
 
   conEl.addEventListener("click", (e) => {
+    if (e.target.closest("#showAddContest")) {
+      ui.addingContest = true;
+      renderContestList();
+      document.getElementById("newContestName").focus();
+      return;
+    }
     const openBtn = e.target.closest("[data-open]");
     if (openBtn) { ui.contestId = openBtn.dataset.open; ui.edit = null; renderContests(); return; }
     if (e.target.closest("#backToRoll")) { ui.contestId = null; ui.edit = null; releaseWake(); closeBoard(); renderContests(); return; }
@@ -4169,6 +4182,16 @@ var qrcode = function() {
     if (sw) {
       const ed = editState(c);
       ed.specialWinner = parseInt(sw.dataset.specialWin, 10);
+      renderContestDetail(c);
+      return;
+    }
+    if (e.target.closest("#rulesToggle")) {
+      editState(c).showRules = true;
+      renderContestDetail(c);
+      return;
+    }
+    if (e.target.closest("#extrasToggle")) {
+      editState(c).showExtras = true;
       renderContestDetail(c);
       return;
     }
@@ -4334,15 +4357,12 @@ var qrcode = function() {
         "</div>" +
         '<p class="hc-motto">' + esc(h.motto) + "</p>" +
         '<div class="roster">' + players + "</div>" + addForm +
-        '<p class="hint">Tap a player to see who they played, won and lost against.</p>' +
         "</div>" + openHist;
     };
 
     housesEl.innerHTML =
       houseCard(0) + houseCard(1) +
-      '<div class="card glass"><p class="decree">📜 Roll Call of the Realm<br/>' +
-      "Max 2 contests per player, min 1 (Team Rally excluded). NO CHITCHING!<br/>" +
-      "May the best house claim the throne. 🪑👑</p></div>";
+      '<div class="card glass"><p class="decree">Max 2 contests per player, min 1. NO CHITCHING! 👑</p></div>';
   }
 
   function addRosterPlayer(i) {

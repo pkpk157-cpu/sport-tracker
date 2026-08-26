@@ -2,7 +2,8 @@
 
 *Two houses. One cup. Endless glory.*
 
-A liquid-glass, installable web app scorekeeper built for one tournament:
+An installable web-app scorekeeper in pickleball-court colors — court
+blue, apron green, ball yellow — built for one tournament:
 **Soni Smashers** (House of the Mighty Smash) vs **Sam Dinkers**
 (Order of the Noble Dink), battling across the Roll of Contests.
 
@@ -30,9 +31,10 @@ picked from the rosters (with **rule-of-2 warnings** — dropdowns flag
 "⚠ 2 played" and picking them anyway raises a NO CHITCHING toast), note
 and photo. Then choose how to record the score.
 
-**Step 2 — The scoring page**, with a **live court layout**: players are
-placed in their actual service courts on a drawn court (kitchen, net and
-all) and move by the real rules — pairs swap sides when they score on
+**Step 2 — The scoring page**, with a **live court layout** styled after
+an aerial court photo (green apron, blue court, white lines, black net):
+players are placed in their actual service courts and move by the real
+rules — pairs swap sides when they score on
 serve, singles players stand right/left by score parity, and the current
 server is highlighted with the ball. **Tap the side of the court that won
 the rally** to score.
