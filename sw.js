@@ -1,5 +1,5 @@
 /* The Verandas Pickleball Cup — offline cache */
-const CACHE = "verandas-cup-v2";
+const CACHE = "verandas-cup-v3";
 const ASSETS = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg"];
 
 self.addEventListener("install", (e) => {
