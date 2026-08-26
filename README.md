@@ -25,7 +25,9 @@ tournament:
 
 ### ⚔️ Contests tab
 Pre-loaded with Exhibit A — the 11 championship divisions — plus
-Exhibit B, the Grand Team Rally. Recording a contest is a **two-step flow**:
+Exhibit B, the Grand Team Rally. The **order of play is editable**
+(↕ Order on the roll — move contests up/down). Recording a contest is a
+**two-step flow**:
 
 **Step 1 — Players & rules**: court & time scheduling, fielded players
 picked from the rosters (with **rule-of-2 warnings** — dropdowns flag
@@ -34,7 +36,10 @@ picked from the rosters (with **rule-of-2 warnings** — dropdowns flag
 serve only) and first serve — plus optional note and photo. Then choose
 how to record the score.
 
-**Step 2 — The scoring page** is just the court and the buttons: a
+**Step 2 — The game page** has no chrome at all — a **Wimbledon-style
+scorebox** (house dots, past games in small figures, the live score
+large, the serving row tinted with a serve dot) above just the court
+and the buttons: a
 **true-proportion (20×44) court** drawn like an aerial photo — green
 apron, blue court, white lines, kitchen bands, black net — with
 **player figurines** standing in their actual service courts, moving by
@@ -66,7 +71,7 @@ every contest with partner, opponents, perspective score lines, won/lost,
 and total rally points won/conceded. Rosters are **editable in-app**
 (add or remove players).
 
-### ⚙️ Settings tab
+### ⚙️ Settings (gear, top-right)
 - **Appearance**: ☀️ Light / 🌙 Dark / 📱 System (follows the device live).
 - **Scoring**: keep screen awake · auto-save finished games ·
   announce scores · sound effects.

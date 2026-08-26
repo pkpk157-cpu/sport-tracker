@@ -116,9 +116,12 @@ body {
   flex-direction: row-reverse; flex: 1; justify-content: space-between; }
 .brand-mark {
   width: 40px; height: 40px; border-radius: 50%; flex: none;
-  display: grid; place-items: center; font-size: 21px;
+  display: grid; place-items: center; font-size: 19px;
   background: var(--glass-bg); border: 1px solid var(--glass-border);
+  appearance: none; cursor: pointer; padding: 0; font-family: inherit;
+  transition: transform .12s ease;
 }
+.brand-mark:active { transform: scale(.92) rotate(30deg); }
 .brand-text { min-width: 0; }
 .brand-text h1 { margin: 0; font-size: 20px; font-weight: 800; letter-spacing: -.3px;
   line-height: 1.15; }
@@ -267,7 +270,10 @@ select option { color: #10142c; }
 .game-row { display: grid; grid-template-columns: auto 1fr auto 1fr; gap: 8px; align-items: center; margin-bottom: 8px; }
 .game-row .glbl { font-size: 11px; color: var(--text-faint); text-transform: uppercase; letter-spacing: .6px; width: 52px; }
 .game-row .dash { color: var(--text-faint); font-weight: 800; }
-.game-row input { text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; }
+.game-row input { text-align: center; font-weight: 800; font-variant-numeric: tabular-nums;
+  font-size: 21px; padding: 13px 10px; }
+.game-row .ghead { text-align: center; font-size: 11px; font-weight: 700;
+  color: var(--text-faint); text-transform: uppercase; letter-spacing: .6px; }
 
 .result-line { text-align: center; padding: 10px 0 2px; }
 .result-line .players { font-size: 14px; font-weight: 700; }
@@ -453,6 +459,21 @@ select option { color: #10142c; }
   margin-top: 10px; }
 .serve-note span { font-weight: 600; color: var(--text-dim); }
 
+/* ---------- Wimbledon-style scorebox ---------- */
+.wbox { border: 1px solid var(--glass-border); border-radius: 12px; overflow: hidden;
+  background: var(--glass-bg); margin-bottom: 12px; }
+.wrow { display: flex; align-items: center; gap: 9px; padding: 13px 14px; }
+.wrow + .wrow { border-top: 1px solid var(--line); }
+.wrow.srv { background: rgba(61,187,110,.09); }
+.wdot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.wname { flex: 1; min-width: 0; font-weight: 700; font-size: 14.5px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wserve { color: var(--accent); font-size: 10px; flex: none; }
+.wpast { font-size: 13px; color: var(--text-faint); font-variant-numeric: tabular-nums;
+  width: 20px; text-align: center; flex: none; }
+.wbig { font-size: 32px; font-weight: 800; font-variant-numeric: tabular-nums;
+  min-width: 46px; text-align: right; letter-spacing: -1px; line-height: 1; flex: none; }
+
 /* ---------- big point buttons ---------- */
 .tap-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
 .tap-big {
@@ -561,7 +582,7 @@ select option { color: #10142c; }
 
   <header class="app-header glass">
     <div class="brand">
-      <div class="brand-mark">🏆</div>
+      <button class="brand-mark" id="settingsBtn" data-tab="settings" title="Settings">⚙️</button>
       <div class="brand-text">
         <h1>The Verandas Pickleball Cup</h1>
         <p>Two houses · One cup · Endless glory</p>
@@ -580,7 +601,6 @@ select option { color: #10142c; }
     <button class="bnav is-active" data-tab="overview" role="tab"><span class="ico">🏆</span>Overview</button>
     <button class="bnav" data-tab="contests" role="tab"><span class="ico">⚔️</span>Contests</button>
     <button class="bnav" data-tab="houses" role="tab"><span class="ico">🛡️</span>Houses</button>
-    <button class="bnav" data-tab="settings" role="tab"><span class="ico">⚙️</span>Settings</button>
   </nav>
 
   <script>
@@ -3497,12 +3517,16 @@ var qrcode = function() {
   }
 
   function renderContestList() {
-    const rows = store.contests.map((c) => {
-      const status = c.done && c.winner != null
-        ? '<span class="pill ' + HOUSES[c.winner].key + '">🏅 ' + esc(HOUSES[c.winner].name.split(" ")[1]) + "</span>"
-        : '<span class="pill">1 pt</span>';
-      return '<div class="row-item clickable' + (c.done && c.winner != null ? " won-" + HOUSES[c.winner].key : "") +
-        '" data-open="' + c.id + '">' +
+    const rows = store.contests.map((c, idx) => {
+      const status = ui.reordering
+        ? '<span style="display:flex;gap:6px;">' +
+          '<button class="btn ghost small" data-move="up-' + c.id + '"' + (idx === 0 ? " disabled" : "") + ">↑</button>" +
+          '<button class="btn ghost small" data-move="dn-' + c.id + '"' + (idx === store.contests.length - 1 ? " disabled" : "") + ">↓</button></span>"
+        : c.done && c.winner != null
+          ? '<span class="pill ' + HOUSES[c.winner].key + '">🏅 ' + esc(HOUSES[c.winner].name.split(" ")[1]) + "</span>"
+          : '<span class="pill">1 pt</span>';
+      return '<div class="row-item' + (ui.reordering ? "" : " clickable") + (c.done && c.winner != null ? " won-" + HOUSES[c.winner].key : "") +
+        (ui.reordering ? '"' : '" data-open="' + c.id + '"') + ">" +
         '<div class="main"><div class="ttl">' + c.icon + " " + esc(c.name) + "</div>" +
         '<div class="meta">' + (c.kind === "special" ? "Exhibit B · whole team" :
           c.kind === "singles" ? "Singles · 1 per house" : "Doubles · 2 per house") +
@@ -3512,8 +3536,13 @@ var qrcode = function() {
     }).join("");
 
     conEl.innerHTML =
-      '<div class="card glass"><h2>⚔️ The Roll of Contests</h2>' +
-      '<p class="sub">Each contest won = 1 point.</p>' +
+      '<div class="card glass">' +
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">' +
+      "<div><h2>⚔️ The Roll of Contests</h2>" +
+      '<p class="sub">' + (ui.reordering ? "Set the order of play, then Done." : "Each contest won = 1 point.") + "</p></div>" +
+      (VIEW ? "" :
+        '<button class="btn ghost small" id="toggleReorder">' + (ui.reordering ? "Done" : "↕ Order") + "</button>") +
+      "</div>" +
       '<div class="list">' + rows + "</div>" +
       (VIEW ? "" :
         ui.addingContest
@@ -3677,11 +3706,13 @@ var qrcode = function() {
       '<input type="number" min="0" max="99" data-game="' + i + '-b" value="' + esc(g.b) + '" placeholder="0" /></div>').join("");
 
     const finalPanel =
-      '<p class="section-title">Game scores <span style="text-transform:none;letter-spacing:0;">(' +
-      esc(HOUSES[0].name) + " – " + esc(HOUSES[1].name) + ")</span></p>" +
+      '<p class="section-title">Type the final score</p>' +
+      '<div class="game-row"><span class="glbl"></span>' +
+      '<span class="ghead">' + esc(HOUSES[0].name.split(" ")[1]) + "</span>" +
+      '<span class="dash"></span>' +
+      '<span class="ghead">' + esc(HOUSES[1].name.split(" ")[1]) + "</span></div>" +
       gameRows +
-      (ed.games.length < 3 ? '<button class="btn ghost small" id="addGame">+ Add game</button>' : "") +
-      '<p class="hint">Rally point scoring · race to 15 or 21 · golden point settles a tied game.</p>';
+      (ed.games.length < 3 ? '<button class="btn ghost small" id="addGame">+ Add game</button>' : "");
 
     const schedRow =
       '<div class="sched-row">' +
@@ -3760,6 +3791,20 @@ var qrcode = function() {
       '<span class="tb-name">' + esc(edSideLabel(ed, side)) + "</span>" +
       '<span class="tb-sub">won the ' + (st.sideout ? "rally" : "point") + "</span></button>";
     const tapRow = '<div class="tap-row">' + tapBig(0) + tapBig(1) + "</div>";
+    // Wimbledon-style scoreboard: past games small, live score large
+    const wRow = (side) => {
+      const serving = !gameOver && st.serving === side;
+      const past = savedGames.map((g) =>
+        '<span class="wpast">' + (side === 0 ? g.a : g.b) + "</span>").join("");
+      return '<div class="wrow' + (serving ? " srv" : "") + '">' +
+        '<span class="wdot" style="background:var(--' + (side === 0 ? "smashers" : "dinkers") + ')"></span>' +
+        '<span class="wname">' + esc(edSideLabel(ed, side)) + "</span>" +
+        (serving ? '<span class="wserve">●</span>' : "") +
+        past +
+        '<span class="wbig">' + (side === 0 ? st.a : st.b) + "</span></div>";
+    };
+    const wbox = '<div class="wbox">' + wRow(0) + wRow(1) + "</div>";
+
     const serveNote = gameOver
       ? '<div class="serve-note">Game over — ' + (prefs.autosave ? "saved automatically." : "save the game below.") + "</div>"
       : '<div class="serve-note">● SERVING' + (st.sideout && st.doubles ? " · #" + st.serverNum : "") + " — " +
@@ -3773,6 +3818,7 @@ var qrcode = function() {
       "</div></div>" + serveNote + tapRow;
 
     const pointsPanel =
+      wbox +
       (gpBadge ? '<div class="live-top" style="justify-content:center;">' + gpBadge + "</div>" : "") +
       courtHtml +
       '<div style="display:flex;gap:10px;flex-wrap:wrap;">' +
@@ -3782,8 +3828,7 @@ var qrcode = function() {
       '<button class="btn ghost" id="liveUndo"' + (lv.log.length ? "" : " disabled") + ">↩︎ Undo</button>" +
       '<button class="btn ghost" id="liveReset"' + (lv.log.length ? "" : " disabled") + ">Reset</button>" +
       '<button class="btn ghost" id="openBoard">📺 Scoreboard</button>' +
-      "</div>" +
-      savedLine;
+      "</div>";
 
     const specialPick = isSpecial
       ? '<p class="section-title">Winner</p>' +
@@ -3849,15 +3894,16 @@ var qrcode = function() {
       return;
     }
 
-    // ---- step 2: just the court and the point buttons ----
+    // ---- step 2: the game page ----
     conEl.innerHTML =
       '<button class="back-link" id="backToSetup">← Players &amp; rules</button>' +
       '<div class="card glass">' +
-      '<div style="min-width:0;"><h2 style="margin:0;">' + c.icon + " " + esc(c.name) + "</h2>" +
-      '<p class="sub" style="margin:2px 0 10px;">' +
-      esc(edSideLabel(ed, 0)) + ' <span style="color:var(--text-faint)">vs</span> ' + esc(edSideLabel(ed, 1)) +
-      "</p></div>" +
-      (ed.mode === "final" ? finalPanel : pointsPanel) +
+      (ed.mode === "final"
+        ? '<div style="min-width:0;"><h2 style="margin:0;">' + c.icon + " " + esc(c.name) + "</h2>" +
+          '<p class="sub" style="margin:2px 0 10px;">' +
+          esc(edSideLabel(ed, 0)) + ' <span style="color:var(--text-faint)">vs</span> ' + esc(edSideLabel(ed, 1)) +
+          "</p></div>" + finalPanel
+        : pointsPanel) +
       '<hr class="divider" />' +
       '<button class="btn primary block" id="recordResult">Record result 🏅 (+1 point)</button>' +
       "</div>";
@@ -4031,6 +4077,26 @@ var qrcode = function() {
   }
 
   conEl.addEventListener("click", (e) => {
+    if (e.target.closest("#toggleReorder")) {
+      ui.reordering = !ui.reordering;
+      renderContestList();
+      return;
+    }
+    const mv = e.target.closest("[data-move]");
+    if (mv) {
+      const [dir, id] = [mv.dataset.move.slice(0, 2), mv.dataset.move.slice(3)];
+      const i = store.contests.findIndex((x) => x.id === id);
+      const j = dir === "up" ? i - 1 : i + 1;
+      if (i >= 0 && j >= 0 && j < store.contests.length) {
+        const t = store.contests[i];
+        store.contests[i] = store.contests[j];
+        store.contests[j] = t;
+        save();
+        renderContestList();
+        renderOverview();
+      }
+      return;
+    }
     if (e.target.closest("#showAddContest")) {
       ui.addingContest = true;
       renderContestList();
@@ -4509,6 +4575,15 @@ var qrcode = function() {
     renderHouses();
     renderSettings();
   }
+
+  document.getElementById("settingsBtn").addEventListener("click", () => {
+    ui.tab = "settings";
+    buzz(8);
+    document.querySelectorAll(".bnav").forEach((b) => b.classList.remove("is-active"));
+    document.querySelectorAll(".tab-panel").forEach((p) =>
+      p.classList.toggle("is-active", p.id === "tab-settings"));
+    renderSettings();
+  });
 
   document.querySelectorAll(".bnav").forEach((btn) => {
     btn.addEventListener("click", () => {
