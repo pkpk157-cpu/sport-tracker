@@ -460,6 +460,27 @@ select option { color: #10142c; }
 .serve-note span { font-weight: 600; color: var(--text-dim); }
 
 /* ---------- Wimbledon-style scorebox ---------- */
+.whead { display: flex; align-items: center; gap: 10px; padding: 8px 14px;
+  border-bottom: 1px solid var(--line); font-size: 11px; font-weight: 700;
+  color: var(--text-faint); }
+.whead span:nth-child(2) { flex: 1; text-align: center; letter-spacing: .6px; text-transform: uppercase; }
+.whead #liveTimer { font-variant-numeric: tabular-nums; }
+.livechip { color: var(--bad); letter-spacing: .5px; }
+.livechip.idle { color: var(--text-faint); }
+
+/* ---------- finish popup ---------- */
+.finish-card { background: var(--glass-bg); color: var(--text);
+  border: 1px solid var(--glass-border); border-radius: 16px;
+  padding: 22px 20px 18px; text-align: center; max-width: 320px; width: 100%;
+  box-shadow: 0 20px 50px rgba(0,0,0,.35);
+  display: flex; flex-direction: column; gap: 9px; }
+.finish-card .fc-label { font-size: 11px; font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--text-faint); }
+.finish-card .fc-score { font-size: 52px; font-weight: 800; line-height: 1;
+  font-variant-numeric: tabular-nums; letter-spacing: -2px; }
+.finish-card .fc-who { font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+
+
 .wbox { border: 1px solid var(--glass-border); border-radius: 12px; overflow: hidden;
   background: var(--glass-bg); margin-bottom: 12px; }
 .wrow { display: flex; align-items: center; gap: 9px; padding: 13px 14px; }
@@ -2968,6 +2989,18 @@ var qrcode = function() {
     String(s == null ? "" : s).replace(/[&<>"']/g, (c) =>
       ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const buzz = (ms) => { try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) {} };
+  const fmtClock = (ms) => {
+    const s = Math.max(0, Math.floor(ms / 1000));
+    const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+    const p = (n) => String(n).padStart(2, "0");
+    return h ? h + ":" + p(m) + ":" + p(sec) : m + ":" + p(sec);
+  };
+  const fmtDur = (ms) => {
+    const s = Math.round(ms / 1000);
+    if (s < 90) return s + "s";
+    const m = Math.round(s / 60);
+    return m < 60 ? m + "m" : Math.floor(m / 60) + "h " + (m % 60) + "m";
+  };
 
   function seedContests() {
     return DEFAULT_CONTESTS.map((c) => ({
@@ -3354,6 +3387,14 @@ var qrcode = function() {
       '<div class="stat-row"><span class="s-label">Closest game</span><span class="s-value">' + gameLine(closest) + "</span></div>" +
       '<div class="stat-row"><span class="s-label">Biggest win</span><span class="s-value">' + gameLine(biggest) + "</span></div>" +
       '<div class="stat-row"><span class="s-label">Golden-point finishes</span><span class="s-value">' + golden + "</span></div>" +
+      (function () {
+        let best = null;
+        decided.forEach((c) => { if (c.duration && (!best || c.duration > best.duration)) best = c; });
+        return best
+          ? '<div class="stat-row"><span class="s-label">Longest battle</span><span class="s-value">' +
+            fmtDur(best.duration) + ' <span class="s-sub">' + esc(best.name) + "</span></span></div>"
+          : "";
+      })() +
       '<div class="stat-row"><span class="s-label">Rally points won</span><span class="s-value">' +
       '<span class="hdot sm"></span>' + rallyPts[0] + ' &nbsp; <span class="hdot dk"></span>' + rallyPts[1] + "</span></div>" +
       podium + "</div>";
@@ -3420,6 +3461,7 @@ var qrcode = function() {
           return '<div class="row-item won-' + HOUSES[w].key + '">' +
             '<div class="main"><div class="ttl">' + c.icon + " " + esc(c.name) + "</div>" +
             '<div class="meta">' + esc(playersLabel(c, w)) + " won" + (scoreline ? " · " + scoreline : "") +
+            (c.duration ? " · " + fmtDur(c.duration) : "") +
             (c.note ? " · “" + esc(c.note) + "”" : "") + "</div></div>" +
             '<span class="pill ' + HOUSES[w].key + '">+1 pt</span></div>';
         }).join("")
@@ -3654,7 +3696,8 @@ var qrcode = function() {
         ' <span style="color:var(--text-faint)">vs</span> ' +
         '<span class="side-b">' + esc(playersLabel(c, 1)) + "</span></div>" +
         (scoreline ? '<div class="scoreline">' + scoreline + "</div>" : "") +
-        '<div class="note">🏅 ' + esc(HOUSES[w].name) + " take the contest · +1 point</div>" +
+        '<div class="note">🏅 ' + esc(HOUSES[w].name) + " take the contest · +1 point" +
+        (c.duration ? " · ⏱ " + fmtDur(c.duration) : "") + "</div>" +
         "</div>" +
         (c.note ? '<p class="note-line">“' + esc(c.note) + "”</p>" : "") +
         (c.photo ? '<img class="contest-photo" src="' + c.photo + '" alt="Contest photo" />' : "") +
@@ -3803,7 +3846,13 @@ var qrcode = function() {
         past +
         '<span class="wbig">' + (side === 0 ? st.a : st.b) + "</span></div>";
     };
-    const wbox = '<div class="wbox">' + wRow(0) + wRow(1) + "</div>";
+    const whead =
+      '<div class="whead">' +
+      (lv.log.length ? '<span class="livechip">● LIVE</span>' : '<span class="livechip idle">READY</span>') +
+      '<span>Game ' + (savedGames.length + 1) + "</span>" +
+      '<span id="liveTimer">⏱ ' + fmtClock(ed.startedAt ? Date.now() - ed.startedAt : 0) + "</span>" +
+      "</div>";
+    const wbox = '<div class="wbox">' + whead + wRow(0) + wRow(1) + "</div>";
 
     const serveNote = gameOver
       ? '<div class="serve-note">Game over — ' + (prefs.autosave ? "saved automatically." : "save the game below.") + "</div>"
@@ -3822,8 +3871,8 @@ var qrcode = function() {
       (gpBadge ? '<div class="live-top" style="justify-content:center;">' + gpBadge + "</div>" : "") +
       courtHtml +
       '<div style="display:flex;gap:10px;flex-wrap:wrap;">' +
-      (gameOver
-        ? '<button class="btn primary grow" id="saveGame">Save game ' + st.a + "–" + st.b + "</button>"
+      (!lv.log.length && savedGames.length
+        ? '<button class="btn primary grow" id="recordResult">Record result 🏅</button>'
         : "") +
       '<button class="btn ghost" id="liveUndo"' + (lv.log.length ? "" : " disabled") + ">↩︎ Undo</button>" +
       '<button class="btn ghost" id="liveReset"' + (lv.log.length ? "" : " disabled") + ">Reset</button>" +
@@ -3902,10 +3951,10 @@ var qrcode = function() {
         ? '<div style="min-width:0;"><h2 style="margin:0;">' + c.icon + " " + esc(c.name) + "</h2>" +
           '<p class="sub" style="margin:2px 0 10px;">' +
           esc(edSideLabel(ed, 0)) + ' <span style="color:var(--text-faint)">vs</span> ' + esc(edSideLabel(ed, 1)) +
-          "</p></div>" + finalPanel
+          "</p></div>" + finalPanel +
+          '<hr class="divider" />' +
+          '<button class="btn primary block" id="recordResult">Record result 🏅 (+1 point)</button>'
         : pointsPanel) +
-      '<hr class="divider" />' +
-      '<button class="btn primary block" id="recordResult">Record result 🏅 (+1 point)</button>' +
       "</div>";
   }
 
@@ -3914,6 +3963,7 @@ var qrcode = function() {
     const ed = editState(c);
     const before = computeLive(c, ed);
     if (before.over) return;
+    if (!ed.startedAt) ed.startedAt = Date.now();
     ed.live.log.push(side);
     const st = computeLive(c, ed);
     const scored = st.a + st.b > before.a + before.b;
@@ -3923,10 +3973,7 @@ var qrcode = function() {
     if (st.over) {
       fanfare();
       announce("Game, " + edSideLabel(ed, st.a > st.b ? 0 : 1) + ", " + st.a + ", " + st.b);
-      if (prefs.autosave) {
-        const line = st.a + "–" + st.b;
-        if (saveLiveGame(c, ed)) toast("Game saved " + line + " ✔");
-      }
+      openFinishPopup(c);
     } else if (st.golden) {
       announce("Golden point!");
     } else if (st.gamePoint) {
@@ -3938,6 +3985,49 @@ var qrcode = function() {
     }
     renderContestDetail(c);
     if (ui.board) renderBoard(c);
+  }
+
+  function openFinishPopup(c) {
+    const ed = editState(c);
+    const st = computeLive(c, ed);
+    const saved = ed.games.filter((g) => g.a !== "" && g.b !== "").length;
+    let modal = document.getElementById("finishModal");
+    if (!modal) {
+      modal = document.createElement("div");
+      modal.id = "finishModal";
+      modal.className = "modal-back";
+      document.body.appendChild(modal);
+      modal.addEventListener("click", (e) => {
+        const cc = ui.contestId && findContest(ui.contestId);
+        if (!cc) { modal.classList.remove("open"); return; }
+        const edc = editState(cc);
+        if (e.target.closest("#recordResult")) {
+          modal.classList.remove("open");
+          commitResult(cc);
+        } else if (e.target.closest("#popNext")) {
+          modal.classList.remove("open");
+          if (saveLiveGame(cc, edc)) {
+            buzz(15);
+            renderContestDetail(cc);
+            if (ui.board) renderBoard(cc);
+          }
+        } else if (e.target.closest("#popUndo")) {
+          modal.classList.remove("open");
+          liveUndo(cc);
+        }
+        // backdrop taps are ignored — this decision has to be made
+      });
+    }
+    modal.innerHTML =
+      '<div class="finish-card">' +
+      '<div class="fc-label">Game ' + (saved + 1) + " · " + fmtClock(ed.startedAt ? Date.now() - ed.startedAt : 0) + "</div>" +
+      '<div class="fc-score">' + st.a + "–" + st.b + "</div>" +
+      '<div class="fc-who">' + esc(edSideLabel(ed, st.a > st.b ? 0 : 1)) + " take the game</div>" +
+      '<button class="btn primary block" id="recordResult">Record result 🏅 (+1 point)</button>' +
+      (saved < 2 ? '<button class="btn block" id="popNext">▶ Play another game</button>' : "") +
+      '<button class="btn ghost block" id="popUndo">↩︎ Undo last point</button>' +
+      "</div>";
+    modal.classList.add("open");
   }
 
   function liveUndo(c) {
@@ -4037,6 +4127,7 @@ var qrcode = function() {
       c.playersA = []; c.playersB = [];
     } else {
       const lv = ed.live;
+      if (ed.startedAt) c.duration = Date.now() - ed.startedAt;
       if (computeLive(c, ed).over) {
         if (!saveLiveGame(c, ed)) return;       // finished live game joins the score rows
       } else if (lv.log.length &&
@@ -4472,7 +4563,6 @@ var qrcode = function() {
     settingsEl.innerHTML = appearance +
       '<div class="card glass"><p class="section-title">Scoring</p>' +
       switchRow("wake", "Keep screen awake", "While scoring point by point, the screen won’t sleep.") +
-      switchRow("autosave", "Auto-save finished games", "A game reaching its target drops straight into the score rows.") +
       switchRow("speech", "Announce scores", "Speaks the score after every rally, plus game and golden points.") +
       switchRow("sound", "Sound effects", "A tick per point (a different note per house) and a game-over fanfare.") +
       "</div>" +
@@ -4600,6 +4690,14 @@ var qrcode = function() {
   });
 
   renderAll();
+
+  // live match clock (updates in place, no re-render)
+  setInterval(() => {
+    const el = document.getElementById("liveTimer");
+    if (el && ui.edit && ui.edit.startedAt) {
+      el.textContent = "⏱ " + fmtClock(Date.now() - ui.edit.startedAt);
+    }
+  }, 1000);
 
   // install-to-homescreen + offline (only when served over http/https)
   if ("serviceWorker" in navigator && location.protocol.indexOf("http") === 0) {

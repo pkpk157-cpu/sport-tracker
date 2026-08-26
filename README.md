@@ -56,9 +56,13 @@ record which side won each rally.
     *point on serve only* with true pickleball serve tracking (doubles
     server #1/#2, the opening 0–0–2 rule, side-outs, live serving
     indicator and the three-number score call), first-serve picker,
-    game-point & **GOLDEN POINT** badges, a **rally timeline** with
-    longest-run stat, undo/reset, optional **score announcements** and
-    per-house **sound effects**, and **auto-saved finished games**.
+    game-point & **GOLDEN POINT** badges, a **live match clock** in the
+    scorebox, undo/reset, and optional **score announcements** and
+    per-house **sound effects**. When a game reaches its target a
+    **finish sheet** pops up — Record result / Play another game / Undo
+    last point — so the record action only appears when the game is
+    actually over. Match durations are saved and shown on results and
+    in Cup stats ("Longest battle").
     The screen **stays awake** while scoring (toggleable).
 - A **note** and a **photo** can be attached to any contest.
 - Record banks 1 point — an **Undo toast** gives 6 seconds to take it back;
@@ -73,8 +77,7 @@ and total rally points won/conceded. Rosters are **editable in-app**
 
 ### ⚙️ Settings (gear, top-right)
 - **Appearance**: ☀️ Light / 🌙 Dark / 📱 System (follows the device live).
-- **Scoring**: keep screen awake · auto-save finished games ·
-  announce scores · sound effects.
+- **Scoring**: keep screen awake · announce scores · sound effects.
 - **Backup & restore**: download/copy the cup as JSON, paste to restore.
 - Danger zone: reset all results.
 
