@@ -68,6 +68,21 @@ record which side won each rally.
 - Record banks 1 point — an **Undo toast** gives 6 seconds to take it back;
   reopen & edit any time. Extra contests can be added mid-tournament.
 
+### 📊 Insights (computed from the rally log — no extra input)
+- **Match recap** on every decided contest scored point-by-point: a
+  **worm chart** of the score gap rally by rally, rallies played,
+  longest run, per-side points **on serve vs on return** with service
+  turns, golden-point callouts — and a **📸 recap image** to share.
+- **Live drama**: 🔥 streak flames on the point buttons after 3 straight
+  rallies, a crowd swell at golden point, and a **pressure stat** toast
+  ("Chandni has won 1 of 1 golden points this cup") drawn from history.
+- **Grudge line** on setup when the selected line-ups have met before.
+- **Serve efficiency** (points per service turn per house) joins Cup stats.
+- **🔮 Pundit picks**: friends predict each contest on the setup page;
+  a **Pundit leaderboard** on Overview tracks who calls it best.
+- **📜 How the cup was won**: when the champion is crowned, Overview
+  shows the full timeline with running score, durations and notes.
+
 ### 🛡️ Houses tab
 The Roll Call of the Realm with **live player records** (W–L per player,
 ⚠️ flag past the 2-contest limit). Tap a player for their **battle record**:

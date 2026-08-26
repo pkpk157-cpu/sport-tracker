@@ -3016,6 +3016,7 @@ var qrcode = function() {
   const defaultStore = () => ({
     contests: seedContests(),
     rosters: [HOUSES[0].roster.slice(), HOUSES[1].roster.slice()],
+    pundits: [],
     created: Date.now(),
   });
 
@@ -3026,6 +3027,7 @@ var qrcode = function() {
         const s = JSON.parse(raw);
         if (Array.isArray(s.contests)) {
           if (!Array.isArray(s.rosters)) s.rosters = [HOUSES[0].roster.slice(), HOUSES[1].roster.slice()];
+          if (!Array.isArray(s.pundits)) s.pundits = [];
           return s;
         }
       }
@@ -3149,6 +3151,26 @@ var qrcode = function() {
   }
   const pointSound = (side) => beep(side === 0 ? 620 : 460, 0.09);
   const fanfare = () => { beep(523, 0.12); beep(659, 0.12, 0.12); beep(784, 0.2, 0.24); };
+  // rising swell for golden point — the crowd leans in
+  function oohSound() {
+    if (!prefs.sound) return;
+    try {
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      const t = audioCtx.currentTime;
+      [0, 4, 7].forEach((semi) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sawtooth";
+        osc.frequency.setValueAtTime(220 * Math.pow(2, semi / 12), t);
+        osc.frequency.exponentialRampToValueAtTime(330 * Math.pow(2, semi / 12), t + 0.6);
+        gain.gain.setValueAtTime(0.0001, t);
+        gain.gain.exponentialRampToValueAtTime(0.05, t + 0.35);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.8);
+        osc.connect(gain).connect(audioCtx.destination);
+        osc.start(t); osc.stop(t + 0.85);
+      });
+    } catch (e) {}
+  }
 
   /* ---------------- score announcements ---------------- */
   function announce(text) {
@@ -3188,6 +3210,197 @@ var qrcode = function() {
     return n;
   }
 
+  /* ---------------- rally-log analytics ---------------- */
+  // Replay one stored game's rally log: score-gap series, per-side serve
+  // stats, longest run, and who won a golden point (if one occurred).
+  function replayGame(kind, g) {
+    if (!g || !g.log || !g.log.length || g.t == null) return null;
+    const doubles = kind === "doubles";
+    const sideout = g.rule === "sideout";
+    let a = 0, b = 0, serving = g.fs || 0, num = sideout && doubles ? 2 : 1;
+    const stat = [
+      { onServe: 0, onReturn: 0, turns: 0 },
+      { onServe: 0, onReturn: 0, turns: 0 },
+    ];
+    stat[serving].turns++;
+    const diffs = [0];
+    let goldenWinner = null;
+    let run = 0, runSide = -1, bestRun = 0, bestRunSide = 0;
+    for (const w of g.log) {
+      const atGolden = a === g.t - 1 && b === g.t - 1;
+      if (!sideout) {
+        if (w === 0) a++; else b++;
+        if (w === serving) stat[w].onServe++;
+        else { stat[w].onReturn++; serving = w; stat[w].turns++; }
+      } else if (w === serving) {
+        if (w === 0) a++; else b++;
+        stat[w].onServe++;
+      } else if (doubles && num === 1) {
+        num = 2;
+      } else {
+        serving = w; num = 1; stat[w].turns++;
+      }
+      if (atGolden && (a >= g.t || b >= g.t)) goldenWinner = a > b ? 0 : 1;
+      run = w === runSide ? run + 1 : 1;
+      runSide = w;
+      if (run > bestRun) { bestRun = run; bestRunSide = w; }
+      diffs.push(a - b);
+      if (a >= g.t || b >= g.t) break;
+    }
+    return { diffs, stat, goldenWinner, bestRun, bestRunSide, rallies: g.log.length };
+  }
+
+  // a player's golden-point record across every decided contest
+  function goldenRecord(name) {
+    let won = 0, faced = 0;
+    store.contests.forEach((c) => {
+      if (!c.done || c.winner == null) return;
+      const side = c.playersA.indexOf(name) >= 0 ? 0 : c.playersB.indexOf(name) >= 0 ? 1 : -1;
+      if (side < 0) return;
+      c.games.forEach((g) => {
+        const r = replayGame(c.kind, g);
+        if (r && r.goldenWinner != null) {
+          faced++;
+          if (r.goldenWinner === side) won++;
+        }
+      });
+    });
+    return { won, faced };
+  }
+
+  // full-contest recap from stored rally logs (null when only typed scores)
+  function contestRecap(c) {
+    const replays = c.games.map((g) => replayGame(c.kind, g)).filter(Boolean);
+    if (!replays.length) return null;
+    const stat = [
+      { onServe: 0, onReturn: 0, turns: 0 },
+      { onServe: 0, onReturn: 0, turns: 0 },
+    ];
+    let rallies = 0, bestRun = 0, bestRunSide = 0;
+    const goldenWinners = [];
+    const worm = [];   // [{diffs}] per game
+    replays.forEach((r) => {
+      [0, 1].forEach((s) => {
+        stat[s].onServe += r.stat[s].onServe;
+        stat[s].onReturn += r.stat[s].onReturn;
+        stat[s].turns += r.stat[s].turns;
+      });
+      rallies += r.rallies;
+      if (r.bestRun > bestRun) { bestRun = r.bestRun; bestRunSide = r.bestRunSide; }
+      if (r.goldenWinner != null) goldenWinners.push(r.goldenWinner);
+      worm.push(r.diffs);
+    });
+    return { stat, rallies, bestRun, bestRunSide, goldenWinners, worm };
+  }
+
+  function wormSvg(recap) {
+    const all = [];
+    recap.worm.forEach((d, i) => { if (i) all.push(null); d.forEach((v) => all.push(v)); });
+    const maxAbs = Math.max(1, ...all.filter((v) => v != null).map(Math.abs));
+    const n = all.length - 1;
+    const px = (i) => (i / Math.max(n, 1)) * 100;
+    const py = (v) => 18 - (v / maxAbs) * 15;
+    let pts = "", breaks = "";
+    all.forEach((v, i) => {
+      if (v == null) { breaks += '<line x1="' + px(i).toFixed(1) + '" y1="2" x2="' + px(i).toFixed(1) + '" y2="34" stroke="var(--line-2)" stroke-width="1" vector-effect="non-scaling-stroke"/>'; return; }
+      pts += px(i).toFixed(1) + "," + py(v).toFixed(1) + " ";
+    });
+    return '<div class="momentum"><svg viewBox="0 0 100 36" preserveAspectRatio="none">' +
+      '<line x1="0" y1="18" x2="100" y2="18" stroke="var(--line)" stroke-width="1" vector-effect="non-scaling-stroke"/>' +
+      breaks +
+      '<defs><clipPath id="wtop"><rect x="0" y="-4" width="100" height="22"/></clipPath>' +
+      '<clipPath id="wbot"><rect x="0" y="18" width="100" height="22"/></clipPath></defs>' +
+      '<polyline points="' + pts + '" fill="none" stroke="var(--smashers)" stroke-width="2.5" clip-path="url(#wtop)" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>' +
+      '<polyline points="' + pts + '" fill="none" stroke="var(--dinkers)" stroke-width="2.5" clip-path="url(#wbot)" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>' +
+      "</svg></div>";
+  }
+
+  function contestRecapHtml(c) {
+    const recap = contestRecap(c);
+    if (!recap) return "";
+    const sideLine = (s) => {
+      const st = recap.stat[s];
+      return '<div class="stat-row"><span class="s-label"><span class="hdot ' + HOUSES[s].key + '"></span>' +
+        esc(playersLabel(c, s)) + '</span><span class="s-value">' +
+        st.onServe + ' <span class="s-sub">on serve</span> · ' + st.onReturn + ' <span class="s-sub">on return</span>' +
+        (st.turns ? ' · ' + st.turns + ' <span class="s-sub">turns</span>' : "") + "</span></div>";
+    };
+    return '<hr class="divider" />' +
+      '<p class="section-title">Match recap</p>' +
+      wormSvg(recap) +
+      '<div class="progress-note" style="margin-bottom:6px;">Score gap, rally by rally — purple above, blue below</div>' +
+      '<div class="stat-row"><span class="s-label">Rallies played</span><span class="s-value">' + recap.rallies + "</span></div>" +
+      (recap.bestRun >= 3
+        ? '<div class="stat-row"><span class="s-label">Longest run</span><span class="s-value">' +
+          recap.bestRun + ' <span class="s-sub">straight — ' + esc(playersLabel(c, recap.bestRunSide)) + "</span></span></div>"
+        : "") +
+      sideLine(0) + sideLine(1) +
+      (recap.goldenWinners.length
+        ? '<div class="stat-row"><span class="s-label">😈 Golden point</span><span class="s-value">won by ' +
+          recap.goldenWinners.map((s) => esc(HOUSES[s].name.split(" ")[1])).join(", ") + "</span></div>"
+        : "") +
+      '<div class="spacer"></div>' +
+      '<button class="btn ghost small" id="recapImage">📸 Save recap image</button>';
+  }
+
+  function recapCanvas(c) {
+    const recap = contestRecap(c);
+    const w = c.winner;
+    const cv = document.createElement("canvas");
+    cv.width = 1000; cv.height = 780;
+    const x = cv.getContext("2d");
+    const g = x.createLinearGradient(0, 0, 1000, 780);
+    g.addColorStop(0, "#0b2740"); g.addColorStop(1, "#0e3520");
+    x.fillStyle = g; x.fillRect(0, 0, 1000, 780);
+    x.textAlign = "center";
+    x.fillStyle = "rgba(233,238,255,.65)"; x.font = "26px Arial";
+    x.fillText("THE VERANDAS PICKLEBALL CUP", 500, 66);
+    x.fillStyle = "#f4f7ff"; x.font = "bold 40px Arial";
+    x.fillText((c.icon || "") + " " + c.name, 500, 122);
+    x.font = "bold 34px Arial";
+    x.fillStyle = w === 0 ? "#c59dff" : "#7bdcff";
+    x.fillText(playersLabel(c, w) + "  def.  " + playersLabel(c, w ^ 1), 500, 180);
+    x.fillStyle = "#ffd23f"; x.font = "bold 56px Arial";
+    x.fillText(c.games.map((gm) => gm.a + "–" + gm.b).join("   "), 500, 252);
+    if (recap) {
+      // worm
+      const all = [];
+      recap.worm.forEach((d, i) => { if (i) all.push(null); d.forEach((v) => all.push(v)); });
+      const maxAbs = Math.max(1, ...all.filter((v) => v != null).map(Math.abs));
+      const X0 = 90, X1 = 910, Y0 = 300, H = 180, mid = Y0 + H / 2;
+      x.strokeStyle = "rgba(255,255,255,.25)"; x.lineWidth = 1;
+      x.beginPath(); x.moveTo(X0, mid); x.lineTo(X1, mid); x.stroke();
+      x.lineWidth = 4; x.lineJoin = "round";
+      const n = Math.max(all.length - 1, 1);
+      let prev = null;
+      all.forEach((v, i) => {
+        if (v == null) { prev = null; return; }
+        const px = X0 + (i / n) * (X1 - X0);
+        const py = mid - (v / maxAbs) * (H / 2 - 8);
+        if (prev) {
+          x.strokeStyle = (v + prev.v) / 2 >= 0 ? "#c59dff" : "#7bdcff";
+          x.beginPath(); x.moveTo(prev.px, prev.py); x.lineTo(px, py); x.stroke();
+        }
+        prev = { px, py, v };
+      });
+      x.textAlign = "center"; x.fillStyle = "rgba(233,238,255,.55)"; x.font = "22px Arial";
+      x.fillText("score gap, rally by rally", 500, Y0 + H + 34);
+      x.font = "26px Arial"; x.fillStyle = "#f4f7ff";
+      let y = Y0 + H + 84;
+      x.fillText(recap.rallies + " rallies" +
+        (c.duration ? "  ·  " + fmtDur(c.duration) : "") +
+        (recap.bestRun >= 3 ? "  ·  longest run " + recap.bestRun + " (" + playersLabel(c, recap.bestRunSide) + ")" : ""), 500, y);
+      y += 40;
+      if (recap.goldenWinners.length) {
+        x.fillStyle = "#ffd23f";
+        x.fillText("😈 golden point won by " + recap.goldenWinners.map((s) => HOUSES[s].name).join(", "), 500, y);
+      }
+    }
+    x.textAlign = "center"; x.fillStyle = "rgba(233,238,255,.4)"; x.font = "22px Arial";
+    x.fillText(new Date(c.decidedAt || Date.now()).toLocaleDateString(), 500, 742);
+    return cv;
+  }
+
   /* ---------------- cup math ---------------- */
   function gamesWon(c) {
     let a = 0, b = 0;
@@ -3223,7 +3436,8 @@ var qrcode = function() {
       id: c.id, name: c.name, kind: c.kind, icon: c.icon, desc: c.desc,
       court: c.court || "", time: c.time || "", note: c.note || "",
       playersA: c.playersA, playersB: c.playersB,
-      games: c.games, winner: c.winner, done: c.done,
+      games: c.games.map((g) => ({ a: g.a, b: g.b })),
+      winner: c.winner, done: c.done, decidedAt: c.decidedAt || 0,
     }));
     const payload = { v: 1, t: Date.now(), contests, rosters: store.rosters };
     const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
@@ -3395,6 +3609,18 @@ var qrcode = function() {
             fmtDur(best.duration) + ' <span class="s-sub">' + esc(best.name) + "</span></span></div>"
           : "";
       })() +
+      (function () {
+        const agg = [{ p: 0, t: 0 }, { p: 0, t: 0 }];
+        decided.forEach((c) => c.games.forEach((g) => {
+          const r = replayGame(c.kind, g);
+          if (!r) return;
+          [0, 1].forEach((s) => { agg[s].p += r.stat[s].onServe; agg[s].t += r.stat[s].turns; });
+        }));
+        if (!agg[0].t && !agg[1].t) return "";
+        const eff = (s) => agg[s].t ? (agg[s].p / agg[s].t).toFixed(1) : "–";
+        return '<div class="stat-row"><span class="s-label">Points per service turn</span><span class="s-value">' +
+          '<span class="hdot sm"></span>' + eff(0) + ' &nbsp; <span class="hdot dk"></span>' + eff(1) + "</span></div>";
+      })() +
       '<div class="stat-row"><span class="s-label">Rally points won</span><span class="s-value">' +
       '<span class="hdot sm"></span>' + rallyPts[0] + ' &nbsp; <span class="hdot dk"></span>' + rallyPts[1] + "</span></div>" +
       podium + "</div>";
@@ -3487,6 +3713,24 @@ var qrcode = function() {
       "</div>" +
       "</div>" +
       (function () {
+        if (!decided || decided !== total) return "";
+        const seq = store.contests.filter((c) => c.done && c.winner != null)
+          .slice().sort((a, b) => (a.decidedAt || 0) - (b.decidedAt || 0));
+        let sm = 0, dk = 0;
+        const rows = seq.map((c) => {
+          if (c.winner === 0) sm++; else dk++;
+          return '<div class="row-item won-' + HOUSES[c.winner].key + '">' +
+            '<div class="main"><div class="ttl">' + c.icon + " " + esc(c.name) + "</div>" +
+            '<div class="meta">' + esc(playersLabel(c, c.winner)) + " won" +
+            (c.games.length ? " · " + c.games.map((g) => g.a + "–" + g.b).join(", ") : "") +
+            (c.duration ? " · " + fmtDur(c.duration) : "") +
+            (c.note ? " · “" + esc(c.note) + "”" : "") + "</div></div>" +
+            '<span class="pill">' + sm + "–" + dk + "</span></div>";
+        }).join("");
+        return '<div class="card glass"><p class="section-title">📜 How the cup was won</p>' +
+          '<div class="spacer"></div><div class="list">' + rows + "</div></div>";
+      })() +
+      (function () {
         const upcoming = store.contests.filter((c) => !c.done).slice(0, 3);
         if (!upcoming.length || decided === total) return "";
         return '<div class="card glass"><p class="section-title">Up next</p><div class="spacer"></div>' +
@@ -3502,6 +3746,28 @@ var qrcode = function() {
       '<div class="card glass"><p class="section-title">Contests decided</p><div class="spacer"></div>' +
       '<div class="list">' + recent + "</div></div>" +
       cupStatsHtml() +
+      (function () {
+        const rows = {};
+        store.contests.forEach((c) => {
+          if (!c.done || c.winner == null || !c.picks) return;
+          Object.keys(c.picks).forEach((p) => {
+            const r = rows[p] || (rows[p] = { name: p, right: 0, total: 0 });
+            r.total++;
+            if (c.picks[p] === c.winner) r.right++;
+          });
+        });
+        const list = Object.values(rows).sort((a, b) =>
+          b.right - a.right || (b.right / b.total) - (a.right / a.total) || a.name.localeCompare(b.name));
+        if (!list.length) return "";
+        const medals = ["🥇", "🥈", "🥉"];
+        return '<div class="card glass"><p class="section-title">🔮 Pundit leaderboard</p>' +
+          list.map((r, i) =>
+            '<div class="podium-row"><span class="medal">' + (medals[i] || "🎯") + "</span>" +
+            '<span class="p-name">' + esc(r.name) + "</span>" +
+            '<span class="p-stat">' + r.right + "/" + r.total + " called · " +
+            Math.round((r.right / r.total) * 100) + "%</span></div>").join("") +
+          "</div>";
+      })() +
       "";
   }
 
@@ -3603,7 +3869,9 @@ var qrcode = function() {
       mode: "final",                 // "final" | "points"
       playersA: [c.playersA[0] || "", c.playersA[1] || ""],
       playersB: [c.playersB[0] || "", c.playersB[1] || ""],
-      games: c.games.length ? c.games.map((g) => ({ a: String(g.a), b: String(g.b) })) : [{ a: "", b: "" }],
+      games: c.games.length
+        ? c.games.map((g) => Object.assign({}, g, { a: String(g.a), b: String(g.b), oa: g.a, ob: g.b }))
+        : [{ a: "", b: "" }],
       step: "setup",   // "setup" (players & schedule) → "score" (court & points)
       live: { target: 15, rule: "rally", firstServer: 0, startPos: [[0, 1], [0, 1]], log: [] },
       specialWinner: c.winner,
@@ -3701,6 +3969,7 @@ var qrcode = function() {
         "</div>" +
         (c.note ? '<p class="note-line">“' + esc(c.note) + "”</p>" : "") +
         (c.photo ? '<img class="contest-photo" src="' + c.photo + '" alt="Contest photo" />' : "") +
+        contestRecapHtml(c) +
         '<div class="spacer"></div><div class="spacer"></div>' +
         (VIEW ? "" :
           '<div style="display:flex;gap:10px;">' +
@@ -3828,11 +4097,20 @@ var qrcode = function() {
         swap + "</div>";
     };
 
+    let streak = 0, streakSide = -1;
+    for (let i = lv.log.length - 1; i >= 0; i--) {
+      if (streakSide === -1) streakSide = lv.log[i];
+      if (lv.log[i] !== streakSide) break;
+      streak++;
+    }
     const tapBig = (side) =>
       '<button class="tap-big ' + HOUSES[side].key + '" data-tap="' + side + '"' + (gameOver ? " disabled" : "") + ">" +
       '<span class="tb-plus">＋</span>' +
       '<span class="tb-name">' + esc(edSideLabel(ed, side)) + "</span>" +
-      '<span class="tb-sub">won the ' + (st.sideout ? "rally" : "point") + "</span></button>";
+      (streak >= 3 && streakSide === side && !gameOver
+        ? '<span class="tb-sub">🔥 ' + streak + " in a row</span>"
+        : '<span class="tb-sub">won the ' + (st.sideout ? "rally" : "point") + "</span>") +
+      "</button>";
     const tapRow = '<div class="tap-row">' + tapBig(0) + tapBig(1) + "</div>";
     // Wimbledon-style scoreboard: past games small, live score large
     const wRow = (side) => {
@@ -3923,6 +4201,24 @@ var qrcode = function() {
       '<button data-fsv="1" class="' + (lvS.firstServer === 1 ? "is-active" : "") + '">' + esc(HOUSES[1].name.split(" ")[1]) + "</button>" +
       "</div></div></div>";
 
+    // grudge line: have these line-ups met already today?
+    const grudge = (function () {
+      const selA = ed.playersA.filter(Boolean), selB = ed.playersB.filter(Boolean);
+      if (!selA.length || !selB.length) return "";
+      let sm = 0, dk = 0;
+      store.contests.forEach(x => {
+        if (!x.done || x.winner == null || x.id === c.id) return;
+        const hitA = x.playersA.some(p => selA.indexOf(p) >= 0);
+        const hitB = x.playersB.some(p => selB.indexOf(p) >= 0);
+        if (hitA && hitB) { if (x.winner === 0) sm++; else dk++; }
+      });
+      if (!sm && !dk) return "";
+      const line = sm === dk ? "level " + sm + "–" + dk
+        : (sm > dk ? HOUSES[0].name.split(" ")[1] + " lead " + sm + "–" + dk
+                   : HOUSES[1].name.split(" ")[1] + " lead " + dk + "–" + sm);
+      return '<p class="hint" style="text-align:center;">⚔️ These players have met before — ' + line + "</p>";
+    })();
+
     if (ed.step === "setup") {
       // ---- step 1: players, schedule and every game rule ----
       conEl.innerHTML =
@@ -3930,7 +4226,26 @@ var qrcode = function() {
         '<div class="card glass">' + header + schedRow +
         '<p class="section-title">Who takes the court</p>' +
         '<div class="two-col">' + sideBlock(0) + sideBlock(1) + "</div>" +
+        grudge +
         rulesSection +
+        '<hr class="divider" />' +
+        (function () {
+          const picks = c.picks || {};
+          const open = ed.showPred || Object.keys(picks).length;
+          if (!open) return '<button class="btn ghost small" id="predToggle" style="margin-right:8px;">🔮 Predictions</button>';
+          const chips = store.pundits.map((p) => {
+            const pick = picks[p];
+            const lbl = pick === 0 ? HOUSES[0].name.split(" ")[1] : pick === 1 ? HOUSES[1].name.split(" ")[1] : "—";
+            const cls = pick === 0 ? "sm" : pick === 1 ? "dk" : "";
+            return '<span class="pill ' + cls + '" style="cursor:pointer;" data-pred-cycle="' + esc(p) + '">' +
+              esc(p) + " · " + lbl + "</span>";
+          }).join(" ");
+          return '<p class="section-title">🔮 Pundit picks <span style="text-transform:none;letter-spacing:0;">(tap to cycle)</span></p>' +
+            '<div class="pills">' + chips + "</div>" +
+            '<div class="inline-form" style="margin-top:10px;"><div class="field grow">' +
+            '<input type="text" id="punditName" placeholder="Add a pundit (friend or fan)" maxlength="20" /></div>' +
+            '<button class="btn small" id="addPundit">Add</button></div>';
+        })() +
         '<hr class="divider" />' + noteRow +
         "</div>" +
         '<div class="card glass"><p class="section-title">Record the score</p>' +
@@ -3976,6 +4291,18 @@ var qrcode = function() {
       openFinishPopup(c);
     } else if (st.golden) {
       announce("Golden point!");
+      oohSound();
+      // pressure stat: who on this court has history at golden point?
+      const onCourt = ed.playersA.filter(Boolean).concat(ed.playersB.filter(Boolean));
+      let star = null, rec = null;
+      onCourt.forEach((p) => {
+        const r = goldenRecord(p);
+        if (r.faced && (!rec || r.faced > rec.faced)) { star = p; rec = r; }
+      });
+      if (star) {
+        toast("😈 Golden point! " + esc(star) + " has won " + rec.won + " of " + rec.faced +
+          " golden point" + (rec.faced === 1 ? "" : "s") + " this cup.");
+      }
     } else if (st.gamePoint) {
       announce("Game point, " + spokenCall);
     } else if (!scored) {
@@ -4108,10 +4435,15 @@ var qrcode = function() {
   function saveLiveGame(c, ed) {
     const lv = ed.live;
     const st = computeLive(c, ed);
-    const slot = ed.games.find((g) => g.a === "" && g.b === "");
-    if (slot) { slot.a = String(st.a); slot.b = String(st.b); }
-    else if (ed.games.length < 3) ed.games.push({ a: String(st.a), b: String(st.b) });
-    else { alert("All three game slots are full — clear one first."); return false; }
+    const extras = {
+      log: lv.log.slice(), rule: lv.rule, fs: lv.firstServer, t: lv.target,
+      oa: st.a, ob: st.b,   // snapshot of the true score — extras dropped if edited
+    };
+    let slot = ed.games.find((g) => g.a === "" && g.b === "");
+    if (!slot && ed.games.length < 3) { slot = { a: "", b: "" }; ed.games.push(slot); }
+    if (!slot) { alert("All three game slots are full — clear one first."); return false; }
+    slot.a = String(st.a); slot.b = String(st.b);
+    Object.assign(slot, extras);
     // game winner serves first in the next game
     ed.live = { target: lv.target, rule: lv.rule, firstServer: st.a > st.b ? 0 : 1, startPos: lv.startPos, log: [] };
     return true;
@@ -4140,7 +4472,11 @@ var qrcode = function() {
         if (isNaN(a) && isNaN(b)) continue;           // untouched row
         if (isNaN(a) || isNaN(b)) { alert("Fill in both sides of every game score."); return; }
         if (a === b) { alert("A game can't end tied — golden point decides it!"); return; }
-        games.push({ a, b });
+        const out = { a, b };
+        if (g.log && a === g.oa && b === g.ob) {      // rally log survives unedited scores
+          out.log = g.log; out.rule = g.rule; out.fs = g.fs; out.t = g.t;
+        }
+        games.push(out);
       }
       if (!games.length) { alert("Enter at least one game score."); return; }
       let wa = 0, wb = 0;
@@ -4154,6 +4490,7 @@ var qrcode = function() {
 
     c.points = 1;
     c.done = true;
+    c.decidedAt = Date.now();
     ui.edit = null;
     buzz(20);
     fanfare();
@@ -4214,6 +4551,19 @@ var qrcode = function() {
     const c = ui.contestId && findContest(ui.contestId);
     if (!c) return;
 
+    if (e.target.closest("#recapImage")) {
+      recapCanvas(c).toBlob((blob) => {
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "verandas-recap-" + c.name.toLowerCase().replace(/[^a-z0-9]+/g, "-") + ".png";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+        toast("📸 Recap image saved.");
+      }, "image/png");
+      return;
+    }
     if (e.target.closest("#recordResult")) return commitResult(c);
     if (e.target.closest("#reopenContest")) { c.done = false; ui.edit = null; save(); renderAll(); return; }
     if (e.target.closest("#deleteContest")) {
@@ -4302,6 +4652,34 @@ var qrcode = function() {
       renderContestDetail(c);
       return;
     }
+    if (e.target.closest("#predToggle")) {
+      editState(c).showPred = true;
+      renderContestDetail(c);
+      return;
+    }
+    if (e.target.closest("#addPundit")) {
+      const input = document.getElementById("punditName");
+      const name = (input.value || "").trim();
+      if (!name) return;
+      if (store.pundits.some((p) => p.toLowerCase() === name.toLowerCase())) { alert("That pundit is already on the panel."); return; }
+      store.pundits.push(name);
+      editState(c).showPred = true;
+      save();
+      renderContestDetail(c);
+      return;
+    }
+    const cyc = e.target.closest("[data-pred-cycle]");
+    if (cyc) {
+      const p = cyc.dataset.predCycle;
+      c.picks = c.picks || {};
+      const cur = c.picks[p];
+      if (cur === 0) c.picks[p] = 1;
+      else if (cur === 1) delete c.picks[p];
+      else c.picks[p] = 0;
+      save();
+      renderContestDetail(c);
+      return;
+    }
     if (e.target.closest("#extrasToggle")) {
       editState(c).showExtras = true;
       renderContestDetail(c);
@@ -4376,12 +4754,16 @@ var qrcode = function() {
       if (name && fieldedCount(name) >= 2) {
         toast("⚠️ " + esc(name) + " has already played 2 contests — the decree allows max 2. NO CHITCHING!");
       }
+      if (ed.step === "setup") renderContestDetail(c);   // refresh grudge line
     }
   });
   conEl.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && e.target.id === "newContestName") {
       e.preventDefault();
       document.getElementById("addContest").click();
+    } else if (e.key === "Enter" && e.target.id === "punditName") {
+      e.preventDefault();
+      document.getElementById("addPundit").click();
     }
   });
 
