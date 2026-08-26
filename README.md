@@ -13,9 +13,12 @@ A liquid-glass, installable web app scorekeeper built for one tournament:
 - Live leader banner, progress bar, and a **momentum chart** of points as
   each contest was decided.
 - **Up next** card with each pending contest's court and time — tap to score.
-- **🔗 Share standings** — generates a link anyone can open to see a
-  **read-only snapshot** of the scoreboard (no install, nothing to sync).
-- **📸 Image** — renders the scoreboard as a PNG to post in the group chat.
+- **🔗 Share** — a link anyone can open to see a **read-only snapshot**
+  of the scoreboard; **📱 QR** — the same snapshot as a scannable QR code
+  for courtside spectators; **📸 Image** — the scoreboard as a PNG.
+- **Cup stats** card — closest game, biggest win, golden-point finishes,
+  rally points per house — plus an **MVP race podium** (contest wins →
+  point difference).
 - Champion crowned when all contests are decided — with confetti. 🎉
 
 ### ⚔️ Contests tab
@@ -27,7 +30,9 @@ Exhibit B, the Grand Team Rally. Per contest:
   and picking them anyway raises a NO CHITCHING toast).
 - **Two recording modes**:
   - ✍️ **Final score** — type end scores (1–3 games; ties rejected).
-  - 🎯 **Point by point** — tap-to-score with rally-to 11/15/21,
+  - 🎯 **Point by point** — tap-to-score with rally-to 11/15/21, a
+    **📺 courtside scoreboard mode** (fullscreen giant-numbers display,
+    tap either half to score — prop the phone up at the net),
     game-point & **GOLDEN POINT** badges, a **rally timeline** with
     longest-run stat, undo/reset, optional **score announcements** and
     per-house **sound effects**, and **auto-saved finished games**.
@@ -74,7 +79,7 @@ python3 -m http.server 8000   # http://localhost:8000
 
 | File | Purpose |
 |------|---------|
-| `index.html` | The app — HTML, liquid-glass CSS (light + dark) and all JS |
+| `index.html` | The app — HTML, liquid-glass CSS (light + dark), QR library (MIT, Kazuhiko Arase) and all JS |
 | `sw.js` | Service worker: offline cache |
 | `manifest.webmanifest` | PWA install manifest |
 | `icon.svg` | App icon |
