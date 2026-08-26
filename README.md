@@ -23,11 +23,19 @@ A liquid-glass, installable web app scorekeeper built for one tournament:
 
 ### ⚔️ Contests tab
 Pre-loaded with Exhibit A — the 11 championship divisions — plus
-Exhibit B, the Grand Team Rally. Per contest:
-- **Court & time scheduling** (shown in the roll and the Up next card).
-- Fielded players picked from the rosters — with **rule-of-2 warnings**
-  (the decree allows max 2 contests per player: dropdowns flag "⚠ 2 played"
-  and picking them anyway raises a NO CHITCHING toast).
+Exhibit B, the Grand Team Rally. Recording a contest is a **two-step flow**:
+
+**Step 1 — Players & setup**: court & time scheduling, fielded players
+picked from the rosters (with **rule-of-2 warnings** — dropdowns flag
+"⚠ 2 played" and picking them anyway raises a NO CHITCHING toast), note
+and photo. Then choose how to record the score.
+
+**Step 2 — The scoring page**, with a **live court layout**: players are
+placed in their actual service courts on a drawn court (kitchen, net and
+all) and move by the real rules — pairs swap sides when they score on
+serve, singles players stand right/left by score parity, and the current
+server is highlighted with the ball. **Tap the side of the court that won
+the rally** to score.
 - **Two recording modes**:
   - ✍️ **Final score** — type end scores (1–3 games; ties rejected).
   - 🎯 **Point by point** — tap-to-score with rally-to 11/15/21, a

@@ -455,6 +455,42 @@ select option { color: #10142c; }
 .mom-legend { display: flex; gap: 16px; justify-content: center; margin-top: 6px;
   font-size: 11.5px; color: var(--text-dim); font-weight: 600; }
 
+/* ---------- court layout ---------- */
+.court-wrap { margin-top: 14px; border-radius: 18px; overflow: hidden;
+  border: 2px solid var(--line-2); position: relative;
+  box-shadow: inset 0 0 40px rgba(0,0,0,.12); }
+.c-half { display: block; width: 100%; border: 0; padding: 0; margin: 0;
+  cursor: pointer; font-family: inherit; color: var(--text);
+  position: relative; transition: filter .15s ease; }
+.c-half:active { filter: brightness(1.25); }
+.c-half.over { cursor: default; opacity: .75; }
+.c-half.sm { background: linear-gradient(180deg, rgba(122,79,208,.22), rgba(122,79,208,.10)); }
+.c-half.dk { background: linear-gradient(0deg, rgba(47,127,208,.22), rgba(47,127,208,.10)); }
+.c-row { display: grid; grid-template-columns: 1fr 1fr; }
+.c-box { min-height: 62px; display: flex; align-items: center; justify-content: center;
+  padding: 8px 6px; }
+.c-box + .c-box { border-left: 1.5px solid var(--line-2); }
+.c-kitchen { height: 24px; display: grid; place-items: center;
+  font-size: 8.5px; font-weight: 700; letter-spacing: 3px; color: var(--text-faint);
+  border-top: 1.5px solid var(--line-2); border-bottom: 1.5px solid var(--line-2); }
+.c-net { height: 8px;
+  background: repeating-linear-gradient(90deg, var(--line-2) 0 5px, transparent 5px 10px);
+  border-top: 1px solid var(--line-2); border-bottom: 1px solid var(--line-2); }
+.c-player { display: inline-flex; align-items: center; gap: 5px; max-width: 100%;
+  font-size: 12.5px; font-weight: 700; padding: 5px 11px; border-radius: 999px;
+  background: var(--nav-bg); border: 1px solid var(--line-2);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.c-player.serving { border-color: var(--good); box-shadow: 0 0 12px rgba(95,240,176,.45); }
+.c-player .ball { font-size: 10px; }
+.c-score { position: absolute; top: 6px; right: 10px; font-size: 22px; font-weight: 800;
+  font-variant-numeric: tabular-nums; }
+.c-score.sm { color: var(--smashers); }
+.c-score.dk { color: var(--dinkers); }
+.c-swap { position: absolute; top: 6px; left: 10px; z-index: 2; padding: 5px 10px; font-size: 11.5px; }
+.serve-note { text-align: center; font-size: 12px; font-weight: 700; color: var(--good);
+  margin-top: 10px; }
+.serve-note span { font-weight: 600; }
+
 /* ---------- toast ---------- */
 .toast {
   position: fixed; left: 50%; transform: translateX(-50%) translateY(20px);
@@ -468,9 +504,10 @@ select option { color: #10142c; }
   font-size: 13.5px; font-weight: 600;
   opacity: 0; pointer-events: none; transition: all .25s ease;
 }
-.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 .toast button { appearance: none; border: 0; cursor: pointer; font-family: inherit;
-  font-size: 13px; font-weight: 800; color: var(--accent); background: none; padding: 4px 6px; }
+  font-size: 13px; font-weight: 800; color: var(--accent); background: none; padding: 4px 6px;
+  pointer-events: auto; }
 
 /* ---------- switch rows ---------- */
 .switch-row { display: flex; align-items: center; gap: 12px; padding: 11px 2px;
@@ -3518,7 +3555,8 @@ var qrcode = function() {
       playersA: [c.playersA[0] || "", c.playersA[1] || ""],
       playersB: [c.playersB[0] || "", c.playersB[1] || ""],
       games: c.games.length ? c.games.map((g) => ({ a: String(g.a), b: String(g.b) })) : [{ a: "", b: "" }],
-      live: { target: 15, rule: "rally", firstServer: 0, log: [] },
+      step: "setup",   // "setup" (players & schedule) → "score" (court & points)
+      live: { target: 15, rule: "rally", firstServer: 0, startPos: [[0, 1], [0, 1]], log: [] },
       specialWinner: c.winner,
     };
     return ui.edit;
@@ -3541,18 +3579,34 @@ var qrcode = function() {
     let a = 0, b = 0;
     let serving = lv.firstServer;
     let serverNum = sideout && doubles ? 2 : 1;
+    // court positions per team: [player index at RIGHT court, at LEFT court].
+    const sp = lv.startPos || [[0, 1], [0, 1]];
+    const pos = [sp[0].slice(), sp[1].slice()];
+    // the person serving (index into the serving team's player list)
+    let serverPerson = doubles ? pos[serving][0] : 0;
     for (const w of lv.log) {
       if (a >= lv.target || b >= lv.target) break;
       if (!sideout) {
         if (w === 0) a++; else b++;
-        serving = w;
+        if (w === serving) {
+          if (doubles) pos[w].reverse();       // scored on serve → pair swaps, same server
+        } else {
+          serving = w;
+          if (doubles) {
+            const sc = w === 0 ? a : b;        // new server stands in the court matching score parity
+            serverPerson = pos[w][sc % 2 === 0 ? 0 : 1];
+          }
+        }
       } else if (w === serving) {
         if (w === 0) a++; else b++;
+        if (doubles) pos[w].reverse();         // scored → swap courts, server keeps serving
       } else if (doubles && serverNum === 1) {
         serverNum = 2;
+        serverPerson = 1 - serverPerson;       // partner takes over
       } else {
         serving = w;
         serverNum = 1;
+        serverPerson = doubles ? pos[w][0] : 0; // side out: new team's right-court player serves
       }
     }
     const over = a >= lv.target || b >= lv.target;
@@ -3563,7 +3617,7 @@ var qrcode = function() {
     const call = !sideout ? a + "–" + b
       : doubles ? sScore + "–" + rScore + "–" + serverNum
       : sScore + "–" + rScore;
-    return { a, b, serving, serverNum, doubles, sideout, over, golden, gamePoint, gpSide, call };
+    return { a, b, serving, serverNum, doubles, sideout, over, golden, gamePoint, gpSide, call, pos, serverPerson };
   }
 
   function playerSelect(side, slot, val) {
@@ -3683,16 +3737,48 @@ var qrcode = function() {
             ? '<span class="badge">Call: ' + st.call + "</span>"
             : "";
 
-    const tapBtn = (side) => {
-      const serving = !gameOver && st.serving === side;
-      return '<button class="tap-btn ' + HOUSES[side].key + '" data-tap="' + side + '"' + (gameOver ? " disabled" : "") + ">" +
-        '<div class="lscore">' + (side === 0 ? st.a : st.b) + "</div>" +
-        '<div class="lwho">' + esc(edSideLabel(ed, side)) + "</div>" +
-        (serving
-          ? '<div class="l-serve">● SERVING' + (st.sideout && st.doubles ? " · #" + st.serverNum : "") + "</div>"
-          : '<div class="ltap">' + (gameOver ? "game over" : st.sideout ? "tap = won rally" : "tap to score") + "</div>") +
-        "</button>";
+    // ---- court layout: players placed in their service courts ----
+    const playerName = (side, idx) => {
+      const arr = side === 0 ? ed.playersA : ed.playersB;
+      return (arr[idx] || "").trim() || (st.doubles ? "Player " + (idx + 1) : HOUSES[side].name.split(" ")[1]);
     };
+    const chip = (side, idx) => {
+      const isServer = !gameOver && st.serving === side &&
+        (st.doubles ? st.serverPerson === idx : true);
+      return '<span class="c-player' + (isServer ? " serving" : "") + '">' +
+        (isServer ? '<span class="ball">🟡</span>' : "") + esc(playerName(side, idx)) + "</span>";
+    };
+    // which box (right/left court) holds which player
+    const boxes = (side) => {
+      if (st.doubles) return { right: chip(side, st.pos[side][0]), left: chip(side, st.pos[side][1]) };
+      const servScore = st.serving === 0 ? st.a : st.b;
+      const even = servScore % 2 === 0;                 // even score → right court (both players, = diagonal)
+      return { right: even ? chip(side, 0) : "", left: even ? "" : chip(side, 0) };
+    };
+    const half = (side, mirrored) => {
+      const bx = boxes(side);
+      const cells = mirrored ? [bx.right, bx.left] : [bx.left, bx.right];
+      const kitchen = '<div class="c-kitchen">KITCHEN</div>';
+      const rowBoxes = '<div class="c-row"><div class="c-box">' + cells[0] + '</div><div class="c-box">' + cells[1] + "</div></div>";
+      const swap = st.doubles && !lv.log.length
+        ? '<button class="btn small c-swap" data-swap="' + side + '">⇄ swap</button>'
+        : "";
+      return '<div class="c-half ' + HOUSES[side].key + (gameOver ? " over" : "") + '" data-tap="' + side + '" role="button" tabindex="0">' +
+        (mirrored ? rowBoxes + kitchen : kitchen + rowBoxes) +
+        '<span class="c-score ' + HOUSES[side].key + '">' + (side === 0 ? st.a : st.b) + "</span>" +
+        swap + "</div>";
+    };
+    const serveNote = gameOver
+      ? '<div class="serve-note">Game over — ' + (prefs.autosave ? "saved automatically." : "save the game below.") + "</div>"
+      : '<div class="serve-note">● SERVING' + (st.sideout && st.doubles ? " · #" + st.serverNum : "") + " — " +
+        esc(st.doubles ? playerName(st.serving, st.serverPerson) : edSideLabel(ed, st.serving)) +
+        ' · <span style="color:var(--text-faint)">tap the side that ' + (st.sideout ? "won the rally" : "won the point") + "</span></div>";
+    const courtHtml =
+      '<div class="court-wrap">' +
+      half(0, true) +
+      '<div class="c-net"></div>' +
+      half(1, false) +
+      "</div>" + serveNote;
 
     const pointsPanel =
       '<div class="live-top"><p class="section-title" style="margin:0;">Rally to</p>' +
@@ -3709,7 +3795,7 @@ var qrcode = function() {
       '<button data-fsv="0" class="' + (lv.firstServer === 0 ? "is-active" : "") + '">' + esc(HOUSES[0].name.split(" ")[1]) + "</button>" +
       '<button data-fsv="1" class="' + (lv.firstServer === 1 ? "is-active" : "") + '">' + esc(HOUSES[1].name.split(" ")[1]) + "</button>" +
       "</div></div></div>" +
-      '<div class="live-grid">' + tapBtn(0) + tapBtn(1) + "</div>" +
+      courtHtml +
       '<div style="display:flex;gap:10px;flex-wrap:wrap;">' +
       (gameOver
         ? '<button class="btn primary grow" id="saveGame">Save game ' + st.a + "–" + st.b + "</button>"
@@ -3744,7 +3830,7 @@ var qrcode = function() {
       savedLine;
 
     const modeSeg =
-      '<div class="seg" style="margin-bottom:14px;">' +
+      '<div class="seg" style="flex:0 0 auto;">' +
       '<button data-mode="final" class="' + (ed.mode === "final" ? "is-active" : "") + '">✍️ Final score</button>' +
       '<button data-mode="points" class="' + (ed.mode === "points" ? "is-active" : "") + '">🎯 Point by point</button>' +
       "</div>";
@@ -3759,24 +3845,53 @@ var qrcode = function() {
         '<div class="spacer"></div>'
       : "";
 
-    conEl.innerHTML =
-      '<button class="back-link" id="backToRoll">← Roll of Contests</button>' +
-      '<div class="card glass">' +
+    const header =
       '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">' +
       "<div><h2>" + c.icon + " " + esc(c.name) + "</h2>" +
       '<p class="sub">' + esc(c.desc) + "</p></div>" +
-      '<button class="btn danger small" id="deleteContest">Delete</button></div>' +
-      schedRow +
-      (isSpecial ? "" :
+      '<button class="btn danger small" id="deleteContest">Delete</button></div>';
+
+    if (isSpecial) {
+      conEl.innerHTML =
+        '<button class="back-link" id="backToRoll">← Roll of Contests</button>' +
+        '<div class="card glass">' + header + schedRow + specialPick + noteRow +
+        '<div class="spacer"></div>' +
+        '<button class="btn primary block" id="recordResult">Record result 🏅 (+1 point)</button>' +
+        "</div>";
+      return;
+    }
+
+    if (ed.step === "setup") {
+      // ---- step 1: who takes the court ----
+      conEl.innerHTML =
+        '<button class="back-link" id="backToRoll">← Roll of Contests</button>' +
+        '<div class="card glass">' + header + schedRow +
         '<p class="section-title">Who takes the court</p>' +
         '<div class="two-col">' + sideBlock(0) + sideBlock(1) + "</div>" +
-        '<hr class="divider" />' +
-        modeSeg +
-        (ed.mode === "final" ? finalPanel : pointsPanel) +
-        '<hr class="divider" />') +
-      specialPick +
-      noteRow +
-      '<div class="spacer"></div>' +
+        '<hr class="divider" />' + noteRow +
+        "</div>" +
+        '<div class="card glass"><p class="section-title">Record the score</p>' +
+        '<div class="two-col">' +
+        '<button class="btn primary block" data-mode="points">🎯 Point by point</button>' +
+        '<button class="btn block" data-mode="final">✍️ Final score only</button>' +
+        "</div>" +
+        '<p class="hint">Point by point takes you to the court — players in position, tap the winning side each rally. Final score just takes the end result.</p>' +
+        "</div>";
+      return;
+    }
+
+    // ---- step 2: the scoring page ----
+    conEl.innerHTML =
+      '<button class="back-link" id="backToSetup">← Players &amp; setup</button>' +
+      '<div class="card glass">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">' +
+      '<div style="min-width:0;"><h2 style="margin:0;">' + c.icon + " " + esc(c.name) + "</h2>" +
+      '<p class="sub" style="margin:2px 0 0;">' +
+      esc(edSideLabel(ed, 0)) + ' <span style="color:var(--text-faint)">vs</span> ' + esc(edSideLabel(ed, 1)) +
+      "</p></div>" + modeSeg + "</div>" +
+      '<hr class="divider" />' +
+      (ed.mode === "final" ? finalPanel : pointsPanel) +
+      '<hr class="divider" />' +
       '<button class="btn primary block" id="recordResult">Record result 🏅 (+1 point)</button>' +
       "</div>";
   }
@@ -3895,7 +4010,7 @@ var qrcode = function() {
     else if (ed.games.length < 3) ed.games.push({ a: String(st.a), b: String(st.b) });
     else { alert("All three game slots are full — clear one first."); return false; }
     // game winner serves first in the next game
-    ed.live = { target: lv.target, rule: lv.rule, firstServer: st.a > st.b ? 0 : 1, log: [] };
+    ed.live = { target: lv.target, rule: lv.rule, firstServer: st.a > st.b ? 0 : 1, startPos: lv.startPos, log: [] };
     return true;
   }
 
@@ -3989,8 +4104,26 @@ var qrcode = function() {
     // --- point-by-point scorer ---
     const modeBtn = e.target.closest("[data-mode]");
     if (modeBtn) {
-      editState(c).mode = modeBtn.dataset.mode;
+      const ed = editState(c);
+      ed.mode = modeBtn.dataset.mode;
+      ed.step = "score";
       if (modeBtn.dataset.mode === "points") acquireWake(); else releaseWake();
+      renderContestDetail(c);
+      return;
+    }
+    if (e.target.closest("#backToSetup")) {
+      editState(c).step = "setup";
+      releaseWake();
+      renderContestDetail(c);
+      return;
+    }
+    const swapBtn = e.target.closest("[data-swap]");
+    if (swapBtn) {
+      const ed = editState(c);
+      const side = parseInt(swapBtn.dataset.swap, 10);
+      const sp = ed.live.startPos || [[0, 1], [0, 1]];
+      sp[side] = [sp[side][1], sp[side][0]];
+      ed.live.startPos = sp;
       renderContestDetail(c);
       return;
     }
@@ -3998,21 +4131,21 @@ var qrcode = function() {
     const targetBtn = e.target.closest("[data-lt]");
     if (targetBtn) {
       const ed = editState(c);
-      ed.live = { target: parseInt(targetBtn.dataset.lt, 10), rule: ed.live.rule, firstServer: ed.live.firstServer, log: [] };
+      ed.live = { target: parseInt(targetBtn.dataset.lt, 10), rule: ed.live.rule, firstServer: ed.live.firstServer, startPos: ed.live.startPos, log: [] };
       renderContestDetail(c);
       return;
     }
     const ruleBtn = e.target.closest("[data-lr]");
     if (ruleBtn) {
       const ed = editState(c);
-      ed.live = { target: ed.live.target, rule: ruleBtn.dataset.lr, firstServer: ed.live.firstServer, log: [] };
+      ed.live = { target: ed.live.target, rule: ruleBtn.dataset.lr, firstServer: ed.live.firstServer, startPos: ed.live.startPos, log: [] };
       renderContestDetail(c);
       return;
     }
     const fsvBtn = e.target.closest("[data-fsv]");
     if (fsvBtn) {
       const ed = editState(c);
-      ed.live = { target: ed.live.target, rule: ed.live.rule, firstServer: parseInt(fsvBtn.dataset.fsv, 10), log: [] };
+      ed.live = { target: ed.live.target, rule: ed.live.rule, firstServer: parseInt(fsvBtn.dataset.fsv, 10), startPos: ed.live.startPos, log: [] };
       renderContestDetail(c);
       return;
     }
@@ -4022,7 +4155,7 @@ var qrcode = function() {
     if (e.target.closest("#openBoard")) { openBoard(c); return; }
     if (e.target.closest("#liveReset")) {
       const ed = editState(c);
-      ed.live = { target: ed.live.target, rule: ed.live.rule, firstServer: ed.live.firstServer, log: [] };
+      ed.live = { target: ed.live.target, rule: ed.live.rule, firstServer: ed.live.firstServer, startPos: ed.live.startPos, log: [] };
       renderContestDetail(c);
       return;
     }
