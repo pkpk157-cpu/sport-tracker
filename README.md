@@ -32,7 +32,11 @@ Exhibit B, the Grand Team Rally. Per contest:
   - ✍️ **Final score** — type end scores (1–3 games; ties rejected).
   - 🎯 **Point by point** — tap-to-score with rally-to 11/15/21, a
     **📺 courtside scoreboard mode** (fullscreen giant-numbers display,
-    tap either half to score — prop the phone up at the net),
+    tap either half to score — prop the phone up at the net), a
+    **serving rule** per game — *every rally* (decree default) or
+    *point on serve only* with true pickleball serve tracking (doubles
+    server #1/#2, the opening 0–0–2 rule, side-outs, live serving
+    indicator and the three-number score call), first-serve picker,
     game-point & **GOLDEN POINT** badges, a **rally timeline** with
     longest-run stat, undo/reset, optional **score announcements** and
     per-house **sound effects**, and **auto-saved finished games**.

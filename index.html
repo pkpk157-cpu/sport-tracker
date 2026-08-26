@@ -375,6 +375,8 @@ select option { color: #10142c; }
 .tap-btn .lwho { font-size: 12.5px; font-weight: 700; margin-top: 4px;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .tap-btn .ltap { font-size: 10.5px; color: var(--text-faint); margin-top: 2px; }
+.tap-btn .l-serve { font-size: 10.5px; color: var(--good); font-weight: 800; letter-spacing: .5px; margin-top: 2px; }
+.board-half .b-srv { font-size: 2.4vmin; color: #5ff0b0; font-weight: 800; letter-spacing: .3vmin; }
 .badge.gp { color: #0b1026; font-weight: 800; border: 0;
   background: linear-gradient(150deg, #ffd479, #ffb35c);
   box-shadow: 0 4px 14px rgba(255,190,90,.4);
@@ -2976,9 +2978,11 @@ var qrcode = function() {
   const THEME_KEY = "verandas_theme";
   const sysDark = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
 
-  function themePref() {
-    try { return localStorage.getItem(THEME_KEY) || "system"; } catch (e) { return "system"; }
-  }
+  // the in-memory value is the source of truth so theme switching works even
+  // where localStorage is unavailable (sandboxed previews, blocked site data)
+  let themePrefMem = null;
+  try { themePrefMem = localStorage.getItem(THEME_KEY); } catch (e) {}
+  function themePref() { return themePrefMem || "system"; }
   function applyTheme() {
     const pref = themePref();
     const dark = pref === "system" ? (sysDark ? sysDark.matches : true) : pref === "dark";
@@ -2987,6 +2991,7 @@ var qrcode = function() {
     if (meta) meta.setAttribute("content", dark ? "#0b1026" : "#e9edfb");
   }
   function setThemePref(pref) {
+    themePrefMem = pref;
     try { localStorage.setItem(THEME_KEY, pref); } catch (e) {}
     applyTheme();
   }
@@ -3513,7 +3518,7 @@ var qrcode = function() {
       playersA: [c.playersA[0] || "", c.playersA[1] || ""],
       playersB: [c.playersB[0] || "", c.playersB[1] || ""],
       games: c.games.length ? c.games.map((g) => ({ a: String(g.a), b: String(g.b) })) : [{ a: "", b: "" }],
-      live: { target: 15, a: 0, b: 0, log: [] },
+      live: { target: 15, rule: "rally", firstServer: 0, log: [] },
       specialWinner: c.winner,
     };
     return ui.edit;
@@ -3522,6 +3527,43 @@ var qrcode = function() {
   function edSideLabel(ed, side) {
     const names = (side === 0 ? ed.playersA : ed.playersB).filter(Boolean);
     return names.length ? names.join(" & ") : HOUSES[side].name;
+  }
+
+  // Replay the rally log under the chosen serving rule.
+  //  rally:   every rally scores; the winner serves next.
+  //  sideout: only the serving side scores. Doubles has server #1 and #2 —
+  //           the game opens on the starting team's #2 (the 0–0–2 rule),
+  //           losing a rally passes to #2 then sides out to the other team's #1.
+  function computeLive(c, ed) {
+    const lv = ed.live;
+    const doubles = c.kind === "doubles";
+    const sideout = lv.rule === "sideout";
+    let a = 0, b = 0;
+    let serving = lv.firstServer;
+    let serverNum = sideout && doubles ? 2 : 1;
+    for (const w of lv.log) {
+      if (a >= lv.target || b >= lv.target) break;
+      if (!sideout) {
+        if (w === 0) a++; else b++;
+        serving = w;
+      } else if (w === serving) {
+        if (w === 0) a++; else b++;
+      } else if (doubles && serverNum === 1) {
+        serverNum = 2;
+      } else {
+        serving = w;
+        serverNum = 1;
+      }
+    }
+    const over = a >= lv.target || b >= lv.target;
+    const golden = !over && a === lv.target - 1 && b === lv.target - 1;
+    const gpSide = a === lv.target - 1 ? 0 : b === lv.target - 1 ? 1 : null;
+    const gamePoint = !over && !golden && gpSide != null && (!sideout || serving === gpSide);
+    const sScore = serving === 0 ? a : b, rScore = serving === 0 ? b : a;
+    const call = !sideout ? a + "–" + b
+      : doubles ? sScore + "–" + rScore + "–" + serverNum
+      : sScore + "–" + rScore;
+    return { a, b, serving, serverNum, doubles, sideout, over, golden, gamePoint, gpSide, call };
   }
 
   function playerSelect(side, slot, val) {
@@ -3629,22 +3671,28 @@ var qrcode = function() {
 
     // point-by-point scorer (golden point ⇒ first to the target wins)
     const lv = ed.live;
-    const gameOver = lv.a >= lv.target || lv.b >= lv.target;
-    const golden = !gameOver && lv.a === lv.target - 1 && lv.b === lv.target - 1;
-    const gamePoint = !gameOver && !golden && (lv.a === lv.target - 1 || lv.b === lv.target - 1);
+    const st = computeLive(c, ed);
+    const gameOver = st.over;
     const gpBadge = gameOver
-      ? '<span class="badge gp">Game ' + lv.a + "–" + lv.b + " — save it!</span>"
-      : golden
+      ? '<span class="badge gp">Game ' + st.a + "–" + st.b + " — save it!</span>"
+      : st.golden
         ? '<span class="badge gp">GOLDEN POINT 😈</span>'
-        : gamePoint
-          ? '<span class="badge gp">Game point · ' + esc(edSideLabel(ed, lv.a > lv.b ? 0 : 1)) + "</span>"
-          : "";
+        : st.gamePoint
+          ? '<span class="badge gp">Game point · ' + esc(edSideLabel(ed, st.gpSide)) + "</span>"
+          : st.sideout && lv.log.length
+            ? '<span class="badge">Call: ' + st.call + "</span>"
+            : "";
 
-    const tapBtn = (side) =>
-      '<button class="tap-btn ' + HOUSES[side].key + '" data-tap="' + side + '"' + (gameOver ? " disabled" : "") + ">" +
-      '<div class="lscore">' + (side === 0 ? lv.a : lv.b) + "</div>" +
-      '<div class="lwho">' + esc(edSideLabel(ed, side)) + "</div>" +
-      '<div class="ltap">' + (gameOver ? "game over" : "tap to score") + "</div></button>";
+    const tapBtn = (side) => {
+      const serving = !gameOver && st.serving === side;
+      return '<button class="tap-btn ' + HOUSES[side].key + '" data-tap="' + side + '"' + (gameOver ? " disabled" : "") + ">" +
+        '<div class="lscore">' + (side === 0 ? st.a : st.b) + "</div>" +
+        '<div class="lwho">' + esc(edSideLabel(ed, side)) + "</div>" +
+        (serving
+          ? '<div class="l-serve">● SERVING' + (st.sideout && st.doubles ? " · #" + st.serverNum : "") + "</div>"
+          : '<div class="ltap">' + (gameOver ? "game over" : st.sideout ? "tap = won rally" : "tap to score") + "</div>") +
+        "</button>";
+    };
 
     const pointsPanel =
       '<div class="live-top"><p class="section-title" style="margin:0;">Rally to</p>' +
@@ -3652,10 +3700,19 @@ var qrcode = function() {
       [11, 15, 21].map((t) =>
         '<button data-lt="' + t + '" class="' + (lv.target === t ? "is-active" : "") + '">' + t + "</button>").join("") +
       "</div>" + gpBadge + "</div>" +
+      '<div class="two-col" style="margin-top:10px;">' +
+      '<div class="field" style="margin:0;"><label>Scoring rule</label><div class="seg">' +
+      '<button data-lr="rally" class="' + (lv.rule === "rally" ? "is-active" : "") + '">Every rally</button>' +
+      '<button data-lr="sideout" class="' + (lv.rule === "sideout" ? "is-active" : "") + '">On serve only</button>' +
+      "</div></div>" +
+      '<div class="field" style="margin:0;"><label>First serve</label><div class="seg">' +
+      '<button data-fsv="0" class="' + (lv.firstServer === 0 ? "is-active" : "") + '">' + esc(HOUSES[0].name.split(" ")[1]) + "</button>" +
+      '<button data-fsv="1" class="' + (lv.firstServer === 1 ? "is-active" : "") + '">' + esc(HOUSES[1].name.split(" ")[1]) + "</button>" +
+      "</div></div></div>" +
       '<div class="live-grid">' + tapBtn(0) + tapBtn(1) + "</div>" +
       '<div style="display:flex;gap:10px;flex-wrap:wrap;">' +
       (gameOver
-        ? '<button class="btn primary grow" id="saveGame">Save game ' + lv.a + "–" + lv.b + "</button>"
+        ? '<button class="btn primary grow" id="saveGame">Save game ' + st.a + "–" + st.b + "</button>"
         : "") +
       '<button class="btn ghost" id="liveUndo"' + (lv.log.length ? "" : " disabled") + ">↩︎ Undo</button>" +
       '<button class="btn ghost" id="liveReset"' + (lv.log.length ? "" : " disabled") + ">Reset</button>" +
@@ -3672,11 +3729,16 @@ var qrcode = function() {
               if (run > best) { best = run; bestSide = s; }
             });
             return best >= 3
-              ? '<div class="run-note">🔥 Longest run: ' + best + " straight — " + esc(edSideLabel(ed, bestSide)) + "</div>"
+              ? '<div class="run-note">🔥 Longest run: ' + best + " straight (rallies) — " + esc(edSideLabel(ed, bestSide)) + "</div>"
               : "";
           })()
         : "") +
-      '<p class="hint">Rally point scoring — every rally scores. Golden point: first to ' + lv.target + " wins, even from " +
+      '<p class="hint">' +
+      (lv.rule === "sideout"
+        ? "Point on serve only — tap whoever <b>won the rally</b>; the app handles points, side-outs" +
+          (c.kind === "doubles" ? ", server #1/#2 and the opening 0–0–2 rule" : "") + ". "
+        : "Rally point scoring — every rally scores. ") +
+      "Golden point: first to " + lv.target + " wins, even from " +
       (lv.target - 1) + "–" + (lv.target - 1) + "." +
       (prefs.autosave ? " Finished games save automatically." : "") + "</p>" +
       savedLine;
@@ -3722,26 +3784,29 @@ var qrcode = function() {
   /* ---- live scoring core (shared by the detail view and the courtside board) ---- */
   function liveTap(c, side) {
     const ed = editState(c);
-    const lv = ed.live;
-    if (lv.a >= lv.target || lv.b >= lv.target) return;
-    lv.log.push(side);
-    if (side === 0) lv.a++; else lv.b++;
+    const before = computeLive(c, ed);
+    if (before.over) return;
+    ed.live.log.push(side);
+    const st = computeLive(c, ed);
+    const scored = st.a + st.b > before.a + before.b;
     buzz(12);
-    pointSound(side);
-    const over = lv.a >= lv.target || lv.b >= lv.target;
-    if (over) {
+    if (scored) pointSound(side); else beep(330, 0.07);   // side-out / serve handover blip
+    const spokenCall = st.call.split("–").join(", ");
+    if (st.over) {
       fanfare();
-      announce("Game, " + edSideLabel(ed, lv.a > lv.b ? 0 : 1) + ", " + lv.a + ", " + lv.b);
+      announce("Game, " + edSideLabel(ed, st.a > st.b ? 0 : 1) + ", " + st.a + ", " + st.b);
       if (prefs.autosave) {
-        const line = lv.a + "–" + lv.b;
-        if (saveLiveGame(ed)) toast("Game saved " + line + " ✔");
+        const line = st.a + "–" + st.b;
+        if (saveLiveGame(c, ed)) toast("Game saved " + line + " ✔");
       }
-    } else if (lv.a === lv.target - 1 && lv.b === lv.target - 1) {
+    } else if (st.golden) {
       announce("Golden point!");
-    } else if (lv.a === lv.target - 1 || lv.b === lv.target - 1) {
-      announce("Game point, " + lv.a + ", " + lv.b);
+    } else if (st.gamePoint) {
+      announce("Game point, " + spokenCall);
+    } else if (!scored) {
+      announce(st.sideout && st.doubles && st.serverNum === 2 ? "Second server" : "Side out, " + spokenCall);
     } else {
-      announce(lv.a + ", " + lv.b);
+      announce(spokenCall);
     }
     renderContestDetail(c);
     if (ui.board) renderBoard(c);
@@ -3749,8 +3814,7 @@ var qrcode = function() {
 
   function liveUndo(c) {
     const ed = editState(c);
-    const last = ed.live.log.pop();
-    if (last === 0) ed.live.a--; else if (last === 1) ed.live.b--;
+    ed.live.log.pop();
     renderContestDetail(c);
     if (ui.board) renderBoard(c);
   }
@@ -3763,24 +3827,29 @@ var qrcode = function() {
   function renderBoard(c) {
     const ed = editState(c);
     const lv = ed.live;
-    const gameOver = lv.a >= lv.target || lv.b >= lv.target;
-    const golden = !gameOver && lv.a === lv.target - 1 && lv.b === lv.target - 1;
-    const gamePoint = !gameOver && !golden && (lv.a === lv.target - 1 || lv.b === lv.target - 1);
+    const st = computeLive(c, ed);
+    const gameOver = st.over;
     const savedGames = ed.games.filter((g) => g.a !== "" && g.b !== "");
 
-    const half = (side) =>
-      '<button class="board-half ' + HOUSES[side].key + '" data-btap="' + side + '">' +
-      '<div class="b-score">' + (side === 0 ? lv.a : lv.b) + "</div>" +
-      '<div class="b-name">' + esc(edSideLabel(ed, side)) + "</div>" +
-      '<div class="b-hint">tap to score</div></button>';
+    const half = (side) => {
+      const serving = !gameOver && st.serving === side;
+      return '<button class="board-half ' + HOUSES[side].key + '" data-btap="' + side + '">' +
+        '<div class="b-score">' + (side === 0 ? st.a : st.b) + "</div>" +
+        '<div class="b-name">' + esc(edSideLabel(ed, side)) + "</div>" +
+        (serving
+          ? '<div class="b-srv">● SERVING' + (st.sideout && st.doubles ? " · #" + st.serverNum : "") + "</div>"
+          : '<div class="b-hint">' + (st.sideout ? "tap = won rally" : "tap to score") + "</div>") +
+        "</button>";
+    };
 
     const mid = gameOver
-      ? '<span class="badge gp">Game ' + lv.a + "–" + lv.b + "</span>"
-      : golden
+      ? '<span class="badge gp">Game ' + st.a + "–" + st.b + "</span>"
+      : st.golden
         ? '<span class="badge gp">GOLDEN POINT 😈</span>'
-        : gamePoint
+        : st.gamePoint
           ? '<span class="badge gp">Game point</span>'
-          : '<span class="badge" style="background:rgba(255,255,255,.12);color:rgba(233,238,255,.75);">Rally to ' + lv.target +
+          : '<span class="badge" style="background:rgba(255,255,255,.12);color:rgba(233,238,255,.75);">' +
+            (st.sideout && lv.log.length ? "Call: " + st.call : "Rally to " + lv.target) +
             (savedGames.length ? " · games " + savedGames.map((g) => g.a + "–" + g.b).join(", ") : "") + "</span>";
 
     boardEl.innerHTML =
@@ -3818,13 +3887,15 @@ var qrcode = function() {
 
   /* ---- contest actions ---- */
   // store a finished point-by-point game into the game-score rows
-  function saveLiveGame(ed) {
+  function saveLiveGame(c, ed) {
     const lv = ed.live;
+    const st = computeLive(c, ed);
     const slot = ed.games.find((g) => g.a === "" && g.b === "");
-    if (slot) { slot.a = String(lv.a); slot.b = String(lv.b); }
-    else if (ed.games.length < 3) ed.games.push({ a: String(lv.a), b: String(lv.b) });
+    if (slot) { slot.a = String(st.a); slot.b = String(st.b); }
+    else if (ed.games.length < 3) ed.games.push({ a: String(st.a), b: String(st.b) });
     else { alert("All three game slots are full — clear one first."); return false; }
-    ed.live = { target: lv.target, a: 0, b: 0, log: [] };
+    // game winner serves first in the next game
+    ed.live = { target: lv.target, rule: lv.rule, firstServer: st.a > st.b ? 0 : 1, log: [] };
     return true;
   }
 
@@ -3838,8 +3909,8 @@ var qrcode = function() {
       c.playersA = []; c.playersB = [];
     } else {
       const lv = ed.live;
-      if (lv.a >= lv.target || lv.b >= lv.target) {
-        if (!saveLiveGame(ed)) return;          // finished live game joins the score rows
+      if (computeLive(c, ed).over) {
+        if (!saveLiveGame(c, ed)) return;       // finished live game joins the score rows
       } else if (lv.log.length &&
           !confirm("A point-by-point game is still in progress and will be discarded. Record anyway?")) {
         return;
@@ -3927,7 +3998,21 @@ var qrcode = function() {
     const targetBtn = e.target.closest("[data-lt]");
     if (targetBtn) {
       const ed = editState(c);
-      ed.live = { target: parseInt(targetBtn.dataset.lt, 10), a: 0, b: 0, log: [] };
+      ed.live = { target: parseInt(targetBtn.dataset.lt, 10), rule: ed.live.rule, firstServer: ed.live.firstServer, log: [] };
+      renderContestDetail(c);
+      return;
+    }
+    const ruleBtn = e.target.closest("[data-lr]");
+    if (ruleBtn) {
+      const ed = editState(c);
+      ed.live = { target: ed.live.target, rule: ruleBtn.dataset.lr, firstServer: ed.live.firstServer, log: [] };
+      renderContestDetail(c);
+      return;
+    }
+    const fsvBtn = e.target.closest("[data-fsv]");
+    if (fsvBtn) {
+      const ed = editState(c);
+      ed.live = { target: ed.live.target, rule: ed.live.rule, firstServer: parseInt(fsvBtn.dataset.fsv, 10), log: [] };
       renderContestDetail(c);
       return;
     }
@@ -3937,13 +4022,13 @@ var qrcode = function() {
     if (e.target.closest("#openBoard")) { openBoard(c); return; }
     if (e.target.closest("#liveReset")) {
       const ed = editState(c);
-      ed.live = { target: ed.live.target, a: 0, b: 0, log: [] };
+      ed.live = { target: ed.live.target, rule: ed.live.rule, firstServer: ed.live.firstServer, log: [] };
       renderContestDetail(c);
       return;
     }
     if (e.target.closest("#saveGame")) {
       const ed = editState(c);
-      if (saveLiveGame(ed)) { buzz(20); renderContestDetail(c); }
+      if (saveLiveGame(c, ed)) { buzz(20); renderContestDetail(c); }
       return;
     }
 
