@@ -468,6 +468,22 @@ select option { color: #10142c; }
 .livechip { color: var(--bad); letter-spacing: .5px; }
 .livechip.idle { color: var(--text-faint); }
 
+/* ---------- mini segments (compact rules) ---------- */
+.seg.mini button { padding: 7px 5px; font-size: 12px; }
+
+/* ---------- voting station ---------- */
+.votestation { position: fixed; inset: 0; z-index: 70; display: none;
+  align-items: center; justify-content: center; background: var(--page-bg); padding: 22px; }
+.votestation.open { display: flex; }
+.vs-card { width: 100%; max-width: 340px; text-align: center;
+  display: flex; flex-direction: column; gap: 12px; }
+.vs-kicker { font-size: 12px; font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--text-faint); margin: 0; }
+.vs-card h2 { font-size: 22px; margin: 0 0 4px; }
+.vs-card input { text-align: center; font-size: 17px; font-weight: 700; }
+.vs-count { font-size: 12px; color: var(--text-faint); }
+.vs-done { font-size: 46px; }
+
 /* ---------- finish popup ---------- */
 .finish-card { background: var(--glass-bg); color: var(--text);
   border: 1px solid var(--glass-border); border-radius: 16px;
@@ -3873,7 +3889,7 @@ var qrcode = function() {
         ? c.games.map((g) => Object.assign({}, g, { a: String(g.a), b: String(g.b), oa: g.a, ob: g.b }))
         : [{ a: "", b: "" }],
       step: "setup",   // "setup" (players & schedule) → "score" (court & points)
-      live: { target: 15, rule: "rally", firstServer: 0, startPos: [[0, 1], [0, 1]], log: [] },
+      live: { target: 15, rule: "rally", firstServer: 0, bo: 3, startPos: [[0, 1], [0, 1]], log: [] },
       specialWinner: c.winner,
     };
     return ui.edit;
@@ -4024,15 +4040,29 @@ var qrcode = function() {
       '<span class="dash"></span>' +
       '<span class="ghead">' + esc(HOUSES[1].name.split(" ")[1]) + "</span></div>" +
       gameRows +
-      (ed.games.length < 3 ? '<button class="btn ghost small" id="addGame">+ Add game</button>' : "");
+      (ed.games.length < (ed.live.bo || 3) ? '<button class="btn ghost small" id="addGame">+ Add game</button>' : "");
 
+    const dayOpts = ["", "Fri", "Sat", "Sun"];
+    const timeOpts = [""].concat((function () {
+      const out = [];
+      for (let h = 6; h <= 21; h++) for (const m of ["00", "30"]) {
+        const h12 = ((h + 11) % 12) + 1;
+        out.push(h12 + ":" + m + " " + (h < 12 ? "AM" : "PM"));
+      }
+      return out;
+    })());
+    const tTok = (c.time || "").split(" ");
+    const curDay = dayOpts.indexOf(tTok[0]) > 0 ? tTok[0] : "";
+    const curTime = curDay ? tTok.slice(1).join(" ") : (c.time || "");
+    const opt = (v, cur, label) => '<option value="' + esc(v) + '"' + (v === cur ? " selected" : "") + ">" + (v || label) + "</option>";
     const schedRow =
       '<div class="sched-row">' +
-      '<div class="field"><label>Court</label><select id="schedCourt">' +
-      ["", "Court 1", "Court 2"].map((v) =>
-        '<option value="' + v + '"' + ((c.court || "") === v ? " selected" : "") + ">" + (v || "— court —") + "</option>").join("") +
-      "</select></div>" +
-      '<div class="field"><label>Time</label><input type="text" id="schedTime" value="' + esc(c.time || "") + '" placeholder="e.g. Sat 9:30" maxlength="24" /></div>' +
+      '<div class="field"><select id="schedCourt">' +
+      ["", "Court 1", "Court 2"].map((v) => opt(v, c.court || "", "Court —")).join("") + "</select></div>" +
+      '<div class="field"><select id="schedDay">' +
+      dayOpts.map((v) => opt(v, curDay, "Day —")).join("") + "</select></div>" +
+      '<div class="field"><select id="schedTime">' +
+      timeOpts.map((v) => opt(v, curTime, "Time —")).join("") + "</select></div>" +
       "</div>";
 
     const showExtras = ed.showExtras || c.note || c.photo;
@@ -4185,18 +4215,21 @@ var qrcode = function() {
 
     const lvS = ed.live;
     const rulesSection =
-      '<hr class="divider" />' +
-      '<p class="section-title">Game rules</p>' +
-      '<div class="field"><label>Rally to</label><div class="seg">' +
+      '<p class="section-title">Rules</p>' +
+      '<div class="two-col" style="gap:8px;">' +
+      '<div class="field" style="margin:0 0 8px;"><label>Rally to</label><div class="seg mini">' +
       [11, 15, 21].map((t) =>
         '<button data-lt="' + t + '" class="' + (lvS.target === t ? "is-active" : "") + '">' + t + "</button>").join("") +
       "</div></div>" +
-      '<div class="two-col">' +
-      '<div class="field" style="margin:0;"><label>Scoring</label><div class="seg">' +
+      '<div class="field" style="margin:0 0 8px;"><label>Games</label><div class="seg mini">' +
+      [[1, "1"], [3, "Bo3"], [5, "Bo5"]].map((o) =>
+        '<button data-bo="' + o[0] + '" class="' + ((lvS.bo || 3) === o[0] ? "is-active" : "") + '">' + o[1] + "</button>").join("") +
+      "</div></div>" +
+      '<div class="field" style="margin:0;"><label>Scoring</label><div class="seg mini">' +
       '<button data-lr="rally" class="' + (lvS.rule === "rally" ? "is-active" : "") + '">Every rally</button>' +
       '<button data-lr="sideout" class="' + (lvS.rule === "sideout" ? "is-active" : "") + '">On serve only</button>' +
       "</div></div>" +
-      '<div class="field" style="margin:0;"><label>First serve</label><div class="seg">' +
+      '<div class="field" style="margin:0;"><label>First serve</label><div class="seg mini">' +
       '<button data-fsv="0" class="' + (lvS.firstServer === 0 ? "is-active" : "") + '">' + esc(HOUSES[0].name.split(" ")[1]) + "</button>" +
       '<button data-fsv="1" class="' + (lvS.firstServer === 1 ? "is-active" : "") + '">' + esc(HOUSES[1].name.split(" ")[1]) + "</button>" +
       "</div></div></div>";
@@ -4220,40 +4253,48 @@ var qrcode = function() {
     })();
 
     if (ed.step === "setup") {
-      // ---- step 1: players, schedule and every game rule ----
+      // ---- step 1: one calm card — players, schedule, rules, extras ----
+      const predOpen = ed.showPred || Object.keys(c.picks || {}).length;
+      const predPanel = !predOpen ? "" :
+        '<div style="margin-top:10px;">' +
+        '<p class="section-title">🔮 Pundit picks <span style="text-transform:none;letter-spacing:0;">(tap to cycle)</span></p>' +
+        '<div class="pills">' +
+        store.pundits.map((p) => {
+          const pick = (c.picks || {})[p];
+          const lbl = pick === 0 ? HOUSES[0].name.split(" ")[1] : pick === 1 ? HOUSES[1].name.split(" ")[1] : "—";
+          const cls = pick === 0 ? "sm" : pick === 1 ? "dk" : "";
+          return '<span class="pill ' + cls + '" style="cursor:pointer;" data-pred-cycle="' + esc(p) + '">' +
+            esc(p) + " · " + lbl + "</span>";
+        }).join(" ") + "</div>" +
+        '<div class="inline-form" style="margin-top:10px;"><div class="field grow">' +
+        '<input type="text" id="punditName" placeholder="Add a pundit" maxlength="20" /></div>' +
+        '<button class="btn small" id="addPundit">Add</button></div></div>';
+
+      const extrasIsPanel = ed.showExtras || c.note || c.photo;
+      const chipRow =
+        '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
+        (predOpen ? "" : '<button class="btn ghost small" id="predToggle">🔮 Picks</button>') +
+        '<button class="btn ghost small" id="openVote">🗳️ Voting station</button>' +
+        (extrasIsPanel ? "" : noteRow) +
+        "</div>" +
+        predPanel +
+        (extrasIsPanel ? '<div style="margin-top:10px;">' + noteRow + "</div>" : "");
+
       conEl.innerHTML =
         '<button class="back-link" id="backToRoll">← Roll of Contests</button>' +
-        '<div class="card glass">' + header + schedRow +
-        '<p class="section-title">Who takes the court</p>' +
+        '<div class="card glass">' + header +
         '<div class="two-col">' + sideBlock(0) + sideBlock(1) + "</div>" +
         grudge +
+        '<hr class="divider" />' +
+        schedRow +
         rulesSection +
         '<hr class="divider" />' +
-        (function () {
-          const picks = c.picks || {};
-          const open = ed.showPred || Object.keys(picks).length;
-          if (!open) return '<button class="btn ghost small" id="predToggle" style="margin-right:8px;">🔮 Predictions</button>';
-          const chips = store.pundits.map((p) => {
-            const pick = picks[p];
-            const lbl = pick === 0 ? HOUSES[0].name.split(" ")[1] : pick === 1 ? HOUSES[1].name.split(" ")[1] : "—";
-            const cls = pick === 0 ? "sm" : pick === 1 ? "dk" : "";
-            return '<span class="pill ' + cls + '" style="cursor:pointer;" data-pred-cycle="' + esc(p) + '">' +
-              esc(p) + " · " + lbl + "</span>";
-          }).join(" ");
-          return '<p class="section-title">🔮 Pundit picks <span style="text-transform:none;letter-spacing:0;">(tap to cycle)</span></p>' +
-            '<div class="pills">' + chips + "</div>" +
-            '<div class="inline-form" style="margin-top:10px;"><div class="field grow">' +
-            '<input type="text" id="punditName" placeholder="Add a pundit (friend or fan)" maxlength="20" /></div>' +
-            '<button class="btn small" id="addPundit">Add</button></div>';
-        })() +
-        '<hr class="divider" />' + noteRow +
-        "</div>" +
-        '<div class="card glass"><p class="section-title">Record the score</p>' +
+        chipRow +
+        '<hr class="divider" />' +
         '<div class="two-col">' +
         '<button class="btn primary block" data-mode="points">🎯 Point by point</button>' +
-        '<button class="btn block" data-mode="final">✍️ Final score only</button>' +
+        '<button class="btn block" data-mode="final">✍️ Final score</button>' +
         "</div>" +
-        '<p class="hint">Point by point takes you to the court — players in position, tap the winning side each rally. Final score just takes the end result.</p>' +
         "</div>";
       return;
     }
@@ -4345,13 +4386,30 @@ var qrcode = function() {
         // backdrop taps are ignored — this decision has to be made
       });
     }
+    const winSide = st.a > st.b ? 0 : 1;
+    const won = [0, 0];
+    ed.games.forEach((g) => {
+      const ga = parseInt(g.a, 10), gb = parseInt(g.b, 10);
+      if (isNaN(ga) || isNaN(gb)) return;
+      if (ga > gb) won[0]++; else if (gb > ga) won[1]++;
+    });
+    won[winSide]++;
+    const bo = ed.live.bo || 3;
+    const needed = Math.ceil(bo / 2);
+    const matchOver = won[0] >= needed || won[1] >= needed;
     modal.innerHTML =
       '<div class="finish-card">' +
-      '<div class="fc-label">Game ' + (saved + 1) + " · " + fmtClock(ed.startedAt ? Date.now() - ed.startedAt : 0) + "</div>" +
+      '<div class="fc-label">' + (matchOver && bo > 1 ? "Match" : "Game " + (saved + 1)) +
+      " · " + fmtClock(ed.startedAt ? Date.now() - ed.startedAt : 0) + "</div>" +
       '<div class="fc-score">' + st.a + "–" + st.b + "</div>" +
-      '<div class="fc-who">' + esc(edSideLabel(ed, st.a > st.b ? 0 : 1)) + " take the game</div>" +
-      '<button class="btn primary block" id="recordResult">Record result 🏅 (+1 point)</button>' +
-      (saved < 2 ? '<button class="btn block" id="popNext">▶ Play another game</button>' : "") +
+      '<div class="fc-who">' + esc(edSideLabel(ed, winSide)) +
+      (matchOver
+        ? " take the match" + (bo > 1 ? " " + won[winSide] + "–" + won[winSide ^ 1] : "")
+        : " take the game — games " + won[0] + "–" + won[1]) + "</div>" +
+      (matchOver
+        ? '<button class="btn primary block" id="recordResult">Record result 🏅 (+1 point)</button>'
+        : '<button class="btn primary block" id="popNext">Next game ▶</button>' +
+          '<button class="btn ghost block" id="recordResult">End early &amp; record 🏅</button>') +
       '<button class="btn ghost block" id="popUndo">↩︎ Undo last point</button>' +
       "</div>";
     modal.classList.add("open");
@@ -4363,6 +4421,101 @@ var qrcode = function() {
     renderContestDetail(c);
     if (ui.board) renderBoard(c);
   }
+
+  /* ---- voting station: pass-the-phone colony predictions ---- */
+  const voteEl = document.createElement("div");
+  voteEl.className = "votestation";
+  document.body.appendChild(voteEl);
+
+  function renderVote(c) {
+    const v = ui.vote;
+    if (!v) return;
+    const votes = Object.keys(c.picks || {}).length;
+    if (v.stage === "name") {
+      voteEl.innerHTML =
+        '<div class="vs-card">' +
+        '<p class="vs-kicker">🗳️ ' + esc(c.name) + "</p>" +
+        "<h2>Who’s voting?</h2>" +
+        '<input type="text" id="voteName" placeholder="Your name" maxlength="20" autocomplete="off" />' +
+        '<button class="btn primary block" id="voteNext">Next →</button>' +
+        '<div class="vs-count">' + votes + (votes === 1 ? " vote" : " votes") + " in so far</div>" +
+        '<button class="btn ghost small" id="voteExit">Close station</button>' +
+        "</div>";
+      const inp = document.getElementById("voteName");
+      if (inp) inp.focus();
+    } else if (v.stage === "pick") {
+      voteEl.innerHTML =
+        '<div class="vs-card">' +
+        '<p class="vs-kicker">' + esc(v.name) + ", who takes</p>" +
+        "<h2>" + c.icon + " " + esc(c.name) + "?</h2>" +
+        '<button class="tap-big sm" data-vote="0" style="min-height:88px;">' +
+        '<span class="tb-name">' + esc(HOUSES[0].name) + '</span><span class="tb-sub">' + esc(HOUSES[0].title) + "</span></button>" +
+        '<button class="tap-big dk" data-vote="1" style="min-height:88px;">' +
+        '<span class="tb-name">' + esc(HOUSES[1].name) + '</span><span class="tb-sub">' + esc(HOUSES[1].title) + "</span></button>" +
+        '<button class="btn ghost small" id="voteBack">← Not me</button>' +
+        "</div>";
+    } else {
+      voteEl.innerHTML =
+        '<div class="vs-card"><div class="vs-done">🗳️✅</div>' +
+        "<h2>Vote locked in!</h2>" +
+        '<p class="vs-kicker">Pass the phone to the next voter…</p></div>';
+      setTimeout(() => {
+        if (ui.vote && ui.vote.stage === "done") {
+          ui.vote = { stage: "name", name: "" };
+          renderVote(c);
+        }
+      }, 1400);
+    }
+  }
+
+  function openVote(c) {
+    ui.vote = { stage: "name", name: "" };
+    renderVote(c);
+    voteEl.classList.add("open");
+  }
+  function closeVote() {
+    ui.vote = null;
+    voteEl.classList.remove("open");
+    const c = ui.contestId && findContest(ui.contestId);
+    if (c && !c.done) renderContestDetail(c);
+  }
+
+  voteEl.addEventListener("click", (e) => {
+    const c = ui.contestId && findContest(ui.contestId);
+    if (!c || !ui.vote) return closeVote();
+    if (e.target.closest("#voteExit")) return closeVote();
+    if (e.target.closest("#voteBack")) {
+      ui.vote = { stage: "name", name: "" };
+      renderVote(c);
+      return;
+    }
+    if (e.target.closest("#voteNext")) {
+      const name = (document.getElementById("voteName").value || "").trim();
+      if (!name) return;
+      ui.vote = { stage: "pick", name };
+      renderVote(c);
+      return;
+    }
+    const vb = e.target.closest("[data-vote]");
+    if (vb) {
+      const side = parseInt(vb.dataset.vote, 10);
+      c.picks = c.picks || {};
+      c.picks[ui.vote.name] = side;
+      if (!store.pundits.some((p) => p.toLowerCase() === ui.vote.name.toLowerCase())) {
+        store.pundits.push(ui.vote.name);
+      }
+      save();
+      buzz(15);
+      ui.vote = { stage: "done", name: "" };
+      renderVote(c);
+    }
+  });
+  voteEl.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && e.target.id === "voteName") {
+      e.preventDefault();
+      document.getElementById("voteNext").click();
+    }
+  });
 
   /* ---- courtside scoreboard (fullscreen big-numbers display) ---- */
   const boardEl = document.createElement("div");
@@ -4440,12 +4593,12 @@ var qrcode = function() {
       oa: st.a, ob: st.b,   // snapshot of the true score — extras dropped if edited
     };
     let slot = ed.games.find((g) => g.a === "" && g.b === "");
-    if (!slot && ed.games.length < 3) { slot = { a: "", b: "" }; ed.games.push(slot); }
+    if (!slot && ed.games.length < (ed.live.bo || 3)) { slot = { a: "", b: "" }; ed.games.push(slot); }
     if (!slot) { alert("All three game slots are full — clear one first."); return false; }
     slot.a = String(st.a); slot.b = String(st.b);
     Object.assign(slot, extras);
     // game winner serves first in the next game
-    ed.live = { target: lv.target, rule: lv.rule, firstServer: st.a > st.b ? 0 : 1, startPos: lv.startPos, log: [] };
+    ed.live = Object.assign({}, ed.live, { firstServer: st.a > st.b ? 0 : 1, log: [] });
     return true;
   }
 
@@ -4576,7 +4729,7 @@ var qrcode = function() {
     }
     if (e.target.closest("#addGame")) {
       const ed = editState(c);
-      if (ed.games.length < 3) ed.games.push({ a: "", b: "" });
+      if (ed.games.length < (ed.live.bo || 3)) ed.games.push({ a: "", b: "" });
       renderContestDetail(c);
       return;
     }
@@ -4611,21 +4764,27 @@ var qrcode = function() {
     const targetBtn = e.target.closest("[data-lt]");
     if (targetBtn) {
       const ed = editState(c);
-      ed.live = { target: parseInt(targetBtn.dataset.lt, 10), rule: ed.live.rule, firstServer: ed.live.firstServer, startPos: ed.live.startPos, log: [] };
+      ed.live = Object.assign({}, ed.live, { target: parseInt(targetBtn.dataset.lt, 10), log: [] });
       renderContestDetail(c);
       return;
     }
     const ruleBtn = e.target.closest("[data-lr]");
     if (ruleBtn) {
       const ed = editState(c);
-      ed.live = { target: ed.live.target, rule: ruleBtn.dataset.lr, firstServer: ed.live.firstServer, startPos: ed.live.startPos, log: [] };
+      ed.live = Object.assign({}, ed.live, { rule: ruleBtn.dataset.lr, log: [] });
+      renderContestDetail(c);
+      return;
+    }
+    const boBtn = e.target.closest("[data-bo]");
+    if (boBtn) {
+      editState(c).live.bo = parseInt(boBtn.dataset.bo, 10);
       renderContestDetail(c);
       return;
     }
     const fsvBtn = e.target.closest("[data-fsv]");
     if (fsvBtn) {
       const ed = editState(c);
-      ed.live = { target: ed.live.target, rule: ed.live.rule, firstServer: parseInt(fsvBtn.dataset.fsv, 10), startPos: ed.live.startPos, log: [] };
+      ed.live = Object.assign({}, ed.live, { firstServer: parseInt(fsvBtn.dataset.fsv, 10), log: [] });
       renderContestDetail(c);
       return;
     }
@@ -4635,7 +4794,7 @@ var qrcode = function() {
     if (e.target.closest("#openBoard")) { openBoard(c); return; }
     if (e.target.closest("#liveReset")) {
       const ed = editState(c);
-      ed.live = { target: ed.live.target, rule: ed.live.rule, firstServer: ed.live.firstServer, startPos: ed.live.startPos, log: [] };
+      ed.live = Object.assign({}, ed.live, { log: [] });
       renderContestDetail(c);
       return;
     }
@@ -4652,6 +4811,7 @@ var qrcode = function() {
       renderContestDetail(c);
       return;
     }
+    if (e.target.closest("#openVote")) { openVote(c); return; }
     if (e.target.closest("#predToggle")) {
       editState(c).showPred = true;
       renderContestDetail(c);
@@ -4736,8 +4896,6 @@ var qrcode = function() {
     if (e.target.dataset.game) {
       const [i, side] = e.target.dataset.game.split("-");
       ed.games[+i][side] = e.target.value;
-    } else if (e.target.id === "schedTime") {
-      c.time = e.target.value.trim(); save();
     } else if (e.target.id === "contestNote") {
       c.note = e.target.value.trim(); save();
     }
@@ -4746,6 +4904,13 @@ var qrcode = function() {
     const c = ui.contestId && findContest(ui.contestId);
     if (!c) return;
     if (e.target.id === "schedCourt") { c.court = e.target.value; save(); return; }
+    if (e.target.id === "schedDay" || e.target.id === "schedTime") {
+      const d = document.getElementById("schedDay").value;
+      const t = document.getElementById("schedTime").value;
+      c.time = (d && t) ? d + " " + t : (d || t);
+      save();
+      return;
+    }
     const ed = editState(c);
     if (e.target.dataset.player) {
       const [side, slot] = e.target.dataset.player.split("-").map(Number);

@@ -29,11 +29,13 @@ Exhibit B, the Grand Team Rally. The **order of play is editable**
 (↕ Order on the roll — move contests up/down). Recording a contest is a
 **two-step flow**:
 
-**Step 1 — Players & rules**: court & time scheduling, fielded players
-picked from the rosters (with **rule-of-2 warnings** — dropdowns flag
-"⚠ 2 played" and picking them anyway raises a NO CHITCHING toast), and
-**every game rule** — rally-to 11/15/21, scoring (every rally vs on
-serve only) and first serve — plus optional note and photo. Then choose
+**Step 1 — Players & rules**, one calm card: fielded players picked
+from the rosters (with **rule-of-2 warnings** — dropdowns flag "⚠ 2
+played" and picking them anyway raises a NO CHITCHING toast),
+**schedule dropdowns** (court, day, half-hour time slots), and **every
+game rule** — rally-to 11/15/21, **games 1 / best-of-3 / best-of-5**,
+scoring (every rally vs on serve only) and first serve. Predictions,
+the voting station and note/photo tuck behind small chips. Then choose
 how to record the score.
 
 **Step 2 — The game page** has no chrome at all — a **Wimbledon-style
@@ -59,9 +61,10 @@ record which side won each rally.
     game-point & **GOLDEN POINT** badges, a **live match clock** in the
     scorebox, undo/reset, and optional **score announcements** and
     per-house **sound effects**. When a game reaches its target a
-    **finish sheet** pops up — Record result / Play another game / Undo
-    last point — so the record action only appears when the game is
-    actually over. Match durations are saved and shown on results and
+    **finish sheet** pops up and it knows the best-of format: mid-match
+    it leads with **Next game ▶** (games tally shown), and when a side
+    clinches the match it leads with **Record result** — plus End early
+    and Undo last point. Match durations are saved and shown on results and
     in Cup stats ("Longest battle").
     The screen **stays awake** while scoring (toggleable).
 - A **note** and a **photo** can be attached to any contest.
@@ -78,8 +81,10 @@ record which side won each rally.
   ("Chandni has won 1 of 1 golden points this cup") drawn from history.
 - **Grudge line** on setup when the selected line-ups have met before.
 - **Serve efficiency** (points per service turn per house) joins Cup stats.
-- **🔮 Pundit picks**: friends predict each contest on the setup page;
-  a **Pundit leaderboard** on Overview tracks who calls it best.
+- **🔮 Pundit picks**: friends predict each contest on the setup page,
+  and the **🗳️ Voting station** turns the phone into a pass-around
+  kiosk so the whole colony can vote — type your name, tap a house,
+  pass it on; every voter joins the **Pundit leaderboard** on Overview.
 - **📜 How the cup was won**: when the champion is crowned, Overview
   shows the full timeline with running score, durations and notes.
 
